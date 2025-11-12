@@ -1,0 +1,311 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Registration Sub Types{% endblock title %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Registration Types </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Registrations Types</li>
+			</ul>
+		</div>
+	</div>
+	<!-- Page Header -->
+	<div class="page-header pt-3 mb-0 ">
+		<div class="row">
+			<div class="col">
+				<div class="dropdown">
+					<a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Recently Viewed</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="#">Recently Viewed</a>
+						<a class="dropdown-item" href="#">Items I'm following</a>
+						<a class="dropdown-item" href="#">All Registrations</a>
+						<a class="dropdown-item" href="#">Registrations added in the last 24 hours</a>
+						<a class="dropdown-item" href="#">Registrations added in the last 7 days</a>						
+					</div>
+				</div>
+			</div>
+			<div class="col text-end">
+				<ul class="list-inline-item ps-0">
+					<li class="nav-item dropdown list-inline-item add-lists">
+						<a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+							<div class="nav-profile-text">
+								<i class="fa fa-th" aria-hidden="true"></i>
+							</div>
+						</a>
+						<div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+							<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-new-list">Add New Registration</a>
+						</div>
+					</li>
+					<li class="list-inline-item">
+						<a href="#" class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-registration">New Registration Sub Type</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Header -->	
+	<div class="row">
+		{% include "message.html" %}
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">									
+					<h5 class="card-title">Registration Types</h5>
+				</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Sub Types</th>
+									<th>Types</th>									
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for sub_type in sub_types %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>									
+									<td>{{sub_type.name}}</td>
+									<td>{{sub_type.type.name}}</td>									
+									<td class="text-end">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#edit_registration_sub_type_modal" data-name="{{sub_type.name}}" data-type="{{sub_type.type.slug}}" data-description="{% if sub_type.description %}{{sub_type.description}}{% endif %}" data-slug="{{sub_type.slug}}">Edit This Registration Types</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{sub_type.name}}" data-slug="{{sub_type.slug}}" >Remove This Registration Sub Types</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="post">
+							{% csrf_token %}
+							<h4><span class="text-danger">Removing</span> Registration Sub Types. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Registration Sub Types:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Edit Registration Sub Types Modal (Start) -->
+<div class="modal fade" id="edit_registration_sub_type_modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title text-center">Edit Registration Sub Types</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" id="edit-service-sub-type-form" novalidate>
+							{% csrf_token %}
+							<h4>Registration Sub Types</h4>
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="edit-name-input" placeholder="Name of Registration Sub Types" name="name">
+									<div class="invalid-feedback">
+										Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="col-md-12 mb-3">
+									<label for="product-type-dropdown">Registration Types <span class="text-danger">*</span></label>
+									<select class="form-control" id="edit-type-dropdown" name="type" required>
+										<option value="" hidden disabled selected>Select Types</option>
+										{% for type in types %}
+										<option value="{{type.slug}}">{{type.name}}</option>
+										{% endfor %}
+									</select>
+									<div class="invalid-feedback">
+										Please provide a valid type.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>                            										                                                       
+							</div>
+							<div class="form-row">
+								<div class="col-md-12 mb-3">
+									<label for="product-type-dropdown">Description </label>
+									<textarea class="form-control" name="description" id="edit-description-input" placeholder="Description"></textarea>									
+								</div>                            										                                                       
+							</div>
+							<div class="text-center py-3">
+								<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="update-button">Save</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+<!-- Edit Registration Sub Types Modal (End) -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');	
+			const registrationSubTypeSlug = $(this).data('slug');
+			const actionUrl = `{% url 'customer:delete_registration_sub_type' 'dummyRegistrationSubType' %}`.replace('dummyRegistrationSubType', registrationSubTypeSlug);			
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+		$('.edit-toggle-btn').click(function () {
+			const name = $(this).data('name');		
+			const typeSlug = $(this).data('type');
+			const description = $(this).data('description');
+			const registrationSubTypeSlug = $(this).data('slug');	
+
+			const actionUrl = `{% url 'customer:update_registration_sub_type' 'dummyRegistrationSubType' %}`.replace('dummyRegistrationSubType', registrationSubTypeSlug);
+
+			$('#edit-name-input').val(name);
+			$('#edit-type-dropdown').val(typeSlug);
+
+			$('#edit-description-input').val(description);
+			$('#edit-service-sub-type-form').prop('action', actionUrl);
+		});
+
+		let namePattern = /^[a-zA-Z\s'()-]+$/;
+
+		// Scripts of Registration Sub Types (Start)
+		function validateAddServiceSubCategoryForm() {  
+			let formValid = true       
+
+			const serviceCategory = $('#name-input').val().trim();            
+
+			if (!serviceCategory || !namePattern.test(serviceCategory)) {
+				$('#name-input').addClass('is-invalid');
+				$('#name-input').focus();
+				formValid = false;
+
+			} else {
+				$('#name-input').addClass('is-valid');
+				$('#name-input').blur();
+						
+			}            
+
+			if (formValid == true) {
+				$('#add-service-sub-type-form').submit()
+			}            
+		}    
+
+		$('#submit-button').click(() => validateAddServiceSubCategoryForm());
+
+		function validateEditServiceSubCategoryForm() {  
+			let formValid = true       
+
+			const serviceCategory = $('#edit-name-input').val().trim();            
+
+			if (!serviceCategory || !namePattern.test(serviceCategory)) {
+				$('#edit-name-input').addClass('is-invalid');
+				$('#edit-name-input').focus();
+				formValid = false;
+
+			} else {
+				$('#edit-name-input').addClass('is-valid');
+				$('#edit-name-input').blur();
+						
+			}            
+
+			if (formValid == true) {
+				$('#edit-service-sub-type-form').submit()
+			}            
+		}    
+
+		$('#update-button').click(() => validateEditServiceSubCategoryForm());
+		
+		// Inputting
+
+		$('#name-input').on('input', function () {
+			if (!$(this).val()) {
+				$(this).removeClass('is-valid').addClass('is-invalid');
+			} else {
+				if ($(this).prop('id') === "name-input" && !namePattern.test($(this).val())) {
+					$(this).removeClass('is-valid').addClass('is-invalid');
+				} else {
+					$(this).removeClass('is-invalid').addClass('is-valid');
+				}
+			}
+		});
+		// Scripts of Registration Sub Types (End)
+	});
+</script>
+{% endblock scripts %}

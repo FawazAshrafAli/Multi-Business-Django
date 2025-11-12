@@ -1,0 +1,10 @@
+{% if home_page %}
+{% include "home/footer_section.html" %}
+
+{% elif education_home_page %}
+{% include "education/home/footer.html" %}
+
+{% elif education_detail_page %}
+{% include "education/detail/footer.html" %}
+
+{% endif %}

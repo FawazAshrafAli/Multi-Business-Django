@@ -1,0 +1,232 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Add Registrations{% endblock title %}
+
+{% block content %}  
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Services </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Services</li>
+			</ul>
+		</div>
+	</div>
+
+    <br>
+    <div class="row">
+        {% include "message.html" %}
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'customer:add_registrations' %}" class="needs-validation" enctype="multipart/form-data" id="add-registration-form" novalidate>
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" > Add Registration</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="type-dropdown">Type <span class="text-danger">*</span></label>
+                                <select class="form-control" id="type-dropdown" name="type" required>
+                                    <option value="" hidden disabled selected>Select Type</option>
+                                    {% for type in types %}
+                                    <option value="{{type.slug}}">{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sub-type-dropdown">Sub Type <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sub-type-dropdown" name="sub_type" required>
+                                    <option value="" hidden disabled selected>Select Sub Type</option>                                    
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the sub category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="price-input">Price <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="price-input" name="price" placeholder="Price" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid price.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="name-input" > Time Required </label>
+                                <input type="text" class="form-control" id="time-required-input" placeholder="Time Required" name="time_required" required>                                
+                            </div>                                                                                             
+                                                      
+                        </div>                        
+
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <label class="col-form-label">Required Documents </label>
+                                <textarea class="form-control" rows="3" id="required-documents-input" name="required_documents" placeholder="Required Documents"></textarea>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="col-form-label">Additional Informations </label>
+                                <textarea class="form-control" rows="3" id="additional-info-input" name="additional_info" placeholder="Additional Informations"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                        </div>
+                    </div>
+                </div>                
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+        </div>
+	</div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        
+        let pricePattern = /^(?!0(\.0{1,2})?$)(\$?)([1-9][0-9]*(\.[0-9]{1,2})?)$/;        
+
+        function validateForm() {  
+            const formValid = true       
+
+            let name = $('#name-input').val();
+            if (name) {
+                name = name.trim();
+            }
+
+            const typeDropdown = $('#type-dropdown').val();
+            const subTypeDropdown = $('#sub-type-dropdown').val();
+
+            const brandDropdown = $('#brand-dropdown').val();            
+
+            let price = $('#price-input').val();
+            if (price) {
+                price = price.trim();
+            }            
+
+            if (!typeDropdown) {
+                $('#type-dropdown').addClass('is-invalid');
+                $('#type-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#type-dropdown').addClass('is-valid');
+                $('#type-dropdown').blur();                
+            }
+
+            if (!subTypeDropdown) {
+                $('#sub-type-dropdown').addClass('is-invalid');
+                $('#sub-type-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#sub-type-dropdown').addClass('is-valid');
+                $('#sub-type-dropdown').blur();                
+            }            
+
+            if (price && !pricePattern.test(price)) {
+                $('#price-input').removeClass('is-valid').addClass('is-invalid');
+                $('#price-input').focus();
+                formValid = false;
+
+            } else {
+                $('#price-input').removeClass('is-invalid').addClass('is-valid');
+                $('#price-input').blur();
+                
+            }            
+
+            if (formValid == true) {
+                $('#add-registration-form').submit()
+            }
+
+        }
+
+
+        $('#submit-button').click(() => validateForm());
+
+        // Inputting
+
+        $('#price-input').on('input', function () {
+            let thisValue = $(this).val();
+            if (thisValue) {
+                thisValue = thisValue.trim();
+            }
+
+            if (!thisValue || !pricePattern.test(thisValue)) {
+                $('#price-input').removeClass('is-valid').addClass('is-invalid');                                
+            } else {
+                $('#price-input').removeClass('is-invalid').addClass('is-valid');
+            }            
+        });
+
+        // changing
+
+        $('#type-dropdown, #sub-type-dropdown').on('change', function () {
+            if (($(this).prop('id') == 'type-dropdown' || $(this).prop('id') == 'sub-type-dropdown') && !$(this).val()) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }            
+        })        
+        
+        // Get Size and Sub Categories
+        function getSubTypes(type) {
+            const currentCompany = `{{company.slug}}`
+            $.ajax({
+                type: 'GET',
+                url: `/registration/get_registration_sub_types/`,
+                dataType: 'json',
+                data: {"type_slug": type, "company_slug": currentCompany},
+                success: response => {
+                    let subTypes = response.sub_types
+
+                    $('#sub-type-dropdown').html(`<option value="" hidden disabled selected>Select Sub Type</option>`);
+                    if (subTypes && subTypes.length) {
+                        subTypes.forEach(subType => {                            
+                            $('#sub-type-dropdown').append(`<option value="${subType.slug}">${subType.name}</option>`)
+                        })
+                    } else {
+                        $('#sub-type-dropdown').html(`<option value="" disabled selected>Select Sub Type</option>`);
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            })
+        }
+
+        $('#type-dropdown').on('change', function () {
+            const type = $(this).val();
+
+            getSubTypes(type);
+        });
+    })
+</script>
+{% endblock scripts %}

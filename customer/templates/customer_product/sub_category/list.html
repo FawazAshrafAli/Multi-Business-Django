@@ -1,0 +1,289 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Product Sub Categories{% endblock title %}
+
+{% block content %}
+			
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Product Sub Categories </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Product Sub Categories</li>
+			</ul>
+		</div>
+	</div>
+	
+	<!-- Page Header -->
+	<div class="page-header pt-3 mb-0 ">
+		<div class="row">
+			<div class="col">
+				<div class="dropdown">
+					<a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Recently Viewed</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="#">Recently Viewed</a>
+						<a class="dropdown-item" href="#">Items I'm following</a>
+						<a class="dropdown-item" href="#">All Product Sub Categories</a>
+						<a class="dropdown-item" href="#">Product Sub Categories added in the last 24 hours</a>
+						<a class="dropdown-item" href="#">Product Sub Categories added in the last 7 days</a>
+						<a class="dropdown-item" href="#">Product Sub Categories with no notes in the last month</a>
+						<a class="dropdown-item" href="#">Product Sub Categories with no notes in the last 7 days</a>
+					</div>
+				</div>
+			</div>
+			<div class="col text-end">
+				<ul class="list-inline-item ps-0">
+					<li class="nav-item dropdown list-inline-item add-lists">
+						<a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+							<div class="nav-profile-text">
+								<i class="fa fa-th" aria-hidden="true"></i>
+							</div>
+						</a>
+						<div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+							<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-new-list">Add New List View</a>
+						</div>
+					</li>
+					<li class="list-inline-item">
+						<a href="#" class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-sub_category" data-bs-toggle="modal" data-bs-target="#add_product_sub_category">New Sub Category</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Header -->
+
+
+	<!-- Content Starts -->
+	<div class="row">
+		{% if messages %}
+			<ul class="messages">
+				{% for message in messages %}
+					<li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+		<div class="col-md-12">
+			<div class="card mb-0">
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Sub Category</th>
+									<th>Category</th>									
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for sub_category in sub_categories %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>									
+									<td>{{sub_category.name}}</td>
+									<td>{{sub_category.category.name}}</td>									
+									<td class="text-end">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_category" data-name="{{sub_category.name}}" data-category="{{sub_category.category.slug}}" data-slug="{{sub_category.slug}}">Edit This Category</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{sub_category.name}}" data-slug="{{sub_category.slug}}" >Remove This Product Sub Category</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="get">
+							<h4><span class="text-danger">Removing</span> Product Sub Category. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Product Sub Category:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Product Sub Category Modal (Start) -->
+<div class="modal fade" id="update_category" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title text-center">Update Product Sub Category</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" id="update-sub-category-form" novalidate>
+							{% csrf_token %}
+							<h4>Product Sub Category</h4>
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="name-input" placeholder="Name of Product Sub Category" name="name">
+									<div class="invalid-feedback">
+										Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="col-md-12 mb-3">
+									<label for="product-category-dropdown">Category <span class="text-danger">*</span></label>
+									<select class="form-control" id="category-dropdown" name="category" required>
+										<option value="" hidden disabled selected>Select Category</option>
+										{% for category in categories %}
+										<option value="{{category.slug}}">{{category.name}}</option>
+										{% endfor %}
+									</select>
+									<div class="invalid-feedback">
+										Please provide a valid category.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>                            										                                                       
+							</div>
+							<div class="text-center py-3">
+								<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="submit-button">Save</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+<!-- Product Sub Category Modal (End) -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');			
+			const slug = $(this).data('slug');
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', `/customer/delete_product_sub_category/${slug}`);
+		});
+
+		$('.edit-toggle-btn').click(function () {
+			const name = $(this).data('name');		
+			const category = $(this).data('category');			
+			const slug = $(this).data('slug');
+
+			$('#name-input').val(name);
+			$('#category-dropdown').val(category);
+			$('#update-sub-category-form').prop('action', `/customer/update_product_sub_category/${slug}`);
+		});
+
+		let namePattern = /^[a-zA-Z\s'-]+$/;
+
+		// Scripts of Product Sub Category (Start)
+		function validateUpdateSubCategoryForm() {  
+			let formValid = true       
+
+			const productCategory = $('#name-input').val().trim();            
+
+			if (!productCategory || !namePattern.test(productCategory)) {
+				$('#name-input').addClass('is-invalid');
+				$('#name-input').focus();
+				formValid = false;
+
+			} else {
+				$('#name-input').addClass('is-valid');
+				$('#name-input').blur();
+						
+			}            
+
+			if (formValid == true) {
+				$('#update-sub-category-form').submit()
+			}            
+		}    
+
+		$('#submit-button').click(() => validateUpdateSubCategoryForm());
+		
+		// Inputting
+
+		$('#name-input').on('input', function () {
+			if (!$(this).val()) {
+				$(this).removeClass('is-valid').addClass('is-invalid');
+			} else {
+				if ($(this).prop('id') === "name-input" && !namePattern.test($(this).val())) {
+					$(this).removeClass('is-valid').addClass('is-invalid');
+				} else {
+					$(this).removeClass('is-invalid').addClass('is-valid');
+				}
+			}
+		});
+		// Scripts of Product Sub Category (End)
+	});
+</script>
+{% endblock scripts %}

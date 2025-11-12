@@ -1,0 +1,242 @@
+{% extends "directory/base.html" %}
+{% load static %}
+
+{% block directory_content %}
+					
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">									
+				<h5 class="card-title">Banks</h5>
+			</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Bank Name</th>
+                                    <th>IFSC</th>
+                                    <th>Branch</th>
+                                    <th>Center</th>
+									<th>City</th>
+									<th>District Type</th>
+                                    <th>State</th>
+                                    <th>Contact</th>
+                                    <th>Address</th>
+
+									<th>iso3166</th>
+									<th>MICR</th>
+                                    <th>SWIFT</th>
+									
+									<th>IMPS</th>
+                                    <th>RTGS</th>
+									<th>NEFT</th>
+									<th>UPI</th>
+
+									<th>Latitude</th>	
+									<th>Longitude</th>					
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for bank in banks %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>									
+									<td>{{bank.name}}</td>
+                                    <td>{{bank.ifsc}}</td>
+                                    <td>{{bank.branch}}</td>
+                                    <td>{{bank.center}}</td>
+                                    <td>{{bank.city}}</td>
+                                    <td>{{bank.district}}</td>
+                                    <td>{{bank.state}}</td>
+                                    <td>{{bank.contact}}</td>
+									<td>{{bank.address}}</td>
+
+									<td>{{bank.iso3166}}</td>
+                                    <td>{{bank.micr}}</td>
+									<td>{{bank.swift}}</td>
+
+									<td>{{bank.imps}}</td>
+                                    <td>{{bank.rtgs}}</td>
+									<td>{{bank.neft}}</td>
+									<td>{{bank.upi}}</td>
+
+                                    <td>{{bank.latitude}}</td>
+                                    <td>{{bank.longitude}}</td>
+									<td class="text-end">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_category" data-name="{{category.name}}" data-slug="{{category.slug}}">Edit This Category</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{category.name}}" data-slug="{{category.slug}}" >Remove This Product Category</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>							
+		</div>						
+	</div>
+	
+
+<!-- /Page Content -->
+{% endblock directory_content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="get">
+							<h4><span class="text-danger">Removing</span> Product Category. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Product Category:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Product Category Modal (Start) -->
+<div class="modal fade" id="update_category" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title text-center">Add Product Category</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" id="update-category-form" novalidate>
+							{% csrf_token %}
+							<h4>Product Category</h4>
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="name-input" placeholder="Name of Product Category" name="name">
+									<div class="invalid-feedback">
+										Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>
+							</div>									
+							<div class="text-center py-3">
+								<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="submit-button">Save</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+<!-- Product Category Modal (End) -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const slug = $(this).data('slug');
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', `/customer/delete_product_category/${slug}`);
+		});
+
+		$('.edit-toggle-btn').click(function () {
+			const name = $(this).data('name');					
+			const slug = $(this).data('slug');
+
+			$('#name-input').val(name);	
+			$('#update-category-form').prop('action', `/customer/update_product_category/${slug}`);
+		});
+
+		let namePattern = /^[a-zA-Z\s'-]+$/;
+
+		// Scripts of Product Category (Start)
+		function validateUpdateCategoryForm() {  
+			let formValid = true       
+
+			const productCategory = $('#name-input').val().trim();            
+
+			if (!productCategory || !namePattern.test(productCategory)) {
+				$('#name-input').addClass('is-invalid');
+				$('#name-input').focus();
+				formValid = false;
+
+			} else {
+				$('#name-input').addClass('is-valid');
+				$('#name-input').blur();
+						
+			}            
+
+			if (formValid == true) {
+				$('#update-category-form').submit()
+			}            
+		}    
+
+		$('#submit-button').click(() => validateUpdateCategoryForm());
+		
+		// Inputting
+
+		$('#name-input').on('input', function () {
+			if (!$(this).val()) {
+				$(this).removeClass('is-valid').addClass('is-invalid');
+			} else {
+				if ($(this).prop('id') === "name-input" && !namePattern.test($(this).val())) {
+					$(this).removeClass('is-valid').addClass('is-invalid');
+				} else {
+					$(this).removeClass('is-invalid').addClass('is-valid');
+				}
+			}
+		});
+		// Scripts of Product Category (End)
+	});
+</script>
+{% endblock scripts %}

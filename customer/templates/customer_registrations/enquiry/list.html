@@ -1,0 +1,263 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Enquiries{% endblock title %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Enquiries </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Enquiries</li>
+			</ul>
+		</div>
+	</div>
+	<!-- Page Header -->
+	<div class="page-header pt-3 mb-0 ">
+		<div class="row">
+			<div class="col">
+				<div class="dropdown">
+					<a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Recently Viewed</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="#">Recently Viewed</a>
+						<a class="dropdown-item" href="#">Items I'm following</a>
+						<a class="dropdown-item" href="#">All Registrations</a>
+						<a class="dropdown-item" href="#">Registrations added in the last 24 hours</a>
+						<a class="dropdown-item" href="#">Registrations added in the last 7 days</a>						
+					</div>
+				</div>
+			</div>
+			<div class="col text-end">
+				<ul class="list-inline-item ps-0">
+					<li class="nav-item dropdown list-inline-item add-lists">
+						<a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+							<div class="nav-profile-text">
+								<i class="fa fa-th" aria-hidden="true"></i>
+							</div>
+						</a>
+						<div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+							<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-new-list">Add New Registration</a>
+						</div>
+					</li>					
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Header -->	
+	<div class="row">
+		{% include "message.html" %}
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">									
+					<h5 class="card-title">Enquiries</h5>
+				</div>
+					<div class="card-body">
+						<div class="table-responsive">
+							<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+								<thead>
+									<tr>
+										<th class="checkBox">
+											<label class="container-checkbox">
+												<input type="checkbox">
+												<span class="checkmark"></span>
+											</label>
+										</th>
+										<th>Name</th>
+										<th>Sub Type</th>
+										<th>State</th>
+										<th>Phone</th>
+										<th>Email</th>
+										<th>Message</th>
+										<th class="text-end">Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for enquiry in enquiries %}
+									<tr>
+										<td class="checkBox">
+											<label class="container-checkbox">
+												<input type="checkbox">
+												<span class="checkmark"></span>
+											</label>
+										</td>
+										<td>										
+											<a href="#" class="enquiry-obj" data-bs-toggle="modal" data-bs-target="#enquiry-detail-modal" data-name="{{enquiry.name}}" data-registration="{{enquiry.registration_sub_type.name}}" data-state="{{enquiry.state.name}}" data-phone="{{enquiry.phone}}" data-email="{{enquiry.email}}" data-message="{{enquiry.message}}">{{enquiry.name}}</a>
+										</td>
+										<td>{{enquiry.registration_sub_type.name}}</td>
+										<td>{{enquiry.state.name}}</td>
+										<td>{{enquiry.phone}}</td>
+										<td>{{enquiry.email}}</td>
+										<td>{{enquiry.message|slice:'25'}}{% if enquiry.message|length > 25 %}...{% endif %}</td>
+										<td class="text-center">
+											<div class="dropdown dropdown-action">
+												<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+												<div class="dropdown-menu dropdown-menu-right">												
+													<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{enquiry.name}}" data-slug="{{enquiry.slug}}" >Remove This Enquiry</a>
+												</div>
+											</div>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>							
+			</div>						
+		</div>
+	</div>
+</div>
+	
+
+<!-- /Page Content -->
+{% endblock content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="post">
+							{% csrf_token %}
+							<h4><span class="text-danger">Deleting</span> Registration Enquiry. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Enquiry by:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Detail Modal -->
+<div class="modal right fade" id="enquiry-detail-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title text-center company-name"></h4>
+                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+              </div>
+
+            <div class="modal-body">
+                <div class="row" style="background: #eaeaea;">
+                    <div class="col-md-12">
+                        <h4 style="margin: 8px 0;">Enquired by: <span id="name"></span></h4>
+                    </div>
+                </div>
+                <br>                				
+				
+				<table class="table">
+					<tbody>
+						<tr>
+						<td class="border-0">Sub Type</td>
+						<td class="border-0" id="registration"></td>
+						</tr>
+						<tr>
+						<td class="border-0">State</td>
+						<td class="border-0" id="state"></td>
+						</tr>
+						<tr>
+						<td class="border-0">Phone</td>
+						<td class="border-0" id="phone"></td>
+						</tr>
+						<tr>
+						<td class="border-0">Email</td>
+						<td class="border-0" id="email"></td>
+						</tr>
+						<tr>
+							<td class="border-0">Message</td>
+							<td class="border-0" id="message"></td>
+						</tr>
+					</tbody>
+				</table>					
+                <br>
+            </div>
+
+        </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+</div>
+<!-- Detail Modal -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const registrationEnquirySlug = $(this).data('slug');
+
+			const actionUrl = `{% url 'customer:delete_registration_enquiry' 'dummyServiceEnquirySlug' %}`
+			.replace('dummyServiceEnquirySlug', registrationEnquirySlug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+		$('.enquiry-obj').click(function () {
+            $('#name, #registration, #state, #phone, #email, #message').empty();
+
+			const name = $(this).data('name')
+            const registration = $(this).data('registration')
+            const state = $(this).data('state')
+            const phone = $(this).data('phone')
+			const email = $(this).data('email')
+			const message = $(this).data('message')
+
+            if (name) {
+                $('#name').html(name);
+            }
+			
+			if (registration) {
+                $('#registration').html(registration);
+            }
+
+            if (state) {
+                $('#state').html(state);
+            }
+
+            if (phone) {
+                $('#phone').html(phone);
+            }
+
+			if (email) {
+                $('#email').html(email);
+            }
+
+			if (message) {
+                $('#message').html(message);
+            }
+        });
+	});
+</script>
+{% endblock scripts %}

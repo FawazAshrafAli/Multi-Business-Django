@@ -1,0 +1,194 @@
+
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block title %}Add {{current_company.name}} Reviews{% endblock title %}
+
+{% block company_content %}  
+
+	<!-- Content Starts -->
+    <div class="row">
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'superadmin:add_product_reviews' current_company.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-course-faq-form">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Add Reviews</h4>
+                    </div>
+                    <div class="card-body">                        
+
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label">Reviewer Name <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="reviewed-by-input" name="reviewed_by" placeholder="Name of Reviewer" required>
+                                <div class="invalid-feedback">
+                                    Please provide the name.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label" for="category-dropdown" >Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="category-dropdown" name="category" required>
+                                    <option value="" hidden disabled selected>Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.slug}}">{{category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>                 
+
+                        <div class="row">                            
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label" for="sub-category-dropdown" >Sub Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sub-category-dropdown" name="sub_category" required>
+                                    <option value="" hidden disabled selected>Select Sub Category</option>                                    
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the sub category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label" for="product-dropdown" >Product <span class="text-danger">*</span></label>
+                                <select class="form-control" id="product-dropdown" name="product" required>
+                                    <option value="" hidden disabled selected>Select Product</option>                                    
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the product.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label" for="rating-dropdown" >Rating <span class="text-danger">*</span></label>
+                                <select class="form-control" id="rating-dropdown" name="rating" required>
+                                    <option value="" hidden disabled selected>Select Rating</option>
+                                    {% for rating in ratings %}
+                                    <option value="{{rating}}" {% if rating == 5 %} selected {% endif %} >{{rating}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the rating.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label">Order <span class="text-danger">*</span></label>
+                                <input class="form-control" type="number" id="order-input" name="order" value="0" placeholder="Order in the slider" required>
+                                <div class="invalid-feedback">
+                                    Please provide the order.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>                    
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Review Text <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="testimonial-input" name="testimonial" placeholder="Review Text"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>     
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+        </div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock company_content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        // Get Districts
+        $(document).on('change', '#category-dropdown', function () {
+            const category = $(this).val();
+            const company = `{{current_company.slug}}`;
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'product:get_sub_categories' %}`,
+                dataType: 'json',
+                data: {
+                    "company_slug": company,
+                    "category_slug": category
+                },
+
+                success: response => {
+                    $('#sub-category-dropdown').html('<option value="" selected disabled hidden>Select Sub Category</option>');
+                    
+                    const sub_categories = response.sub_categories;
+
+                    if (sub_categories) {
+
+                        sub_categories.forEach(sub_category => {
+                            $('#sub-category-dropdown').append(`<option value="${sub_category.slug}">${sub_category.name}</option>`);
+                        });
+                    }
+                },
+
+                error: error => console.error("Error: ", error),
+            });
+        });
+
+        // Get Places
+        $(document).on('change', '#sub-category-dropdown', function () {
+            const sub_category = $(this).val();
+            const category = $('#category-dropdown').val();
+            const company = `{{current_company.slug}}`;
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'product:get_products' %}`,
+                dataType: 'json',
+                data: {
+                    "company_slug": company,
+                    "sub_category_slug": sub_category,
+                    "category_slug": category
+                },
+
+                success: response => {
+                    $('#product-dropdown').html('<option value="" selected disabled hidden>Select Product</option>');
+                    
+                    const products = response.products;
+
+                    if (products) {
+
+                        products.forEach(product => {
+                            $('#product-dropdown').append(`<option value="${product.slug}">${product.name}</option>`);
+                        });
+                    }
+                },
+
+                error: error => console.error("Error: ", error),
+            });
+        });        
+    })
+</script>
+{% endblock scripts %}

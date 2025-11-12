@@ -1,0 +1,4 @@
+UAE Locations
+
+# top_left = (26.1, 51.5) # fetched till 0.01 precision
+# bottom_right = (22.6, 56.4) # fetched till 0.01 precision

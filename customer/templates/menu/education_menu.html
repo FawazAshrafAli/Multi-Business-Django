@@ -1,0 +1,36 @@
+<li class="submenu">
+    <a href="javascript:void(0);" class="{% if course_page %}active subdrop{% endif %}"><i class="fa fa-laptop"></i> <span> Courses</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if course_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:courses' %}" {% if list_course_page %}class="active"{% endif %}>All Courses</a></li>
+        <li><a href="{% url 'customer:add_courses' %}" {% if add_course_page %}class="active"{% endif %}>Add Courses</a></li>						
+    </ul>
+</li>
+<li>
+    <a href="{% url 'customer:course_programs' %}" {% if course_program_page %}class="active"{% endif %}><i class="feather-list"></i> <span> Programs</span></a>
+</li>
+<li>
+    <a href="{% url 'customer:course_specializations' %}" {% if course_specialization_page %}class="active subdrop"{% endif %}><i class="feather-database"></i> <span> Specializations</span></a>
+</li>
+<li>
+    <a href="#" {% if course_faq_page %}class="active subdrop"{% endif %}><i class="fa fa-question"></i> <span> FAQs</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if course_faq_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:course_faqs' %}" {% if list_course_faqs %}class="active"{% endif %}>All FAQs</a></li>
+        <li><a {% if add_course_faq_page %}class="active"{% endif %} href="{% url 'customer:add_course_faqs' %}" >Add FAQ</a></li>									
+    </ul>
+</li>
+<li>
+    <a href="{% url 'customer:course_enquiries' %}" {% if course_enquiry_page %}class="active subdrop"{% endif %}><i class="feather-file"></i> <span> Enquiries</span></a>
+</li>
+<li>
+    <a href="#" {% if testimonial_page %}class="active subdrop"{% endif %}><i class="fa fa-quote-left"></i> <span> Testimonials</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if testimonial_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:student_testimonials' %}" {% if list_testimonial_page %}class="active"{% endif %}>All Testimonials</a></li>
+        <li><a {% if add_testimonial_page %}class="active"{% endif %} href="{% url 'customer:add_student_testimonials' %}" >Add Testimonial</a></li>									
+    </ul>
+</li>

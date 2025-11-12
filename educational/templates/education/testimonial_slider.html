@@ -1,0 +1,49 @@
+{% load static %}
+<section>
+    <div class="client-testimonial-section">
+      <div class="container">
+        <h2>TESTIMONIALS</h2>
+        <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+        <div class="client-testimonial-slider" data-aos="fade-up">
+          
+          {% for testimonial in testimonials %}
+          <div class="client-testimonial-slider-padd">
+            <div class="client-testimonal-box">
+              <div class="testmnl-clin-img-bg">
+                <div class="testmnl-clin-img-bx">
+                  <img src="{% if testimonial.image %}{{testimonial.image.url}}{% else %}{% static 'images/model-2911332_640 1.jpg' %}{% endif %}" alt="">
+                </div>
+              </div>
+              <div class="testmnl-clin-review-bx">
+                <div class="testmnl-clin-review">
+                  <span>
+                    <i class="fa-solid fa-quote-left"></i>
+                    <span class="clnt-tesmnl-cmnt" title="{{testimonial.text}}">{{testimonial.text|slice:":165"}}{% if testimonial.text|length > 165 %}...{% endif %}</span>
+                    <i class="fa-solid fa-quote-right"></i>
+                  </span>
+                </div>
+                <div class="client-name">
+                  <span>{{testimonial.names}}</span>
+                </div>
+                <div class="client-cmpny-dtls">
+                  <span class="clnt-cmpny-name"> {{testimonial.course.name}}</span>
+                  <span class="clnt-cmpny-location">{{testimonial.place}}</span>
+                </div>
+                <div class="client_review">
+                  {% for i in testimonial.rating_range %}
+                  {% if i < testimonial.rating %}
+                  <span class="fa fa-star checked"></span>
+                  {% else %}               
+                  <span class="fa fa-star"></span>
+                  {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}          
+
+        </div>
+      </div>
+    </div>
+  </section>

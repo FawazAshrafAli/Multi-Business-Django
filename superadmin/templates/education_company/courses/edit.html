@@ -1,0 +1,355 @@
+
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'w3/css/chosen-style.css' %}">
+<link rel="stylesheet" href="{% static 'w3/css/main-color.css' %}" id="colors">
+{% endblock styles %}
+
+{% block company_content %}
+	
+	<!-- Content Starts -->
+    <div class="row">        
+
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'superadmin:update_course' current_company.slug course.slug %}" class="needs-validation" enctype="multipart/form-data" id="edit-course-form" novalidate>
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Course Name</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name-input" >Course Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name-input" placeholder="Course Name" name="name" value="{{course.name}}" required>
+                                <div class="invalid-feedback">
+                                    Please enter a name for the course.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="name-input" >Image <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="image-input" name="image" required>
+                                {% if course.image %}
+                                <small><span id="current-image">Current Image: <a href="{{course.image.url}}" target="_blank">{{course.get_image_name}}</a></span></small>
+                                {% endif %}
+                                <div class="invalid-feedback">
+                                    Image is required.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category-dropdown">Program <span class="text-danger">*</span></label>
+                                <select class="form-control" id="program-dropdown" name="program" required>
+                                    <option value="" hidden disabled selected>Select Degree Level</option>
+                                    {% for program in programs %}
+                                    <option value="{{program.slug}}" {% if program.slug == course.program.slug %}selected{% endif %}>{{program.name}}</option>
+                                    {% endfor %}                                    
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the program.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sub-category-dropdown">Specialization <span class="text-danger">*</span></label>
+                                <select class="form-control" id="specialization-dropdown" name="specialization" required>
+                                    <option value="" hidden disabled selected>Select Specialization</option>
+                                    {% for specialization in specializations %}
+                                    <option value="{{specialization.slug}}"  {% if specialization.slug == course.specialization.slug %}selected{% endif %}>{{specialization.name}}</option>
+                                    {% endfor %}                                                               
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the specialization.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-4 mb-3">
+                                <label for="brand-dropdown">Course Mode <span class="text-danger">*</span></label>
+                                <select class="form-control" id="mode-dropdown" name="mode" required>
+                                    <option value="" hidden disabled selected>Select Course Mode</option>
+                                    {% for mode in modes %}                                
+                                    <option value="{{mode}}" {% if mode == course.mode %}selected{% endif %}>{{mode}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the mode of the course.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="sku-input">Course Duration</label>
+                                <input type="text" class="form-control" id="duration-input" name="duration" value="{% if course.duration %}{{course.duration}}{% endif %}" placeholder="Course Duration (in days)">
+                                <div class="invalid-feedback">
+                                    Please enter a valid course dutaion.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                            <div class="col-md-4 mb-3">
+                                <label for="price-input">Price <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="price-input" name="price" value="{% if course.price %}{{course.price}}{% endif %}" placeholder="Price" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid price.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12 mb-3">
+                                <label for="meta-tags-input" class="form-label">Meta Tags <span class="text-danger">*</span></label>
+                                
+                                <select data-placeholder="Select Meta Tags" class="chosen-select" name="meta_tag" multiple>
+                                    {% for tag in tags %}
+                                    <option value="{{tag.slug}}" {% if tag in course.meta_tags.all %}selected{% endif %}>{{tag.name}}</option>
+                                    {% endfor %}									
+								</select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="subtitles-input" class="form-label">Subtitles</label>
+                                <textarea name="subtitles" id="subtitles-input" class="form-control" placeholder="Subtitles">{% if course.subtitles %}{{course.subtitles}}{% endif %}</textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="meta-description-input" class="form-label">Meta Description <span class="text-danger">*</span></label>
+                                <textarea name="meta_description" id="meta-description-input" class="form-control" placeholder="Meta Description" required>{% if course.meta_description %}{{course.meta_description}}{% endif %}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+        </div>       
+		
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock company_content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {                
+
+        function validateForm() {  
+            const formValid = true       
+
+            let name = $('#name-input').val();
+            if (name) {
+                name = name.trim();
+            }
+
+            const programDropdown = $('#program-dropdown').val();
+            const specializationDropdown = $('#specialization-dropdown').val();
+
+            const modeDropdown = $('#mode-dropdown').val();                                  
+            
+            let duration = $('#duration-input').val();
+            if (duration) {
+                duration = duration.trim();
+            }
+
+            let price = $('#price-input').val();
+            if (price) {
+                price = price.trim();
+            }            
+
+            if (!name) {
+                $('#name-input').removeClass('is-valid').addClass('is-invalid');
+                $('#name-input').focus();
+                formValid = false;
+
+            } else {
+                $('#name-input').removeClass('is-invalid').addClass('is-valid');
+                $('#name-input').blur();
+                
+            }            
+
+            if (!programDropdown) {
+                $('#program-dropdown').addClass('is-invalid');
+                $('#program-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#program-dropdown').addClass('is-valid');
+                $('#program-dropdown').blur();
+                
+            }
+
+            if (!specializationDropdown) {
+                $('#specialization-dropdown').addClass('is-invalid');
+                $('#specialization-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#specialization-dropdown').addClass('is-valid');
+                $('#specialization-dropdown').blur();
+                
+            }
+
+            if (!modeDropdown) {
+                $('#mode-dropdown').addClass('is-invalid');
+                $('#mode-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#mode-dropdown').addClass('is-valid');
+                $('#mode-dropdown').blur();
+                
+            }            
+                    
+
+            if (!price) {
+                $('#price-input').removeClass('is-valid').addClass('is-invalid');
+                $('#price-input').focus();
+                formValid = false;
+
+            } else {
+                $('#price-input').removeClass('is-invalid').addClass('is-valid');
+                $('#price-input').blur();
+                
+            }
+            
+            if (formValid == true) {
+                $('#edit-course-form').submit()
+            }
+
+        }
+
+        $('#submit-button').click(validateForm);
+
+        // Inputting
+
+        $('#name-input, #duration-input, #price-input').on('input', function () {
+            let thisValue = $(this).val();
+            if (thisValue) {
+                thisValue = thisValue.trim();
+            }
+
+            if (!thisValue) {
+                if ($(this).prop('id') == "name-input") {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-valid').addClass('is-invalid');                
+                }
+            }
+
+            if (thisValue) {
+                if (thisValue < 0) {
+                    $(this).val(0);
+                }
+          
+            }
+            
+        });
+
+        // changing
+
+        $('#program-dropdown, #specialization-dropdown, #mode-dropdown, #unit-dropdown, #image-input').on('change', function () {
+            if (($(this).prop('id') == 'program-dropdown' || $(this).prop('id') == 'sub-category-dropdown' || $(this).prop('id') == 'brand-dropdown') && !$(this).val()) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+
+            if ($(this).prop('id') == 'image-input' || $(this).prop('id') == 'logo-input') {
+                let imageInput = $('#image-input')[0];
+                let image = imageInput.files[0];                
+                if (!image) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+                        
+        })        
+        
+
+        // Get Specialization
+        function getSpecializations(program) {
+            const company = `{{current_company.slug}}`
+            
+            $.ajax({
+                type: 'GET',
+                url: '/education/get_specializations/',
+                dataType: 'json',
+                data: {
+                    "program": program,
+                    "company": company
+                },
+                success: response => {
+                    let specializations = response.specializations;
+
+                    $('#specialization-dropdown').html(`<option value="" hidden disabled selected>Select Specialization</option>`);
+                    if (specializations && specializations.length) {
+                        specializations.forEach(specialization => {
+                            if (specialization.standard) {
+                                $('#specialization-dropdown').append(`<option value="${specialization.slug}">${specialization.name}&nbsp;&nbsp;&nbsp; ${specialization.standard}</option>`)
+                            } else {
+                                $('#specialization-dropdown').append(`<option value="${specialization.slug}">${specialization.name}</option>`)
+                            }
+                        })
+                    } else {
+                        $('#specialization-dropdown').html(`<option value="" disabled selected>No specialization for the selected program</option>`);
+                    }                    
+                },
+                error: error => console.error("Error: ", error),
+            })
+        }
+
+        $('#program-dropdown').on('change', function () {
+            const program = $(this).val();
+
+            getSpecializations(program);
+        });        
+
+        // Function for adding new meta tag
+        $(document).on('input', '.search-field input', function () {
+            const text = $(this).val().trim();
+
+            if (text.endsWith(',')) {
+                const tag = text.replace(',', '');
+
+                const newOption = `<option value="${tag}" selected>${tag}</option>`;
+
+                const optionExists = $('select[name="meta_tag"] option').filter(function() {
+                    return $(this).val().toLowerCase() === tag.toLowerCase() | $(this).html().toLowerCase() === tag.toLowerCase();
+                }).length > 0;
+
+                if (!optionExists) {
+                    $('select[name="meta_tag"]').append(newOption);
+    
+                    $('.chosen-select').trigger("chosen:updated");
+                }
+
+                $(this).val('');
+            }
+        });
+    })
+</script>
+{% endblock scripts %}

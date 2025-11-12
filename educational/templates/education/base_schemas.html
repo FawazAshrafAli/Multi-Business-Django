@@ -1,0 +1,100 @@
+<script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "ItemList",
+      "name": "Client Testimonials",
+      "itemListElement": [
+        {% for testimonial in testimonials %}
+        {
+          "@type": "ListItem",
+          "position": forloop.counter,
+          "item": {
+            "@type": "Review",
+            "itemReviewed": {          
+              "@type": "Course",
+              "name": "{{testimonial.course.name}}",
+              "location": {
+                "@type": "Place",
+                "name": "{{testimonial.place}}"
+              }
+            },
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": "{{testimonial.rating}}"
+            },
+            "author": {
+              "@type": "Person",
+              "name": "{{testimonial.name}}"
+            },
+            "reviewBody": "{{testimonial.text}}",
+            "image": "https://{{request.get_host}}{% if testimonial.image %}{{testimonial.image.url}}{% else %}#{% endif %}"
+          }
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      "numberOfItems": {{testimonials|length}}
+    }
+    {
+      "@context": "http://schema.org",
+      "@type": "AggregateRating",
+      "ratingValue": "{{company.rating}}"
+    }
+</script>
+
+<script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "LocalBusiness",
+      "name": "{{company.name}}",
+      "url": "https://{{request.get_host}}/",
+      "logo": "https://{{request.get_host}}{% if company.logo %}{{company.logo.url}}{% else %}#{% endif %}",
+      "telephone": "{{company.phone1}}",
+      "sameAs": [
+        {% for link in company.social_media_links %}
+        "{{link}}"{% if not forloop.last %},{% endif %}
+        {% endfor %}        
+      ],
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "{{company.phone1}}",
+          "contactType": "Contact Number 1",
+          "contactOption": "TollFree",
+          "areaServed": "IN"
+        },
+        {
+          "@type": "ContactPoint",
+          "telephone": "{{company.phone2}}",
+          "contactType": "Contact Number 2",
+          "contactOption": "TollFree",
+          "areaServed": "IN"
+        },
+        {
+          "@type": "ContactPoint",
+          "telephone": "{{company.whatsapp}}",
+          "contactType": "WhatsApp",
+          "contactOption": "TollFree",
+          "areaServed": "IN"
+        }
+      ]
+    }
+  </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {% for faq in faqs %}
+        {
+          "@type": "Question",
+          "name": "{{faq.question}}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{faq.answer}}"
+          }
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+    </script>

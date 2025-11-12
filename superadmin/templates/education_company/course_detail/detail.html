@@ -1,0 +1,289 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block styles %}
+<style>
+	th, td {
+		vertical-align: top;
+	}
+	th {
+		min-width: 100px;
+	}
+	.tag {
+        border:1px solid #d3d3d3;
+        border-radius: 15px;
+        padding: 5px 15px 5px 15px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #2a2873;
+        text-decoration: none;
+        font-weight: 600;
+        width: fit-content;
+        margin: 0 5px;
+    }
+</style>
+{% endblock styles %}
+
+{% block company_content %}
+					
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">									
+				<h5 class="card-title">{{course_detail.course.name}} Course Details</h5>
+			</div>            
+		</div>
+        <div class="card">
+            <div class="card-body">
+                <h4>Summary</h4>
+                <p>{{course_detail.summary}}</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h4>Description</h4>
+                <div>{{course_detail.description|safe}}</div>
+            </div>
+        </div>
+
+		<div class="card">
+            <div class="card-body">
+				<h4>Meta Title</h4>
+                <div>{% if course_detail.meta_title %}{{course_detail.meta_title}}{% else %}Not Provided{% endif %}</div>
+				<br>
+                <h4>Meta Tags</h4>
+                <div>{% if course_detail.get_meta_tags %}{{course_detail.get_meta_tags}}{% else %}Not Provided{% endif %}</div>
+				<br>
+				<h4>Meta Description</h4>
+                <div>{% if course_detail.meta_description %}{{course_detail.meta_description}}{% else %}Not Provided{% endif %}</div>
+            </div>
+        </div>
+
+		{% if not course_detail.hide_features %}
+		<div class="card">
+            <div class="card-body">
+				<h4>Features</h4>
+				<ul>
+					{% for feature in course_detail.features.all %}
+					<li>{{feature.feature}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+		{% endif %}
+
+		{% if not course_detail.hide_vertical_tab %}
+		<div class="card">
+			<div class="card-body">
+				<h4>Vertical Tab</h4>
+				<table class="table table-borderless">
+					<tr>
+						<th>Title:</th>
+						<td>{{course_detail.vertical_title}}</td>
+					</tr>
+					{% for vertical_tab in course_detail.vertical_tabs.all %}
+					<tr>
+						<th>&nbsp;</th>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<th>Tab No:</th>
+						<td>{{forloop.counter}}</td>
+					</tr>
+					<tr>
+						<th>Heading:</th>
+						<td>{{vertical_tab.heading}}</td>
+					</tr>
+					<tr>
+						<th>Sub Heading:</th>
+						<td>{{vertical_tab.sub_heading}}</td>
+					</tr>
+					<tr>
+						<th>Summary:</th>
+						<td>{{vertical_tab.summary}}</td>
+					</tr>
+					<tr>
+						<th>Bullets:</th>
+						<td>
+							<ol>
+							{% for bullet in vertical_tab.bullets.all %}
+							<li>{{bullet.bullet}}</li>
+							{% endfor %}
+							</ol>
+						</td>
+					</tr>
+					
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+		{% endif %}
+
+		{% if not course_detail.hide_horizontal_tab %}
+		<div class="card">
+			<div class="card-body">
+				<h4>Horizontal Tab</h4>
+				<table class="table table-borderless">
+					<tr>
+						<th>Title:</th>
+						<td>{{course_detail.horizontal_title}}</td>
+					</tr>
+					{% for horizontal_tab in course_detail.horizontal_tabs.all %}
+					<tr>
+						<th>&nbsp;</th>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<th>Tab No:</th>
+						<td>{{forloop.counter}}</td>
+					</tr>
+					<tr>
+						<th>Heading:</th>
+						<td>{{horizontal_tab.heading}}</td>
+					</tr>					
+					<tr>
+						<th>Summary:</th>
+						<td>{{horizontal_tab.summary}}</td>
+					</tr>
+					<tr>
+						<th>Bullets:</th>
+						<td>
+							<ol>
+							{% for bullet in horizontal_tab.bullets.all %}
+							<li>{{bullet.bullet}}</li>
+							{% endfor %}
+							</ol>
+						</td>
+					</tr>
+					
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+		{% endif %}
+
+		{% if not course_detail.hide_table %}
+		<div class="card">
+			<div class="card-body">
+				<h4>Table</h4>
+				<hr>
+				<h5>Title: {{course_detail.table_title}}</h5>
+				<br>
+				<table class="table table-borderless">
+					<thead>
+						<tr>
+							{% for table in course_detail.tables.all %}
+							<th>{{table.heading}}</th>
+							{% endfor %}
+						</tr>
+					</thead>
+					<tbody>
+						{% for row in course_detail.get_data %}
+						<tr>
+							{% for item in row %}
+							<td>{{item}}</td>
+							{% endfor %}							
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		{% endif %}
+
+		{% if not course_detail.hide_bullets %}
+		<div class="card">
+            <div class="card-body">
+				<h4>Bullet Points</h4>
+				<hr>
+				<h5>Title: {{course_detail.bullet_title}}</h5>
+				<br>
+				<ul>
+					{% for bullet in course_detail.bullet_points.all %}
+					<li>{{bullet.bullet_point}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+		{% endif %}
+
+		{% if not course_detail.hide_tags %}
+		<div class="card">
+            <div class="card-body">
+				<h4>Tags</h4>
+				<hr>
+				<h5>Title: {{course_detail.tag_title}}</h5>
+				<br>
+				<div>
+					{% for tag_obj in course_detail.tags.all %}
+					<a href="{{tag_obj.link}}" class="tag" target="_blank">{{tag_obj.tag}}</a>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+		{% endif %}
+
+		{% if not course_detail.hide_timeline %}
+		<div class="card">
+            <div class="card-body">
+				<h4>Timeline</h4>
+				<hr>
+				<h5>Title: {{course_detail.timeline_title}}</h5>
+				<br>
+				<div>
+					{% for timeline_obj in course_detail.timelines.all %}
+					<ul>
+						<li>
+							<h6>{{timeline_obj.heading}}</h6>
+							<p><small>{{timeline_obj.summary}}</small></p>
+						</li>
+					</ul>					
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+		{% endif %}
+	</div>
+	
+
+<!-- /Page Content -->
+{% endblock company_content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				{% comment %} <h4 class="modal-title text-center">Delete Course</h4> {% endcomment %}
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="get">
+							<h4><span class="text-danger">Deleting</span> Course. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Course:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+{% endblock modal %}

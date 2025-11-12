@@ -1,0 +1,256 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block company_content %}
+	<!-- Content Starts -->
+	<div class="row">		
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">									
+					<h5 class="card-title">Colors</h5>
+				</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Name</th>
+									<th>Color</th>	
+									<th>Hexa</th>	
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for color in colors %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>									
+									<td>{{color.name}}</td>									
+									<td>
+										<div style="height: 15px; width: 15px; border: 1px solid silver; background-color: {{color.hexa}};"></div>
+									</td>
+									<td>{{color.hexa}}</td>
+									<td class="text-end">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item edit-toggle-btn" data-bs-toggle="modal" data-bs-target="#update_product_color" data-name="{{color.name}}" data-hexa="{{color.hexa}}" data-slug="{{color.slug}}">Edit This Color</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_color" data-name="{{color.name}}" data-slug="{{color.slug}}" data-company-slug="{{color.company.slug}}" >Remove This Color</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Content End -->
+				
+{% endblock company_content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_color" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="post">
+							{% csrf_token %}
+							<h4><span class="text-danger">Removing</span> Color. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Color:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<div class="modal fade" id="update_product_color" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title text-center">Update Color</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" id="update-color-form" novalidate>
+							{% csrf_token %}
+							<h4>Color</h4>
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="color-input" placeholder="Name of Color" name="name">
+									<div class="invalid-feedback">
+										Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Hexa <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="hexa-input" placeholder="Hexa Code" name="hexa">
+									<div class="invalid-feedback">
+										Please enter a valid hexa code.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>
+							</div>									
+							<div class="text-center py-3">
+								<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="color-update-button">Save</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const slug = $(this).data('slug');
+			const companySlug = $(this).data('company-slug');
+
+			const actionUrl = `{% url 'superadmin:delete_color' 'dummyCompanySlug' 'dummySlug' %}`
+			.replace('dummyCompanySlug', companySlug).replace('dummySlug', slug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+		$('.edit-toggle-btn').click( function () {
+			const name = $(this).data('name');
+			const hexa = $(this).data('hexa');
+			const slug = $(this).data('slug');
+			const companySlug = `{{current_company.slug}}`;
+
+			const actionUrl = `{% url 'superadmin:update_color' 'currentCompanySlug' 'colorSlug' %}`
+			.replace('currentCompanySlug', companySlug).replace('colorSlug', slug);
+
+			$('#color-input').val(name);
+			$('#hexa-input').val(hexa);
+			$('#update-color-form').prop('action', actionUrl);
+			
+		});
+
+		let hexaPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;  
+
+		function validateUpdateColorForm() {
+			let formValid = true					
+
+			let productColor = $('#color-input').val()
+			let hexa = $('#hexa-input').val()
+
+			if (productColor) {
+				productColor = productColor.trim();
+			}
+
+			if (hexa) {
+				hexa = hexa.trim();
+			}
+
+			if (!productColor) {
+				$('#color-input').addClass('is-invalid');
+				$('#color-input').focus();
+				formValid = false;
+
+			} else {
+				$('#color-input').addClass('is-valid');
+				$('#color-input').blur();
+						
+			}
+
+			if (!hexa || !hexaPattern.test(hexa)) {
+				$('#hexa-input').addClass('is-invalid');
+				$('#hexa-input').focus();
+				formValid = false;
+
+			} else {
+				$('#hexa-input').addClass('is-valid');
+				$('#hexa-input').blur();
+						
+			}
+
+
+			if (formValid == true) {
+				$('#update-color-form').submit()
+			}            
+		}    
+
+		$('#color-update-button').click(() => validateUpdateColorForm());
+
+		// Inputting
+
+		$('#color-input').on('input', function () {
+			if (!$(this).val()) {
+				$(this).addClass('is-invalid');
+				$(this).removeClass('is-valid');
+			} else {
+				$(this).addClass('is-valid');
+				$(this).removeClass('is-invalid');
+			}
+		});
+
+		$('#hexa-input').on('input', function () {
+			if (!$(this).val() || !hexaPattern.test($(this).val())) {
+				$(this).addClass('is-invalid');
+				$(this).removeClass('is-valid');
+			} else {
+				$(this).addClass('is-valid');
+				$(this).removeClass('is-invalid');
+			}
+		});
+	});
+</script>
+{% endblock scripts %}

@@ -1,0 +1,397 @@
+{% extends "admin_base/base.html" %}
+{% load static %}
+
+{% block title %}Blogs{% endblock title %}
+
+{% block content %}
+			
+				<!-- Page Content -->
+                <div class="content container-fluid">
+
+                	<div class="crms-title row bg-white">
+                		<div class="col  p-0">
+                			<h3 class="page-title m-0">
+			                <span class="page-title-icon bg-gradient-primary text-white me-2">
+			                  <i class="fa fa-edit" aria-hidden="true"></i>
+			                </span> Blogs </h3>
+                		</div>
+                		<div class="col p-0 text-end">
+                			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+								<li class="breadcrumb-item"><a href="{% url 'superadmin:home' %}">Dashboard</a></li>
+								{% if current_company_type %}
+								<li class="breadcrumb-item"><a href="{% url 'superadmin:blogs' %}">Blogs</a></li>
+								<li class="breadcrumb-item active">{{current_company_type.name}} Blogs</li>
+								{% else %}
+								<li class="breadcrumb-item active">Blogs</li>
+								{% endif %}
+
+							</ul>
+                		</div>
+                	</div>
+					
+					<div class="row">
+						<div class="col-md-12">
+							{% include "message.html" %}
+							<div class="card">							
+							</div>
+							<div class="card-body">
+								<div class="table-responsive">
+									<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+										<thead>
+											<tr>
+												<th class="checkBox">										
+													<label class="container-checkbox">
+														<input type="checkbox">
+														<span class="checkmark"></span>
+													</label>
+												</th>
+												<th>Title</th>
+												<th>Blog Type</th>
+												<th>Company</th>
+												<th>Is Published</th>
+												<th class="text-end">Actions</th>
+											</tr>
+										</thead>
+										<tbody>
+											{% for blog in blogs %}
+											<tr>
+												 <td class="checkBox">
+													<label class="container-checkbox">
+														<input type="checkbox">
+														<span class="checkmark"></span>
+													</label>
+												</td>
+												<td>
+													<a href="#" class="avatar blog-obj" data-bs-toggle="modal" data-bs-target="#blog-detail-modal" data-title="{{blog.title}}" data-type="{{blog.blog_type}}" data-summary="{{blog.summary}}" data-desciption="{{blog.description}}" data-meta-description="{{blog.meta_description}}" data-meta-tags="{{ blog.get_meta_tags}}" {% if blog.company %}data-company="{{blog.company.name}}"{% endif %} data-content="{{blog.content}}" data-is-published="{% if blog.is_published %}Yes{% else %}No{% endif %}" {% if blog.is_published %}data-published-date="{{blog.published_date}}"{% endif %} {% if blog.image %}data-image-url="{{blog.image.url}}" data-image-name="{{blog.get_image_name}}"{% endif %} ><img alt="" src="{% if blog.image %}{{blog.image.url}}{% else %}{% static 'assets/img/c-logo2.png' %}{% endif %}"></a>
+													<a href="#" class="blog-obj" data-bs-toggle="modal" data-bs-target="#blog-detail-modal" data-title="{{blog.title}}" data-type="{{blog.blog_type}}" data-summary="{{blog.summary}}" data-desciption="{{blog.description}}" data-meta-description="{{blog.meta_description}}" data-meta-tags="{{blog.get_meta_tags}}" {% if blog.company %}data-company="{{blog.company.name}}"{% endif %} data-content="{{blog.content}}" data-is-published="{% if blog.is_published %}Yes{% else %}No{% endif %}" {% if blog.is_published %}data-published-date="{{blog.published_date}}"{% endif %} {% if blog.image %}data-image-url="{{blog.image.url}}" data-image-name="{{blog.get_image_name}}"{% endif %}>{{blog.title}}</a>
+												</td>
+												<td>{{blog.blog_type}}</td>
+												<td>{{blog.company.name}}{% if not blog.company %}None{% endif %}</td>
+												<td class="text-{% if blog.is_published %}success{% else %}danger{% endif %}">{{blog.is_published}}</td>
+												<td class="text-center">
+													<div class="dropdown dropdown-action">
+														<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+														<div class="dropdown-menu dropdown-menu-right">
+															{% if blog.is_published %}
+															<a class="dropdown-item draft-btn text-danger" href="#" data-bs-toggle="modal" data-bs-target="#draft-blog-modal" data-name="{{blog.title}}" data-slug="{{blog.slug}}" >Unpublish this Blog</a>
+															{% else %}
+															<a class="dropdown-item publish-btn text-success" href="#" data-bs-toggle="modal" data-bs-target="#publish-blog-modal" data-name="{{blog.title}}" data-slug="{{blog.slug}}" >Publish this Blog</a>
+															{% endif %}
+															<a class="dropdown-item" href="{% url 'superadmin:update_blog' blog.slug %}">Edit This Blog</a>
+															<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete-blog-modal" data-name="{{blog.title}}" data-slug="{{blog.slug}}" >Remove This Blog</a>
+														</div>
+													</div>
+												</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>						
+					</div>
+					
+                </div>
+				<!-- /Page Content -->
+{% endblock content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete-blog-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="post">
+							<h4><span class="text-danger">Deleting</span> Blog. . .</h4>
+							{% csrf_token %}
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Blog:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Detail Modal Start -->
+<div class="modal right fade" id="blog-detail-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div class="row w-100">
+                    <div class="col-md-7 account d-flex">
+                        <div class="company_img">
+                            <a href="#" target="_blank"><img src="#" alt="User" class="user-image" class="img-fluid" id="image" /></a>
+                        </div>
+                    </div>                    
+                  </div>
+                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+              </div>
+
+            <div class="modal-body">
+                <div class="row" style="background: #eaeaea;">
+                    <div class="col-md-12">
+                        <h4 style="margin: 8px 0;">Blog: <span id="title"></span></h4>
+                    </div>
+                </div>
+                <br>      
+                <table class="table">
+                    <tbody>
+						<tr>
+							<td class="border-0">Blog Type</td>
+							<td class="border-0" id="type"></td>
+						</tr>
+						<tr id="company-div">
+							<td class="border-0">Company</td>
+							<td class="border-0" id="company"></td>
+						</tr>						
+						<tr>
+							<td class="border-0">Is Published</td>
+							<td class="border-0" id="is-published"></td>
+						</tr>
+						<tr id="published-date-div">
+							<td class="border-0">Published Date</td>
+							<td class="border-0" id="published-date"></td>
+						</tr>
+						<tr>
+							<td class="border-0">Summary</td>
+							<td class="border-0" id="summary"></td>
+						</tr>
+						<tr>
+							<td class="border-0">Content</td>
+							<td class="border-0" id="content"></td>
+						</tr>
+						<tr>
+							<td class="border-0">Meta Description</td>
+							<td class="border-0" id="meta-desciption"></td>
+						</tr>
+						<tr>
+							<td class="border-0">Meta Tags</td>
+							<td class="border-0" id="meta-tags"></td>
+						</tr>												
+                    </tbody>
+                  </table>
+                <hr>
+            </div>
+
+        </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+</div>
+<!-- Detail Modal End -->
+
+<!-- Publish Blog Modal -->
+<!-- Modal -->
+<div class="modal fade" id="publish-blog-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="publish-form" method="post">
+							<h4><span class="text-primary">Publishing</span> Blog. . .</h4>
+							{% csrf_token %}
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Blog:</i> <span id="publishing-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Publish</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Draft Blog Modal -->
+<!-- Modal -->
+<div class="modal fade" id="draft-blog-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="draft-form" method="post">
+							<h4><span class="text-danger">Unpublishing</span> Blog. . .</h4>
+							{% csrf_token %}
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Blog:</i> <span id="draft-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Unpublish</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+        // Deletion
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const blogSlug = $(this).data('slug');
+
+			const actionUrl = `{% url 'superadmin:delete_blog' 'dummyBlogSlug' %}`
+			.replace('dummyBlogSlug', blogSlug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+		// Publish Blog
+		$('.publish-btn').click( function () {
+			const name = $(this).data('name');
+
+			const blogSlug = $(this).data('slug');
+
+			const actionUrl = `{% url 'superadmin:publish_blog' 'dummyBlogSlug' %}`
+			.replace('dummyBlogSlug', blogSlug);
+
+			$('#publishing-object').html(name);
+			$('#publish-form').prop('action', actionUrl);
+		});
+
+		// Draft Blog
+		$('.draft-btn').click( function () {
+			const name = $(this).data('name');
+			const blogSlug = $(this).data('slug');
+
+			const actionUrl = `{% url 'superadmin:unpublish_blog' 'dummyBlogSlug' %}`
+			.replace('dummyBlogSlug', blogSlug);
+
+			$('#draft-object').html(name);
+			$('#draft-form').prop('action', actionUrl);
+		});
+
+        // Detail View
+        $('.blog-obj').click(function () {
+            $(
+				'#title, #type, #company, #summary, #content, #meta-desciption, #meta-tags, #is-published, #published-date'
+			).empty();
+
+			$('#company-div, #published-date-div').hide();
+
+			$('#image').prop('src', `{% static 'w3/images/no_image.png' %}`);
+			$('#image').parent().prop('href', `{% static 'w3/images/no_image.png' %}`);
+
+            const title = $(this).data('title')
+            const imageName = $(this).data('image-name');
+            const imageUrl = $(this).data('image-url');
+            const type = $(this).data('type');
+            const company = $(this).data('company');
+            const object = $(this).data('object');
+            const summary = $(this).data('summary');
+            const content = $(this).data('content');
+			const metaDescription = $(this).data('meta-description');
+			const metaTags = $(this).data('meta-tags');
+			const isPublished = $(this).data('is-published');
+			const publishedDate = $(this).data('published-date');
+
+            if (title) {
+                $('#title').html(title);
+            }
+
+            if (company) {
+                $('#company').html(company);
+            }
+
+            if (metaDescription) {
+                $('#meta-description').html(metaDescription);
+            }
+
+			if (type) {
+                $('#type').html(type);
+            }
+
+			if (type != "General") {
+				$('#company-div').hide();
+			}
+			
+
+            if (summary) {
+                $('#summary').html(summary);
+            }
+
+            if (content) {
+                $('#content').html(content);
+            }
+
+            if (imageUrl) {
+                $('#image').prop('src', imageUrl);
+                $('#image').parent().prop('href', imageUrl);
+            }
+
+			if (metaDescription) {
+                $('#meta-desciption').html(metaDescription);
+            }
+
+			if (metaTags) {
+                $('#meta-tags').html(metaTags);
+            }			
+
+			if (isPublished) {
+                $('#is-published').html(isPublished);
+            }
+
+			if (isPublished === "Yes") {
+				$('#published-date').html(publishedDate);
+				$('#published-date-div').show();
+			}			
+        });        
+	});
+</script>
+{% endblock scripts %}

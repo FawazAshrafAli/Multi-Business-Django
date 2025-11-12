@@ -1,0 +1,119 @@
+
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block title %}Update {{current_company.name}} Registration FAQ{% endblock title %}
+
+{% block company_content %}  
+
+	<!-- Content Starts -->
+    <div class="row">
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'superadmin:update_registration_faq' current_company.slug faq.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-registration-faq-form">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Update Registration FAQ</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="type-dropdown" >Registration Type <span class="text-danger">*</span></label>
+                                <select class="form-control" id="type-dropdown" name="type" required>
+                                    <option value="" hidden disabled selected>Select Type</option>
+                                    {% for type in types %}
+                                    <option value="{{type.slug}}" {% if faq.registration.registration_type.slug == type.slug %}selected{% endif %} >{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the registration type.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="sub-type-dropdown" >Registration Sub Type <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sub-type-dropdown" name="sub_type" required>
+                                    <option value="" hidden disabled selected>Select Sub Type</option>
+                                    {% for sub_type in sub_types %}
+                                    <option value="{{sub_type.slug}}" {% if faq.registration.sub_type.slug == sub_type.slug %}selected{% endif %} >{{sub_type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the sub type.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>   
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="registration-dropdown" >Registration <span class="text-danger">*</span></label>
+                                <select class="form-control" id="registration-dropdown" name="registration" required>
+                                    <option value="" hidden disabled selected>Select Registration</option>
+                                    {% for registration in registrations %}
+                                    <option value="{{registration.slug}}" {% if faq.registration.slug == registration.slug %}selected{% endif %} >{{registration.title}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the registration.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            
+                        </div>             
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Question <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="question-input" name="question" placeholder="Question">{% if faq.question %}{{faq.question}}{% endif %}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Answer <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="answer-input" name="answer" placeholder="Answer">{% if faq.answer %}{{faq.answer}}{% endif %}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12 text-center">
+                                <input type="checkbox" class="form-check-input" id="check-input" name="dynamic_place_rendering" {% if faq.dynamic_place_rendering %}checked{% endif %}></input>
+                                <label for="check-input" class="form-label">Dynamic Place Rendering </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>     
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+        </div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock company_content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+
+        $('#type-dropdown').on('change', () => {
+            $('#registration-dropdown').val("");
+            getSubTypes()
+        });
+
+        $('#sub-type-dropdown').on('change', () => {
+            getRegistrations()
+        });
+        
+    })
+</script>
+{% endblock scripts %}

@@ -1,0 +1,143 @@
+# For India
+    # top_left = (35.2, 68.1)
+    # bottom_right = (6.7, 93.8)
+
+    # Jammu And Kashmir
+    # top_left = (36.6, 73.2) # fetched till 0.02 precision with and without pincode
+    # bottom_right = (32.1, 80.4) # fetched till 0.02 precision with and without pincode    
+
+    # Madhya Pradesh
+    # top_left = (24.5, 74.7) # fetched till 0.02 precision with and without pincode
+    # bottom_right = (18.4, 81.8) # fetched till 0.02 precision with and without pincode
+
+    # Kerala
+    # top_left = (12.7, 74.8) # fetched till 0.02 precision with and without pincode
+    # bottom_right = (8.2, 77.4) # fetched till 0.02 precision with and without pincode
+
+    # Gujarat
+    # top_left = (24.7, 68.1) # fetched till 0.02 precision - with and without pincode
+    # bottom_right = (20.1, 74.4) # fetched till 0.02 precision - with and without pincode
+
+    # Karnataka
+    # top_left = (18.4, 74.0) # fetched till 0.02 precision
+    # bottom_right = (11.6, 78.3) # fetched till 0.02 precision
+
+    # Telangana
+    # top_left = (19.9, 77.2) # fetched till 0.02 precision - with and without pincode
+    # bottom_right = (15.8, 81.3) # fetched till 0.02 precision - with and without pincode
+
+    # Chhattisgarh
+    # top_left = (24.1, 80.2) # fetched till 0.02 precision - with and without pincode
+    # bottom_right = (17.7, 84.3) # fetched till 0.02 precision - with and without pincode
+
+    # Tamil Nadu
+    # top_left = (13.5, 76.2) # fetched till 0.02 precision - with and without pincode
+    # bottom_right = (8.0, 80.3) # fetched till 0.02 precision - with and without pincode
+
+    # Andhra Pradesh
+    # top_left = (19.1, 76.7) # fetched till 0.02 precision - with and without pincode
+    # bottom_right = (12.6, 84.7) # fetched till 0.02 precision - with and without pincode
+
+    # Maharashtra
+    # 2top_left = (22.0, 72.6) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (15.6, 80.8) # fetched till 0.02 precision- with and without pincode
+
+    # Jharkhand
+    # top_left = (25.3, 83.3)  # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (21.9, 87.9)  # fetched till 0.02 precision- with and without pincode
+
+    # Haryana
+    # top_left = (30.9, 74.4) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (27.6, 77.6) # fetched till 0.02 precision- with and without pincode
+
+    # West Bengal
+    # top_left = (27.2, 85.5) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (21.5, 89.8) # fetched till 0.02 precision- with and without pincode
+
+    # Punjab
+    # top_left = (32.5, 73.8) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (29.5, 77.9) # fetched till 0.02 precision- with and without pincode
+    
+    # Uttar Pradesh
+    # top_left = (30.4, 77.0) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (23.8, 84.6) # fetched till 0.02 precision- with and without pincode
+
+    # Meghalaya
+    # top_left = (26.1, 89.8) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (25.0, 92.8) # fetched till 0.02 precision- with and without pincode
+
+    # Manipur
+    # top_left = (25.6, 92.9) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (23.8, 94.7) # fetched till 0.02 precision- with and without pincode
+
+    # Mizoram
+    # top_left = (24.5, 92.2) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (21.9, 93.4) # fetched till 0.02 precision- with and without pincode
+
+    # Tripura
+    # top_left = (25.6, 91.1) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (22.9, 92.4) # fetched till 0.02 precision- with and without pincode
+    
+    # Nagaland
+    # top_left = (27.1, 93.3) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (25.1, 95.3) # fetched till 0.02 precision- with and without pincode
+
+    # Goa
+    # top_left = (15.8, 73.6) # fetched till 0.01 precision
+    # bottom_right = (14.9, 74.3) # fetched till 0.01 precision
+
+    # Odisha
+    # top_left = (22.5, 81.3) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (17.8, 87.4) # fetched till 0.02 precision- with and without pincode
+
+    # Rajasthan
+    # top_left = (30.1, 69.4) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (23.0, 78.2) # fetched till 0.02 precision- with and without pincode
+
+    # Himachal Pradesh
+    # top_left = (33.2, 75.5) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (30.3, 79.0) # fetched till 0.02 precision- with and without pincode
+
+    # Uttarakhand
+    # top_left = (31.4, 77.7) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (28.7, 81.0) # fetched till 0.02 precision- with and without pincode
+
+    # Puducherry (Pondicherry)
+    # top_left = (11.9, 79.7) # fetched till 0.01 precision
+    # bottom_right = (11.8, 79.8) # fetched till 0.01 precision
+
+    # Sikkim
+    # top_left = (28.1, 88.0) # fetched till 0.01 precision
+    # bottom_right = (27.0, 88.9) # fetched till 0.01 precision
+
+    # Assam
+    # top_left = (28.2, 89.4) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (24.8, 96.0) # fetched till 0.02 precision- with and without pincode
+
+    # Arunachal Pradesh
+    # top_left = (29.5, 91.5) # fetched till 0.02 precision- with and without pincode
+    # bottom_right = (26.4, 97.5) # fetched till 0.02 precision- with and without pincode
+
+    # Chandigarh
+    # top_left = (30.7, 76.7) # fetched till 0.01 precision
+    # bottom_right = (30.6, 76.8) # fetched till 0.01 precision
+
+    # Andaman And Nicobar Islands (1st Part)
+    # top_left = (13.6, 92.2) # fetched till 0.03 precision
+    # bottom_right = (10.5, 93.1) # fetched till 0.03 precision
+
+    # Andaman And Nicobar Islands (2nd Part)
+    # top_left = (9.26, 92.7) # fetched till 0.03 precision
+    # bottom_right = (6.75, 94.0) # fetched till 0.03 precision
+
+    # Delhi
+    # top_left = (28.9, 76.8) # fetched till 0.01 precision
+    # bottom_right = (28.4, 77.4) # fetched till 0.01 precision
+
+    # Bihar
+    # top_left = (27.6, 83.3) # fetched till 0.01 precision
+    # bottom_right = (24.2, 88.3) # fetched till 0.01 precision
+
+    # Lekshadweep
+    # top_left = (11.7, 71.7) # fetched till 0.03 precision
+    # bottom_right = (8.2, 74.0) # fetched till 0.03 precision

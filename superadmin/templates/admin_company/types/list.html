@@ -1,0 +1,268 @@
+{% extends "admin_base/base.html" %}
+{% load static %}
+
+{% block title %}Company Types{% endblock title %}
+
+{% block content %}
+			
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Company Types </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Company Types</li>
+			</ul>
+		</div>
+	</div>
+	
+	<!-- Page Header -->
+	<div class="page-header pt-3 mb-0 ">
+		<div class="row">
+			<div class="col">
+				<div class="dropdown">
+					<a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Recently Viewed</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="#">Recently Viewed</a>
+						<a class="dropdown-item" href="#">Items I'm following</a>
+						<a class="dropdown-item" href="#">All Company Types</a>
+						<a class="dropdown-item" href="#">Company Types added in the last 24 hours</a>
+						<a class="dropdown-item" href="#">Company Types added in the last 7 days</a>
+						<a class="dropdown-item" href="#">Company Types with no notes in the last month</a>
+						<a class="dropdown-item" href="#">Company Types with no notes in the last 7 days</a>
+					</div>
+				</div>
+			</div>
+			<div class="col text-end">
+				<ul class="list-inline-item ps-0">
+					<li class="nav-item dropdown list-inline-item add-lists">
+						<a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+							<div class="nav-profile-text">
+								<i class="fa fa-th" aria-hidden="true"></i>
+							</div>
+						</a>
+						<div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+							<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-new-list">Add New List View</a>
+						</div>
+					</li>
+					<li class="list-inline-item">
+						<a href={% url 'superadmin:add_company' %} class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-company" data-bs-toggle="modal" data-bs-target="#add_company_type">New Company Type</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Header -->
+
+
+	<!-- Content Starts -->
+	<div class="row">
+		{% if messages %}
+			<ul class="messages">
+				{% for message in messages %}
+					<li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+		<div class="col-md-12">
+			<div class="card mb-0">
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Company Types</th>									
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for type in types %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>									
+									<td>{{type.name}}</td>									
+									<td class="text-end">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_company_type" data-name="{{type.name}}" data-slug="{{type.slug}}">Edit This Company Type</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company_type" data-name="{{type.name}}" data-slug="{{type.slug}}" >Remove This Company</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company_type" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				{% comment %} <h4 class="modal-title text-center">Delete Company</h4> {% endcomment %}
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="get">
+							<h4><span class="text-danger">Deleting</span> Company Type. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Company Type:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Company Type (Start) -->
+<div class="modal fade" id="update_company_type" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title text-center">Update Company Type</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" id="update-company-type-form" novalidate>
+							{% csrf_token %}
+							<h4>Company Type</h4>
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="update-company-type-input" placeholder="Company Type" name="name">
+									<div class="invalid-feedback">
+										Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>
+							</div>									
+							<div class="text-center py-3">
+								<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="company-type-update-button">Save</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+<!-- Company Type (End) -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click(function () {
+			const name = $(this).data('name');
+			const slug = $(this).data('slug');
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', `/admin/delete_company_type/${slug}`);
+		});
+
+		$('.edit-toggle-btn').click(function () {
+			const name = $(this).data('name');
+			const slug = $(this).data('slug');
+
+			$('#update-company-type-input').val(name);
+			$('#update-company-type-form').prop('action', `/admin/update_company_type/${slug}`);
+		})
+
+		let namePattern = /^[a-zA-Z\s'-]+$/;
+
+		// Scripts of Company Type (Start)
+		function validateUpdateCompanyTypeForm() {  					   
+			let formValid = true       
+
+			const companyType = $('#update-company-type-input').val().trim();            
+
+			if (!companyType || !namePattern.test(companyType)) {
+				$('#update-company-type-input').addClass('is-invalid');
+				$('#update-company-type-input').focus();
+				formValid = false;
+
+			} else {
+				$('#update-company-type-input').addClass('is-valid');
+				$('#update-company-type-input').blur();
+				
+			}            
+			
+			
+			if (formValid == true) {
+				$('#update-company-type-form').submit()
+			}            
+		}    
+		
+		$(document).on('click', '#company-type-update-button', () => validateUpdateCompanyTypeForm());
+		
+		// Inputting
+
+		$('#update-company-type-input').on('input', function () {
+			if (!$(this).val().trim()) {
+				$(this).addClass('is-invalid');
+				$(this).removeClass('is-valid');
+			} else {
+				$(this).addClass('is-valid');
+				$(this).removeClass('is-invalid');
+			}
+		});			
+		// Scripts of Company Type (End)
+	});
+</script>
+{% endblock scripts %}

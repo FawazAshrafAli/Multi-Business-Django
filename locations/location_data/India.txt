@@ -1,0 +1,16 @@
+Oman
+
+# top_left = (37.1, 68.1) # fetched till 0.07 precision
+# bottom_right = (8.0, 97.5) # fetched till 0.07 precision
+
+Stage 1
+# top_left = (37.1, 68.1) # fetched till 0.07 precision
+# bottom_right = (27.4, 97.5) # fetched till 0.07 precision
+
+Stage 2
+# top_left = (27.4, 68.1) # fetched till 0.07 precision
+# bottom_right = (17.7, 97.5) # fetched till 0.07 precision
+
+Stage 3
+# top_left = (17.7, 68.1) # fetched till 0.07 precision
+# bottom_right = (8.0, 97.5) # fetched till 0.07 precision

@@ -1,0 +1,602 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block schemas %}
+
+{% include "education/base_schemas.html" %}
+
+ <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "{{detail.course.name}}",
+  "description": "{{detail.summary}}",
+  "provider": {
+    "@type": "Organization",
+    "name": "{{detail.company}}"
+  },
+  "hasCourseInstance": {
+    "@type": "CourseInstance",
+    "courseMode": ["{{detail.course.mode}}"],
+    "startDate": "{{detail.course.starting_date|date:'Y-m-d'}}",
+    "endDate": "{{detail.course.ending_date|date:'Y-m-d'}}",
+    "courseWorkload": "P{{detail.course.duration}}M", // Duration format: P[n]Y[n]M[n]D
+    "location": {
+      "@type": "VirtualLocation",
+      "url": "https://{{request.get_host}}{{request.path}}"
+    }
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "{{detail.course.price}}",
+    "priceCurrency": "INR",
+    "category": "{{detail.course.program.name}}",
+    "availability": "http://schema.org/InStock"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{detail.course.rating}}",
+    "bestRating": "5",
+    "ratingCount": "{{detail.course.rating_count}}"
+  },
+  "image": "https://{{request.get_host}}{% if detail.course.image %}{{detail.course.image.url}}{% else %}#{% endif %}", // URL of the course image
+  "url": "https://{{request.get_host}}{{request.path}}", // URL of the course detail page
+  "inLanguage": "English"
+}
+</script> 
+
+
+ <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "ItemList",
+      "name": "Table of Contents",
+      "numberOfItems": "{{detail.toc|length}}",
+      "itemListElement": [
+        {% for title in detail.toc %}
+        {
+          "@type": "ListItem",
+          "position": {{forloop.counter}},
+          "item": {
+            "@type": "CreativeWork",
+            "name": "{{title}}",
+            "url": "https://{{request.get_host}}{{request.path}}#{{title|slugify}}-section"
+          }
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}        
+        // Add more chapters as needed
+      ]
+    }
+  </script>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.bzindia.in/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "{{company.name}}",
+      "item": "https://www.bzindia.in/education/oxford-university"
+    },    
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{detail.course.name}}",
+      "item": "https://www.bzindia.in/education/{{detail.slug}}/"
+    }
+  ]
+}
+</script> 
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Trademark Registration",
+  "description": "Apply for Trademark Registration through IndiaFilings & protect your brand for 10 years. We offer expert assistance throughout the process. Get Started!",
+  "keywords": "Trademark Registration India, Registrar of trademark India, how to register a trademark in India",
+  "image": ["https://img.bzindia.in/og/trademark_registration.jpg"],
+  "datePublished": "2022-01-01T00:00:00+05:30",
+  "dateModified": "2024-07-30T16:16:22+05:30",
+  "author": {
+    "@type": "Organization",
+    "name": "journex",
+    "url": "https://www.bzindia.in/"
+  },
+  "articleBody": "<h1>Trademark Registration</h1><p class='m-b-10'>Within the competitive ts and services.</p><p class='m-b-10'>registration process.</p><p>Le intellectual property.</p><h2>What is a Trademark?</h2><p>Following individuals alike.</p><h2>Why Should You Register Your Trademark?</h2><p>r valuable intellectual property rights.</p>"
+}
+</script>
+{% endblock schemas %}
+
+{% block content %}
+
+    <!--banner-slider start -->
+<section class="bg-half" style="background-image: url(/static/images/city-4667143_1920.jpg);">
+            <div class="bg-overlay"></div>
+            <div class="home-center">
+                <div class="home-desc-center" data-aos="fade-in">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="page-next-level text-white">
+                                    <h1 style="text-align:left;">{{detail.course.name}}</h1>
+                                    <p>{{detail.summary}}</p>
+
+                                    {% if not detail.hide_features %}
+                                    <ul class="row list-default">
+                                      {% for feature_obj in detail.features.all %}
+                                      <li>{{feature_obj.feature}}</li>
+                                      {% endfor %}                                      
+                                    </ul>
+                                    {% endif %}
+
+
+                                    <p id="breadcrumbs">
+                                   <span>
+      <span><a href="{% url 'home:home' %}">Home</a></span> » 
+      <span><a href="{% url 'education:home' company.slug %}">{{company.name}}</a></span> »       
+      <span class="breadcrumb_last" aria-current="page">{{detail.course.name}}</span>
+                                   </span>
+                                   </p>
+
+                                </div>
+                            </div>  
+                            
+                            
+                            
+                            
+                            <div class="col-md-4">
+                             <div class="faq-form-section" style="background:#00000059; padding: 30px; box-shadow: none; border-radius: 0; border: 0;">
+                <h2 style="color:#fff;">GST REGISTRATION IN INDIA</h2>
+                <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+             <form action="" method="post">
+                   <input type="text" name="name" placeholder="Your Name:"><br>
+                   <input type="tel" name="number" placeholder="Phone Number:"><br>
+                   <input type="email" name="email" placeholder="E-Mail Address:"><br>
+             <select class="country" name="country">
+                      <option value="0" selected disabled hidden>-- Select Services --</option>
+                    <option value="usa">ISO registration</option>
+                    <option value="canada">ISO registration</option>
+                    <option value="uk">ISO registration</option>
+                    <option value="australia">ISO registration</option>
+ 
+                   </select><br>
+                  <select class="country" name="state">
+                      <option value="0" selected disabled hidden>-- Select State --</option>
+                    <option value="Kerala">Kerala</option>
+                   
+                    <!-- Add more options as needed -->
+                  </select><br>
+
+                   <textarea name="message" rows="4" placeholder="Requirements:" cols="50"></textarea><br>
+                  <div class="frm-btn-sctn">
+                    <div>
+                      <button class="primary_button" role="button" type="submit">SUBMIT</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+                            </div>  
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+ 
+ 
+ 
+ 
+
+<div id="stick_navbar" style="padding: 0px 0;">
+
+{% if not detail.hide_support_languages %}
+<div class="communicate_language"><p> <span style="color: #ff0; text-transform:uppercase;">Support Languages:</span> English <span style="color: #f00;">|</span> ಕನ್ನಡ <span style="color: #f00;">|</span> हिंदी <span style="color: #f00;">|</span> தமிழ் <span style="color: #f00;">|</span> മലയാളം <span style="color: #f00;">|</span> తెలుగు</p></div>
+{% endif %}
+
+<a href="tel:+919845272560">
+
+<script language="JavaScript">
+
+  var message="Helpline: 9845 272 560"
+  var neonbasecolor="white"
+  var neontextcolor="yellow"
+  var flashspeed=100 
+
+
+  var n=0
+  if (document.all||document.getElementById){
+    document.write('')
+    for (m=0;m<message.length;m++)
+    document.write('<span id="neonlight'+m+'">'+message.charAt(m)+'</span>')
+    document.write('')
+  } else
+    document.write(message)
+
+    function crossref(number){
+      var crossobj=document.all? eval("document.all.neonlight"+number) : document.getElementById("neonlight"+number)
+      return crossobj
+    }
+
+  function neon(){
+
+  if (n==0){
+    for (m=0;m<message.length;m++)
+    crossref(m).style.color=neonbasecolor
+  }
+
+  crossref(n).style.color=neontextcolor
+
+  if (n<message.length-1)
+  n++
+  else {
+    n=0
+    clearInterval(flashing)
+    setTimeout("beginneon()",1500)
+    return
+    }
+  }
+
+  function beginneon(){
+    if (document.all||document.getElementById)
+    flashing=setInterval("neon()",flashspeed)
+  }
+  beginneon()  
+</script>
+
+</a> 
+<div style="clear:both;"></div>
+
+
+<toc class="bzindia_toc_scroll">
+
+{% for title in detail.toc %}
+<a href="#{{title|slugify}}-section">{{title}}</a>
+{% endfor %}
+
+</toc>
+
+  
+
+
+</div>
+ 
+ 
+    <!--banner-slider end -->
+
+ 
+ 
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="tg-authorbox" data-aos="fade-up">
+        <figure class="tg-authorpic" style="max-height: 427px;">
+          <a href="#" style="max-height: inherit;">
+            <img src="{% if detail.course.image %}{{detail.course.image.url}}{% else %}{% static 'images/food-887348_640.jpg' %}{% endif %}" alt="image description" height="427" style="object-fit: contain; object-position: center;">
+          </a>
+        </figure>
+        <div class="tg-authorinfo">
+ 
+          <div class="tg-section-heading">
+            <h2>{{detail.course.name}}</h2>
+          </div>
+          <div class="tg-description">
+            <p>
+              {{detail.summary}}
+              </p>
+            </div>
+
+            
+ 
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+
+  <!-- registration-services-section start -->
+
+  <section class="content_area001">
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+          <p>
+            {{detail.description|safe}}
+          </p>
+        </div>
+      </div>
+
+      {% if not detail.hide_vertical_tab %}
+      <h3 id="{{detail.vertical_title|slugify}}-section">{{detail.vertical_title}}</h3>
+      <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>      
+      <div class="row" data-aos="fade-in">        
+        <div class="col-md-12 col-sm-12 col-xs-12">
+          <div id="verticalTab">
+            <ul class="resp-tabs-list">
+              {% for vertical_tab in detail.vertical_tabs.all %}
+              <li>{{vertical_tab.heading}}</li>
+              {% endfor %}         
+            </ul>
+            <div class="resp-tabs-container">
+              {% for vertical_tab in detail.vertical_tabs.all %}
+              <div>
+                <h4>{{vertical_tab.sub_heading}}</h4>
+                <p>{{vertical_tab.summary}}</p>
+      
+                <ul class="row list-default">
+                  {% for bullet_obj in vertical_tab.bullets.all %}
+                  <li class="col col-md-6 col-12">{{bullet_obj.bullet}}</li>
+                  {% endfor %}                
+                </ul>
+              </div>   
+              
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+
+      {% if not detail.hide_horizontal_tab %}
+      <h3 id="{{detail.horizontal_title|slugify}}-section">{{detail.horizontal_title}}</h3>
+      <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+      <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" data-aos="fade-in">
+          <div id="horizontalTab">
+            <ul class="resp-tabs-list">
+              {% for horizontal_tab in detail.horizontal_tabs.all %}
+              <li>{{horizontal_tab.heading}}</li>
+              {% endfor %}  
+            </ul>
+            <div class="resp-tabs-container">
+              {% for horizontal_tab in detail.horizontal_tabs.all %}
+              <div>
+                <p>{{horizontal_tab.summary}}</p>
+                <ul class="row list-default">
+                  {% for bullet_obj in horizontal_tab.bullets.all %}
+                  <li class="col col-md-6 col-12">{{bullet_obj.bullet}}</li>
+                  {% endfor %}
+                </ul>                
+              </div>
+              {% endfor %}                 
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if not detail.hide_table %}
+      <h3 id="{{detail.table_title|slugify}}-section">{{detail.table_title}}</h3>
+      <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+
+      <div class="row" data-aos="fade-up">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+          <table>
+            <thead>
+              <tr>
+                {% for table in detail.tables.all %}
+                <th>{{table.heading}}</th>        
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in detail.get_data %}
+              <tr>
+                {% for data in row %}
+                <td>{{data}}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}        
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+
+      {% if not detail.hide_bullets %}
+      <h3 id="{{detail.bullet_title|slugify}}-section">{{detail.bullet_title}}</h3>
+      <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+      <ul class="row list-default" data-aos="fade-up">
+        {% for bullet_obj in detail.bullet_points.all %}
+        <li class="col col-md-6 col-12">{{bullet_obj.bullet_point}}</li>
+        {% endfor %}  
+      </ul>
+      {% endif %}
+
+      {% if not detail.hide_tags %}
+      <h3>{{detail.tag_title}}</h3>
+      <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+      <div class="row" data-aos="fade-up">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+          <div class="tags_cloud">
+            {% for tag_obj in detail.tags.all %}
+            <a href="#" title="{{tag_obj.tag}}">{{tag_obj.tag}}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+  </section>
+
+
+
+  
+  <section class="multi_serv_slider">
+  
+    <div class="container">
+      <div class="offerd-service-section">
+        <h3>OUR COURSES</h3>
+        <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+        <div class="offerd-service">
+          {% for course in courses|slice:':10' %}
+          <div class="offerd-service_padd">            
+            <div>
+              <a href="#">
+                <div class="offerd-service-section-clm-cntnt">
+                  <div>
+                    <div class="offerd-srvs-clm-icon">
+                      <img src="{% if course.image %}{{course.image.url}}{% else %}{% static 'images/Company-Registration-India.svg' %}{% endif %}" alt="">
+                    </div>
+                    <div class="offerd-srvs-clm-text">
+                      <h5>{{course.name}}</h5>
+                      <span>{{course.program.name}}</span>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+          {% endfor %}          
+  
+        </div>
+        <a href="#" class="primary_button" style="margin: 0 auto;">VIEW MORE</a>
+      </div>
+      
+   </div>
+
+  </section>  
+
+ 
+  {% if not detail.hide_timeline %}
+  <section class="resume segments" id="resume" style="background: #ecf2ef; padding: 60px 0px; margin: 0px 0px 0px 0px;">
+    <div class="container" id="{{detail.timeline_title|slugify}}-section">
+      <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" data-aos="fade-up">
+          <h3>{{detail.timeline_title}}</h3>
+          <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+
+          <ul class="timeline">
+            {% for timeline in detail.timelines.all %}
+            <li>
+              <h4>{{timeline.heading}}</h4>
+              <span>{{timeline.summary}}</span>
+            </li>
+            {% endfor %}      
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section>
+    <div class="container-fluid">
+
+      <div class="registration-faq-section my-5" data-aos="fade-up">
+        <!-- <div class="registrtn-fq-bg-img">
+        <img src="images/wht-we-do-bg.png" alt="">
+      </div> -->
+        <div class="row">
+          <div class="col-md-8">
+
+            <div class="regstrtn-faq-space">
+
+              <div class="registrsn-fq-scrool-bar-clm">
+                <h3>{{detail.course.name}} FAQ'S</h3>
+                <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+                <div class="registrsn-fq-scrool-bar-clm-cntnt">
+                  <div class=" pre-scrollable" style="height: 500px;overflow-y: auto;">
+                    
+ <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+ 
+  {% for faq in faqs|slice:":5" %}
+  <div itemprop="mainEntity" itemscope itemtype="https://schema.org/Question" class="marg_btm_8">
+    <h6 itemprop="name" class="faqs_accordion">{{faq.question}}</h6>
+    <div class="faqs_panel" itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
+      <p itemprop="text">{{faq.answer}}</p>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-md-4 ">
+
+            <div class="regstrtn-faq-space" data-aos="fade-up">
+
+              <div class="faq-form-section">
+                <h3>ONLINE REGISTRATION</h3>
+                <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+                <form action="" method="post">
+                   <input type="text" name="name" placeholder="Your Name:"><br>
+                   <input type="tel" name="number" placeholder="Phone Number:"><br>
+                   <input type="email" name="email" placeholder="E-Mail Address:"><br>
+             <select class="country" name="country">
+                      <option value="0" selected disabled hidden>-- Select Services --</option>
+                    <option value="usa">ISO registration</option>
+                    <option value="canada">ISO registration</option>
+                    <option value="uk">ISO registration</option>
+                    <option value="australia">ISO registration</option>
+ 
+                   </select><br>
+                  <select class="country" name="state">
+                      <option value="0" selected disabled hidden>-- Select State --</option>
+                    <option value="Kerala">Kerala</option>
+                   
+                    <!-- Add more options as needed -->
+                  </select><br>
+
+                   <textarea name="message" rows="4" placeholder="Requirements:" cols="50"></textarea><br>
+                  <div class="frm-btn-sctn">
+                    <div>
+                      <button class="primary_button" role="button" type="submit">SUBMIT</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+  
+
+  <!-- registraton faq setion end -->
+
+  <!-- client-testimonial section start -->
+  {% include "education/testimonial_slider.html" %}  
+  
+
+  
+  {% include "find_near_by_slider.html" %}
+  
+  <!-- offered-service section end -->
+  
+  {% include "destination_slider.html" %}
+
+  {% include "blog_slider.html" %}
+
+{% endblock content %}

@@ -1,0 +1,28 @@
+{% load static %}
+<section class="blog_section">
+  
+    <div class="container">
+ 
+        
+     <h3>LATEST ARTICLES</h3>
+     <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+     <div class="row" style="padding-bottom:25px;">
+
+      {% for blog in slider_blogs|slice:":3" %}
+      <div class="col col-md-4 col-12">
+       <article class="white_back_bx bodr_radius_25px">
+          <figure class="featured-media">
+            <a href="#"><img src="{% if blog.image %}{{blog.image.url}}{% else %}{% static 'images/food-887348_640.jpg' %}{% endif %}" height="244.175" style="object-fit: cover;" alt=""></a>
+          </figure>
+          <h4 class="blog_slider_article_h2"><a href="#">{{blog.title}}</a></h4>
+          <p style="text-align:left; height: 45px;">{{blog.summary|slice:':80'}}{% if blog.summary|length > 80 %}...{% endif %}</p>
+          <a href="#" class="primary_button" style="visibility: visible; ">Read More</a>
+        </article>
+      </div>
+      {% endfor %}     
+     </div>
+     
+       <a href="#" class="primary_button" style="margin:0 auto; ">VIEW MORE</a>
+   </div>
+
+</section> 

@@ -1,0 +1,262 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block company_content %}
+
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'superadmin:add_service' current_company.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-service-form" novalidate>
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" > Add Service</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name-input" > Service Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name-input" placeholder="Service Name" name="name" required>
+                                <div class="invalid-feedback">
+                                    Please enter a name for the service.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="image-input" > Image <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="image-input" placeholder="Service Name" name="image" required>
+                                <div class="invalid-feedback">
+                                    Please provide image.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category-dropdown">Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="category-dropdown" name="category" required>
+                                    <option value="" hidden disabled selected>Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.slug}}">{{category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sub-category-dropdown">Sub Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sub-category-dropdown" name="sub_category" required>
+                                    <option value="" hidden disabled selected>Select Sub Category</option>                                    
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the sub category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                                                
+                        <div class="form-row">                       
+                            <div class="col-md-6 mb-3">
+                                <label for="duration-input">Duration</label>
+                                <input type="text" class="form-control" id="duration-input" name="duration" placeholder="Duration" required>
+                            </div> 
+                            <div class="col-md-6 mb-3">
+                                <label for="price-input">Price </label>
+                                <input type="text" class="form-control" id="price-input" name="price" placeholder="Price" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid price.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-4 mb-3 d-flex">
+                                <label for="is-active-input">Is Active&nbsp;</label>
+                                <input type="checkbox" id="is-active-input" name="is_active" checked style="margin: 0; padding: 0;">                     
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Description </label>
+                                <textarea class="form-control" rows="3" id="description" name="description" placeholder="Description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+		
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock company_content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        
+        function validateForm() {  
+            const formValid = true       
+
+            let name = $('#name-input').val();
+            if (name) {
+                name = name.trim();
+            }
+
+            const categoryDropdown = $('#category-dropdown').val();
+            const subCategoryDropdown = $('#sub-category-dropdown').val();
+
+            const imageInput = $('#image-input')[0];
+            const image = imageInput.files[0];
+
+            let durations = $('#duration-input').val();
+            if (durations) {
+                durations = durations.trim();
+            }
+
+            let price = $('#price-input').val();
+            if (price) {
+                price = price.trim();
+            }
+
+            if (!name || name == "") {
+                $('#name-input').removeClass('is-valid').addClass('is-invalid');
+                $('#name-input').focus();
+                formValid = false;
+
+            } else {
+                $('#name-input').removeClass('is-invalid').addClass('is-valid');
+                $('#name-input').blur();                
+            }            
+
+            if (!image) {
+                $('#image-input').addClass('is-invalid');
+                $('#image-input').focus();
+                formValid = false;
+            } else {
+                $('#image-input').addClass('is-valid');
+                $('#image-input').blur();
+            }    
+
+            if (!categoryDropdown) {
+                $('#category-dropdown').addClass('is-invalid');
+                $('#category-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#category-dropdown').addClass('is-valid');
+                $('#category-dropdown').blur();                
+            }
+
+            if (!subCategoryDropdown) {
+                $('#sub-category-dropdown').addClass('is-invalid');
+                $('#sub-category-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#sub-category-dropdown').addClass('is-valid');
+                $('#sub-category-dropdown').blur();                
+            }            
+                                                                  
+
+            if (formValid == true) {
+                $('#add-service-form').submit()
+            }
+
+        }
+
+
+       $('#submit-button').click(validateForm);
+        // $('#submit-button').click(() => $('#add-service-form').submit());
+
+        // Inputting
+
+        $('#name-input, #duration-input, #price-input').on('input', function () {
+            let thisValue = $(this).val();
+            if (thisValue) {
+                thisValue = thisValue.trim();
+            }
+
+            if (!thisValue) {
+                $(this).removeClass('is-valid').addClass('is-invalid');                
+            } else {
+                $(this).removeClass('is-invalid').addeClass('is-valid');
+            }
+            
+        });
+
+        // changing
+
+        $('#category-dropdown, #sub-category-dropdown, #image-input').on('change', function () {
+            if (($(this).prop('id') == 'category-dropdown' || $(this).prop('id') == 'sub-category-dropdown') && !$(this).val()) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+
+            if ($(this).prop('id') == 'image-input') {
+                let imageInput = $('#image-input')[0];
+                let image = imageInput.files[0];                
+                if (!image) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            }            
+                        
+        })        
+        
+        // Get Size and Sub Categories
+        function getSubCategories(category) {
+            const currentCompany = `{{current_company.slug}}`;
+            $.ajax({
+                type: 'GET',
+                url: `/service/get_sub_categories/`,
+                dataType: 'json',
+                data: {"category_slug": category, "company_slug": currentCompany},
+                success: response => {
+                    let subCategories = response.sub_categories
+
+                    $('#sub-category-dropdown').html(`<option value="" hidden disabled selected>Select Sub Category</option>`);
+                    if (subCategories && subCategories.length) {
+                        subCategories.forEach(subCategory => {
+                            if (subCategory.standard) {
+                                $('#sub-category-dropdown').append(`<option value="${subCategory.slug}">${subCategory.name}&nbsp;&nbsp;&nbsp; ${subCategory.standard}</option>`)
+                            } else {
+                                $('#sub-category-dropdown').append(`<option value="${subCategory.slug}">${subCategory.name}</option>`)
+                            }
+                        })
+                    } else {
+                        $('#sub-category-dropdown').html(`<option value="" disabled selected>Select Sub Category</option>`);
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            })
+        }
+
+        $('#category-dropdown').on('change', function () {
+            const category = $(this).val();
+
+            getSubCategories(category);
+        });
+    })
+</script>
+{% endblock scripts %}

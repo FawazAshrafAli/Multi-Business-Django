@@ -1,0 +1,16 @@
+Qatar
+
+# top_left = (26.2, 50.7) # fetched till 0.02 precision
+# bottom_right = (24.4, 51.7) # fetched till 0.02 precision
+
+Stage 1
+# top_left = (26.2, 50.7) # fetched till 0.02 precision
+# bottom_right = (25.6, 51.7) # fetched till 0.02 precision
+
+Stage 2
+# top_left = (25.6, 50.7) # fetched till 0.02 precision
+# bottom_right = (25.0, 51.7) # fetched till 0.02 precision
+
+Stage 3
+# top_left = (25.0, 50.7) # fetched till 0.02 precision
+# bottom_right = (24.4, 51.7) # fetched till 0.02 precision

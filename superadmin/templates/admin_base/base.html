@@ -1,0 +1,1445 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">        
+        <title>{% block title %}{% endblock title %} - BZ India</title>
+		
+		<!-- Favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/Favicon.png' %}">
+		
+		<!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+		
+		<!-- Fontawesome CSS -->
+        <link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}">
+
+        <!-- Feathericon CSS -->
+		<link rel="stylesheet" href="{% static 'assets/css/feather.css' %}">
+
+        <!--font style-->
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+		
+		<!-- Lineawesome CSS -->
+        <link rel="stylesheet" href="{% static 'assets/css/line-awesome.min.css' %}">
+		
+		<!-- Chart CSS -->
+		<link rel="stylesheet" href="{% static 'assets/plugins/morris/morris.css' %}">
+
+        <!-- Select2 CSS -->
+		<link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
+
+        <!-- Datetimepicker CSS -->
+		<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+
+        <!-- Datatable CSS -->
+		<link rel="stylesheet" href="{% static 'assets/css/dataTables.bootstrap4.min.css' %}">
+
+		<!-- Theme CSS -->
+        <link rel="stylesheet" href="{% static 'assets/css/theme-settings.css' %}">
+		
+		<!-- Main CSS -->
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" class="themecls'">
+
+        
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!-- [if lt IE 9]>
+			<script src="assets/js/html5shiv.min.js"></script>
+			<script src="assets/js/respond.min.js"></script>
+		<![endif] -->		
+
+		<style>
+			.django-ckeditor-widget {
+				display: block !important;
+			}
+		</style>
+		{% block styles %}{% endblock styles %}
+    </head>
+    <body id="skin-color" class="inter">
+		 
+		<!-- Main Wrapper -->
+        <div class="main-wrapper">
+		
+			<!-- Header -->
+            <div class="header" id="heading">
+			
+				<!-- Logo -->
+                <div class="header-left">
+                    <a href="{% url 'superadmin:home' %}" class="logo">
+						<img src="{% static 'w3/images/logo.svg' %}"  alt="Logo" class="sidebar-logo">
+						<img src="{% static 'w3/images/logo.svg' %}"  alt="Logo" class="mini-sidebar-logo">
+					</a>
+                </div>
+				<!-- /Logo -->
+				
+				<a id="toggle_btn" href="javascript:void(0);">
+					<span class="bar-icon">
+						<span></span>
+						<span></span>
+						<span></span>
+					</span>
+				</a>
+				
+				<!-- Header Title -->
+                <div class="page-title-box">
+					<div class="top-nav-search">
+							<a href="javascript:void(0);" class="responsive-search">
+								<i class="fa fa-search"></i>
+						   </a>
+							<form action="search.html">
+								<input class="form-control" type="text" placeholder="Search here">
+								<button class="btn" type="submit"><i class="fa fa-search"></i></button>
+							</form>
+						</div>
+                </div>
+				<!-- /Header Title -->
+				
+				<a id="mobile_btn" class="mobile_btn" href="#sidebar"><i class="fa fa-bars"></i></a>
+				
+				<!-- Header Menu -->
+				<ul class="nav user-menu">
+				
+					<!-- Search -->
+					<li class="nav-item">
+						
+					</li>
+					<!-- /Search -->									
+				
+					<!-- Notifications -->
+					<li class="nav-item dropdown">
+						<a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
+							<i class="fa fa-bell-o"></i> <span class="badge rounded-pill">3</span>
+						</a>
+						<div class="dropdown-menu notifications">
+							<div class="topnav-dropdown-header">
+								<span class="notification-title">Notifications</span>
+								<a href="javascript:void(0)" class="clear-noti"> Clear All </a>
+							</div>
+							<div class="noti-content">
+								<ul class="notification-list">
+									<li class="notification-message">
+										<a href="activities.html">
+											<div class="media d-flex">
+												<span class="avatar flex-shrink-0">
+													<img alt="" src="{% static 'assets/img/profiles/avatar-02.jpg' %}">
+												</span>
+												<div class="media-body flex-grow-1">
+													<p class="noti-details"><span class="noti-title">John Doe</span> added new task <span class="noti-title">Patient appointment booking</span></p>
+													<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="activities.html">
+											<div class="media d-flex">
+												<span class="avatar flex-shrink-0">
+													<img alt="" src="{% static 'assets/img/profiles/avatar-03.jpg' %}">
+												</span>
+												<div class="media-body flex-grow-1">
+													<p class="noti-details"><span class="noti-title">Tarah Shropshire</span> changed the task name <span class="noti-title">Appointment booking with payment gateway</span></p>
+													<p class="noti-time"><span class="notification-time">6 mins ago</span></p>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="activities.html">
+											<div class="media d-flex">
+												<span class="avatar flex-shrink-0">
+													<img alt="" src="{% static 'assets/img/profiles/avatar-06.jpg' %}">
+												</span>
+												<div class="media-body flex-grow-1">
+													<p class="noti-details"><span class="noti-title">Misty Tison</span> added <span class="noti-title">Domenic Houston</span> and <span class="noti-title">Claire Mapes</span> to project <span class="noti-title">Doctor available module</span></p>
+													<p class="noti-time"><span class="notification-time">8 mins ago</span></p>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="activities.html">
+											<div class="media d-flex">
+												<span class="avatar flex-shrink-0">
+													<img alt="" src="{% static 'assets/img/profiles/avatar-17.jpg' %}">
+												</span>
+												<div class="media-body flex-grow-1">
+													<p class="noti-details"><span class="noti-title">Rolland Webber</span> completed task <span class="noti-title">Patient and Doctor video conferencing</span></p>
+													<p class="noti-time"><span class="notification-time">12 mins ago</span></p>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="activities.html">
+											<div class="media d-flex">
+												<span class="avatar flex-shrink-0">
+													<img alt="" src="{% static 'assets/img/profiles/avatar-13.jpg' %}">
+												</span>
+												<div class="media-body flex-grow-1">
+													<p class="noti-details"><span class="noti-title">Bernardo Galaviz</span> added new task <span class="noti-title">Private chat module</span></p>
+													<p class="noti-time"><span class="notification-time">2 days ago</span></p>
+												</div>
+											</div>
+										</a>
+									</li>
+								</ul>
+							</div>
+							<div class="topnav-dropdown-footer">
+								<a href="activities.html">View all Notifications</a>
+							</div>
+						</div>
+					</li>
+					<!-- /Notifications -->
+					
+					<!-- Message Notifications -->
+					<!-- <li class="nav-item dropdown">
+						<a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
+							<i class="fa fa-comment-o"></i> <span class="badge rounded-pill">8</span>
+						</a>
+						<div class="dropdown-menu notifications">
+							<div class="topnav-dropdown-header">
+								<span class="notification-title">Messages</span>
+								<a href="javascript:void(0)" class="clear-noti"> Clear All </a>
+							</div>
+							<div class="noti-content">
+								<ul class="notification-list">
+									<li class="notification-message">
+										<a href="#">
+											<div class="list-item">
+												<div class="list-left">
+													<span class="avatar">
+														<img alt="" src="{% static 'assets/img/profiles/avatar-09.jpg' %}">
+													</span>
+												</div>
+												<div class="list-body">
+													<span class="message-author">Richard Miles </span>
+													<span class="message-time">12:28 AM</span>
+													<div class="clearfix"></div>
+													<span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="#">
+											<div class="list-item">
+												<div class="list-left">
+													<span class="avatar">
+														<img alt="" src="{% static 'assets/img/profiles/avatar-02.jpg' %}">
+													</span>
+												</div>
+												<div class="list-body">
+													<span class="message-author">John Doe</span>
+													<span class="message-time">6 Mar</span>
+													<div class="clearfix"></div>
+													<span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="#">
+											<div class="list-item">
+												<div class="list-left">
+													<span class="avatar">
+														<img alt="" src="{% static 'assets/img/profiles/avatar-03.jpg' %}">
+													</span>
+												</div>
+												<div class="list-body">
+													<span class="message-author"> Tarah Shropshire </span>
+													<span class="message-time">5 Mar</span>
+													<div class="clearfix"></div>
+													<span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="#">
+											<div class="list-item">
+												<div class="list-left">
+													<span class="avatar">
+														<img alt="" src="{% static 'assets/img/profiles/avatar-05.jpg' %}">
+													</span>
+												</div>
+												<div class="list-body">
+													<span class="message-author">Mike Litorus</span>
+													<span class="message-time">3 Mar</span>
+													<div class="clearfix"></div>
+													<span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="#">
+											<div class="list-item">
+												<div class="list-left">
+													<span class="avatar">
+														<img alt="" src="{% static 'assets/img/profiles/avatar-08.jpg' %}">
+													</span>
+												</div>
+												<div class="list-body">
+													<span class="message-author"> Catherine Manseau </span>
+													<span class="message-time">27 Feb</span>
+													<div class="clearfix"></div>
+													<span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+												</div>
+											</div>
+										</a>
+									</li>
+								</ul>
+							</div>
+							<div class="topnav-dropdown-footer">
+								<a href="#">View all Messages</a>
+							</div>
+						</div>
+					</li> -->
+					<!-- /Message Notifications -->
+
+					<li class="nav-item dropdown has-arrow main-drop">
+						<a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
+							<span class="user-img"><img src="{% static 'assets/img/profiles/avatar-21.jpg' %}" alt="">
+							<span class="status online"></span></span>
+							<span>Admin</span>
+						</a>
+						<div class="dropdown-menu">
+							<a class="dropdown-item" href="profile.html">My Profile</a>
+							<a class="dropdown-item" href="{% url 'superadmin:settings' %}">Settings</a>
+							<a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
+						</div>
+					</li>
+				</ul>
+				<!-- /Header Menu -->
+				
+				<!-- Mobile Menu -->
+				<div class="dropdown mobile-user-menu">
+					<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+					<div class="dropdown-menu dropdown-menu-right">
+						<a class="dropdown-item" href="profile.html">My Profile</a>
+						<a class="dropdown-item" href="{% url 'superadmin:settings' %}">Settings</a>
+						<a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
+					</div>
+				</div>
+				<!-- /Mobile Menu -->
+				
+            </div>
+			<!-- /Header -->
+			
+			<!-- Sidebar -->
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-inner slimscroll">
+                	<form action="search.html" class="mobile-view">
+						<input class="form-control" type="text" placeholder="Search here">
+						<button class="btn" type="button"><i class="fa fa-search"></i></button>
+					</form>
+					<div id="sidebar-menu" class="sidebar-menu">
+						<ul>
+							<li class="nav-item nav-profile">
+				              <a href="#" class="nav-link">
+				                <div class="nav-profile-image">
+				                  <img src="{% static 'assets/img/profiles/avatar-17.jpg' %}" alt="profile">
+				                 
+				                </div>
+				                <div class="nav-profile-text d-flex flex-column">
+				                  <span class="font-weight-bold mb-2"> {{request.user.username}}</span>
+				                  <span class="text-white text-small">Administrator</span>
+				                </div>
+				                <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
+				              </a>
+				            </li>
+							<li class="menu-title"> 
+								<span>Main</span>
+							</li>
+							<li> 
+								<a href="{% url 'superadmin:home' %}" {% if home_page %} class="active" {% endif %} ><i class="feather-home"></i> <span>Home</span></a>
+							</li>
+							
+							{% comment %} <li> 
+								<a href="{% url 'superadmin:companies' %}" {% if company_page %} class="active" {% endif %} ><i class="fa fa-building"></i> <span>Company</span></a>
+							</li> {% endcomment %}
+
+							<li class="submenu">
+								<a href="javascript:void(0);" {% if company_page %} class="active" {% endif %}><i class="fa fa-building"></i> <span>Company</span> <span class="menu-arrow"></span></a>
+								<ul class="sub-menus">
+									
+									<li><a href="{% url 'superadmin:companies' %}" {% if company_list_page %} class="active" {% endif %}>Companies</a></li>
+									<li><a href="{% url 'superadmin:add_company' %}">Add Company</a></li>																			
+
+									{% if product_page %}
+									<li><a {% if add_product_page %}class="active"{% endif %} href="{% url 'superadmin:add_product' current_company.slug %}">Add Product</a></li>
+									{% elif product_categories_page %}
+									<li><a  href="#" data-bs-toggle="modal" data-bs-target="#add_product_category">Add Category</a></li>
+									{% elif product_sub_categories_page %}
+									<li><a  href="#" data-bs-toggle="modal" data-bs-target="#add_product_sub_category">Add Sub Category</a></li>
+									{% elif product_brand_page %}
+									<li><a  href="#" data-bs-toggle="modal" data-bs-target="#add_product_brand">Add Brand</a></li>
+									{% elif product_color_page %}
+									<li><a  href="#" data-bs-toggle="modal" data-bs-target="#add_product_color">Add Color</a></li>
+									{% elif product_size_page %}
+									<li><a  href="#" data-bs-toggle="modal" data-bs-target="#add_product_size">Add Size</a></li>
+									{% endif %}
+
+									{% if service_page %}
+									<li><a href="{% url 'superadmin:add_service' current_company.slug %}">Add Service</a></li>
+									{% elif service_category_page %}
+									<li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add_service_category_modal">Add Service Category</a></li>
+									{% elif service_sub_category_page %}
+									<li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add_service_sub_category_modal">Add Service Sub Category</a></li>
+									{% elif service_detail_page %}
+									<li><a {% if add_service_detail_page %}class="active"{% endif %} href="{% url 'superadmin:add_service_details' current_company.slug %}">Add Service Detail</a></li>
+									{% elif product_detail_page %}
+									<li><a {% if add_product_detail_page %}class="active"{% endif %} href="{% url 'superadmin:add_product_detail_page' current_company.slug %}">Add Product Detail</a></li>
+									{% elif registration_detail_page %}
+									<li><a {% if add_registration_detail_page %}class="active"{% endif %} href="{% url 'superadmin:add_registration_detail_page' current_company.slug %}">Add Detail Page</a></li>
+									{% elif registration_page %}
+									<li><a {% if add_registration_page %}class="active"{% endif %} href="{% url 'superadmin:add_registration' current_company.slug %}">Add Registration</a></li>
+									{% elif registration_type_page %}
+									<li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add_registration_type_modal">Add Registration Type</a></li>
+									{% elif registration_sub_type_page %}
+									<li><a href="{% url 'superadmin:add_registration_sub_types' current_company.slug %}">Add Sub Registration Type</a></li>
+									{% elif course_program_page %}
+									<li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add_course_program_modal">Add Course Program</a></li>
+									{% elif course_page %}
+									<li><a {% if add_course_page %}class="active"{% endif %} href="{% url 'superadmin:add_course' current_company.slug %}">Add Course</a></li>
+									{% elif course_specialization_page %}
+									<li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add_course_specialization_modal">Add Course Specialization</a></li>
+									{% elif course_detail_page %}
+									<li><a {% if course_detail_page %}class="active"{% endif %} href="{% url 'superadmin:add_course_details' current_company.slug %}">Add Course Detail</a></li>
+									
+									{% elif course_faq_page %}
+									<li><a {% if add_course_faq_page %}class="active"{% endif %} href="{% url 'superadmin:add_course_faq' current_company.slug %}">Add Course FAQ</a></li>
+									{% elif service_faq_page %}
+									<li><a {% if add_service_faq_page %}class="active"{% endif %} href="{% url 'superadmin:add_service_faq' current_company.slug %}">Add Service FAQ</a></li>
+									{% elif registration_faq_page %}
+									<li><a {% if add_registration_faq_page %}class="active"{% endif %} href="{% url 'superadmin:add_registration_faq' current_company.slug %}">Add Registration FAQ</a></li>
+									{% elif product_faq_page %}
+									<li><a {% if add_product_faq_page %}class="active"{% endif %} href="{% url 'superadmin:add_product_faq' current_company.slug %}">Add Product FAQ</a></li>
+									
+									{% elif client_page %}
+									<li><a {% if add_client_page %}class="active"{% endif %} href="{% url 'superadmin:add_client' current_company.slug %}">{% if current_company.type.name == 'Education' %}Add Corporate Partner{% else %}Add Client{% endif %}</a></li>
+
+									{% elif testimonial_page %}
+									<li><a {% if add_testimonial_page %}class="active"{% endif %} href="{% if current_company.type.name == 'Education' %}{% url 'superadmin:add_student_testimonial' current_company.slug %}{% else %}{% url 'superadmin:add_testimonial' current_company.slug %}{% endif %}">Add Testimonal</a></li>
+
+									{% elif product_review_page %}
+									<li><a {% if add_product_review_page %}class="active"{% endif %} href="{% url 'superadmin:add_product_reviews' current_company.slug %}">Add Review</a></li>
+
+									{% elif course_multipage %}
+									<li><a {% if add_course_multipage %}class="active"{% endif %} href="{% url 'superadmin:add_course_multipage' current_company.slug %}">Add Multipage</a></li>
+
+									{% elif service_multipage %}
+									<li><a {% if add_service_multipage %}class="active"{% endif %} href="{% url 'superadmin:add_service_multipage' current_company.slug %}">Add Multipage</a></li>
+
+									{% elif product_multipage %}
+									<li><a {% if add_product_multipage %}class="active"{% endif %} href="{% url 'superadmin:add_product_multipage' current_company.slug %}">Add Multipage</a></li>
+
+									{% elif registration_multipage %}
+									<li><a {% if add_registration_multipage %}class="active"{% endif %} href="{% url 'superadmin:add_registration_multipage' current_company.slug %}">Add Multipage</a></li>
+
+									{% elif education_banner_page %}
+									<li><a {% if add_banner_page %}class="active"{% endif %} href="{% url 'superadmin:add_education_banner' current_company.slug %}">Add Banner</a></li>
+
+									{% elif product_banner_page %}
+									<li><a {% if add_banner_page %}class="active"{% endif %} href="{% url 'superadmin:add_product_banner' current_company.slug %}">Add Banner</a></li>
+
+									{% elif service_banner_page %}
+									<li><a {% if add_banner_page %}class="active"{% endif %} href="{% url 'superadmin:add_service_banner' current_company.slug %}">Add Banner</a></li>
+
+									{% elif registration_banner_page %}
+									<li><a {% if add_banner_page %}class="active"{% endif %} href="{% url 'superadmin:add_registration_banner' current_company.slug %}">Add Banner</a></li>
+
+									{% endif %}									
+								</ul>
+							</li>
+
+							<li class="submenu">
+								<a href="javascript:void(0);" {% if company_type_page %} class="active" {% endif %}><i class="fa fa-industry"></i> <span>Company Type</span> <span class="menu-arrow"></span></a>
+								<ul class="sub-menus">
+									
+									<li><a href="{% url 'superadmin:company_types' %}" {% if company_type_list_page %} class="active" {% endif %}>Company Types</a></li>
+									<li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add_company_type">Add Company Type</a></li>
+								</ul>
+							</li>							
+
+							<li> 
+								<a href="{% url 'superadmin:directories' %}" {% if directory_page %} class="active" {% endif %} ><i class="feather-book"></i> <span>Directories</span></a>
+							</li>						
+
+							<li class="submenu">
+								<a href="javascript:void(0);" {% if custom_page %}class="active"{% endif %}><i class="feather-file"></i> <span>Custom Pages</span> <span class="menu-arrow"></span></a>
+								<ul class="sub-menus">									
+									<li class="submenu">										
+										<li><a href="{% url 'superadmin:custom_pages' %}" {% if custom_page %}class="active"{% endif %}> <span>Custom Pages</span></a></li>
+										<li><a href="{% url 'superadmin:add_custom_page' %}"> <span>Add Custom Page</span></a></li>
+									</li>
+								</ul>
+							</li>
+
+							<li class="submenu">
+								<a href="javascript:void(0);" {% if blog_page %}class="active"{% endif %}><i class="feather-edit"></i> <span>Blogs</span> <span class="menu-arrow"></span></a>
+								<ul class="sub-menus">									
+									<li class="submenu">										
+										<li><a href="{% url 'superadmin:blogs' %}" {% if list_blog_page %}class="active"{% endif %}> <span>Blogs</span></a></li>
+										<li><a href="{% url 'superadmin:add_blogs' %}" {% if add_blog_page %}class="active"{% endif %}> <span>Add Blog</span></a></li>
+									</li>
+								</ul>
+							</li>
+
+							<li class="submenu">
+								<a href="javascript:void(0);" {% if meta_tag_page %}class="active"{% endif %}><i class="feather-tag"></i> <span>Meta Tags</span> <span class="menu-arrow"></span></a>
+								<ul class="sub-menus">									
+									<li class="submenu">										
+										<li><a href="{% url 'superadmin:meta_tags' %}" {% if list_meta_tag_page %}class="active"{% endif %}> <span>Meta Tags</span></a></li>
+										<li><a href="{% url 'superadmin:add_meta_tag' %}"> <span>Add Meta Tag</span></a></li>
+									</li>
+								</ul>
+							</li>							
+
+							<li> 
+								<a href="{% url 'superadmin:home_main_content' %}" {% if home_content_page %}class="active"{% endif %} ><i class="fa fa-font"></i> <span>Home Content</span></a>
+							</li>
+														
+							<li> 
+								<a href="{% url 'superadmin:settings' %}"><i class="feather-settings"></i> <span>Settings</span></a>
+							</li>							
+						</ul>
+					</div>
+                </div>
+            </div>
+			<!-- /Sidebar -->
+			
+			<!-- Page Wrapper -->
+            <div class="page-wrapper">
+
+            {% block content %}{% endblock content %}
+
+            			
+			</div>
+			<!-- /Page Wrapper -->
+		
+        </div>
+		<!-- /Main Wrapper -->
+
+		{% block modal %}{% endblock modal %}
+
+		{% if current_company %}
+		<!-- Brand Modal (Start) -->
+		<div class="modal fade" id="add_product_brand" tabindex="-1" role="dialog" aria-modal="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<h4 class="modal-title text-center">Add {{product_company.name}} Brand</h4>
+						<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+					  </div>
+
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-12">
+								<form method="post" action="{% url 'superadmin:add_brand' current_company.slug %}" class="needs-validation" id="add-product-brand-form" novalidate>
+									{% csrf_token %}
+									<h4>{{product_company.name}} Brand</h4>
+									<div class="form-group row">
+										<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+										<div class="col-md-12">
+											<input class="form-control" type="text" id="product-brand-name-input" placeholder="Name of Brand" name="name">
+											<div class="invalid-feedback">
+												Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+											</div>
+											<div class="valid-feedback">
+												Looks good!
+											</div>
+										</div>
+									</div>									
+									<div class="text-center py-3">
+										<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="brand-submit-button">Add</button>&nbsp;&nbsp;
+										<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+									</div>
+								</form>
+							</div>
+						</div>
+
+					</div>
+
+				</div><!-- modal-content -->
+			</div><!-- modal-dialog -->
+		</div><!-- modal -->		
+		<!-- Brand Modal (End) -->				 
+
+		<!-- Color Modal (Start) -->
+		<div class="modal fade" id="add_product_color" tabindex="-1" role="dialog" aria-modal="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<h4 class="modal-title text-center">Add Color</h4>
+						<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+					  </div>
+
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-12">
+								<form method="post" action="{% url 'superadmin:add_color' current_company.slug  %}" class="needs-validation" id="add-product-color-form" novalidate>
+									{% csrf_token %}
+									<h4>Color</h4>
+									<div class="form-group row">
+										<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+										<div class="col-md-12">
+											<input class="form-control" type="text" id="product-color-name-input" placeholder="Name of Color" name="name">
+											<div class="invalid-feedback">
+												Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+											</div>
+											<div class="valid-feedback">
+												Looks good!
+											</div>
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-md-12"><label class="col-form-label">Hexa <span class="text-danger">*</span></label></div>
+										<div class="col-md-12">
+											<input class="form-control" type="text" id="product-hexa-input" placeholder="Hexa Code" name="hexa">
+											<div class="invalid-feedback">
+												Please enter a valid hexa code.
+											</div>
+											<div class="valid-feedback">
+												Looks good!
+											</div>
+										</div>
+									</div>									
+									<div class="text-center py-3">
+										<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="color-submit-button">Add</button>&nbsp;&nbsp;
+										<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+									</div>
+								</form>
+							</div>
+						</div>
+
+					</div>
+
+				</div><!-- modal-content -->
+			</div><!-- modal-dialog -->
+		</div><!-- modal -->
+
+		<div class="modal fade" id="add_product_size" tabindex="-1" role="dialog" aria-modal="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<h4 class="modal-title text-center">Add Size</h4>
+						<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+					</div>
+
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-12">
+								<form method="post" action="{% url 'superadmin:add_size' current_company.slug %}" class="needs-validation" id="update-size-form" novalidate>
+									{% csrf_token %}
+									<h4>Size</h4>
+									<div class="form-group row">
+										<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+										<div class="col-md-12">
+											<input class="form-control" type="text" id="name-input" placeholder="Name of Size" name="name">
+											<div class="invalid-feedback">
+												Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+											</div>
+											<div class="valid-feedback">
+												Looks good!
+											</div>
+											<span><small>Insert the sizes seperated with commas (',') to add multiple sizes at once.</small></span>
+										</div>
+									</div>
+									<div class="form-row">
+										<div class="col-md-12 mb-3">
+											<label for="product-category-dropdown">Category <span class="text-danger">*</span></label>
+											<select class="form-control" id="size-category-dropdown" name="category" required>
+												<option value="" hidden disabled selected>Select Category</option>
+												{% for category in categories %}
+												<option value="{{category.slug}}">{{category.name}}</option>
+												{% endfor %}
+											</select>
+											<div class="invalid-feedback">
+												Please provide a valid category.
+											</div>
+											<div class="valid-feedback">
+												Looks good!
+											</div>
+										</div>                            										                                                       
+									</div>									
+									<div class="form-row">
+										<div class="col-md-12 mb-3">
+											<label for="standard-dropdown">Standards (optional)</label>
+											<select class="form-control" id="standard-dropdown" name="standard" required>
+												<option value="" selected>Select Standards</option>
+												{% for standard in standards %}
+												<option value="{{standard}}">{{standard}}</option>
+												{% endfor %}
+											</select>
+											<div class="invalid-feedback">
+												Please provide a valid category.
+											</div>
+											<div class="valid-feedback">
+												Looks good!
+											</div>
+										</div>                            										                                                       
+									</div>
+									<div class="text-center py-3">
+										<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="add-size-button">Save</button>&nbsp;&nbsp;
+										<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+									</div>
+								</form>
+							</div>
+						</div>
+
+					</div>
+
+				</div><!-- modal-content -->
+			</div><!-- modal-dialog -->
+		</div><!-- modal -->
+		<!-- Size Modal (End) -->
+		{% endif %}
+
+		<!-- Color Modal (End) -->
+
+		<!-- Company Type (Start) -->
+		<div class="modal fade" id="add_company_type" tabindex="-1" role="dialog" aria-modal="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<h4 class="modal-title text-center">Add Company Type</h4>
+						<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+					  </div>
+
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-12">
+								<form method="post" action="{% url 'superadmin:add_company_type' %}" class="needs-validation" id="add-company-type-form" novalidate>
+									{% csrf_token %}
+									<h4>Company Type</h4>
+									<div class="form-group row">
+										<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+										<div class="col-md-12">
+											<input class="form-control" type="text" id="company-type-input" placeholder="Company Type" name="name">
+											<div class="invalid-feedback">
+												Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+											</div>
+											<div class="valid-feedback">
+												Looks good!
+											</div>
+										</div>
+									</div>									
+									<div class="text-center py-3">
+										<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="company-type-submit-button">Add</button>&nbsp;&nbsp;
+										<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+									</div>
+								</form>
+							</div>
+						</div>
+
+					</div>
+
+				</div><!-- modal-content -->
+			</div><!-- modal-dialog -->
+		</div><!-- modal -->
+		<!-- Company Type (End) -->		
+
+		 <!--theme settings modal-->
+
+		 <div class="modal right fade settings" id="settings"  role="dialog" aria-modal="true">
+			<div class="toggle-close">
+				  <div class="toggle" data-bs-toggle="modal" data-bs-target="#settings"><i class="fa fa-cog fa-w-16 fa-spin fa-2x"></i>
+				  </div>
+	   
+			</div>
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+
+					<div class="modal-header p-3">
+						<h4 class="modal-title" id="myModalLabel2">Theme Customizer</h4>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+					</div>
+
+					<div class="modal-body pb-3">
+						<div class="scroll">
+						
+						<div>
+							<ul class="list-group">
+								<li class="list-group-item border-0">
+								  <div class="row">
+									<div class="col">
+									  <h5 class="pb-2">Primary Skin</h5>
+									</div>
+									<div class="col text-end d-none">
+									  <a class="reset text-white bg-dark" id="ChangeprimaryDefault">Reset Default</a>
+									</div>
+								  </div>
+								  <div class="theme-settings-swatches">
+									 <div class="themes">
+											<div class="themes-body">
+												<ul id="theme-changes" class="theme-colors border-0 list-inline-item list-unstyled mb-0">
+													
+													<li class="theme-title">Solid Color</li>
+													<li class="list-inline-item"><span onclick="toggleTheme('style')" class="theme-defaults bg-warnings"  ></span></li>
+													<li class="list-inline-item"><span onclick="toggleTheme('style-green')" class="theme-solid-purple bg-warnings"  ></span></li>
+													<li class="list-inline-item"><span onclick="toggleTheme('style-blue')" class="theme-solid-black bg-blue"></span></li>
+													<li class="list-inline-item"><span onclick="toggleTheme('style-orange')" class="theme-solid-pink bg-orange"></span></li>
+													<li class="list-inline-item"><span onclick="toggleTheme('style-pink')" class="theme-solid-pink bg-pink"></span></li> 
+													<li class="list-inline-item"><span onclick="toggleTheme('style-purple')" class="theme-solid-purle bg-purple"></span></li> 
+													<li class="list-inline-item"><span onclick="toggleTheme('style-red')" class="theme-solid-danger bg-danger"></span></li> 
+													<li><br /></li>
+													<li><hr /></li>
+
+													<li class="theme-title">Gradient Color</li>
+													
+
+													<li class="list-inline-item"><span onclick="toggleTheme('style-gradient-blue')" class="theme-orange bg-sunny-mornings"></span></li>
+													<li class="list-inline-item"><span onclick="toggleTheme('style-gradient-green')" class="theme-blue bg-tempting-azures"></span></li> 
+													<li class="list-inline-item"><span onclick="toggleTheme('style-gradient-maroon')" class="theme-grey bg-amy-crisps"></span></li>
+													<li class="list-inline-item"><span onclick="toggleTheme('style-gradient-orange')" class="theme-lgrey bg-mean-fruits"></span></li>
+													<li class="list-inline-item"><span onclick="toggleTheme('style-gradient-pink')" class="theme-dblue bg-malibu-beachs"></span></li> 
+												</ul>
+											</div>
+										</div>
+
+									 
+								  </div>
+								  </li>
+							  </ul>
+						  </div>
+						  <div>
+							<ul class="list-group">
+							  <li class="list-group-item border-0">
+								 <div class="row">
+								  <div class="col">
+									<h5 class="pb-2">Header Style</h5>
+								  </div>
+								  <div class="col text-end">
+									<a class="reset text-white bg-dark" id="ChageheaderDefault">Reset Default</a>
+								  </div>
+								</div>
+								<div class="theme-settings-swatches">
+									<div class="themes">
+										<div class="themes-body">
+											<ul id="theme-change1" class="theme-colors border-0 list-inline-item list-unstyled mb-0">
+													<li class="theme-title">Solid Color</li>
+													<li class="list-inline-item"><span class="header-solid-black bg-black"></span></li>
+													<li class="list-inline-item"><span class="header-solid-pink bg-primary"></span></li>
+													<li class="list-inline-item"><span class="header-solid-orange bg-secondary1"></span></li> 
+													<li class="list-inline-item"><span class="header-solid-purple bg-success"></span></li>
+													<!-- <li class="list-inline-item"><span class="header-solid-blue bg-info"></span></li> -->
+													<li class="list-inline-item"><span class="header-solid-green bg-warnings"></span></li>
+													<li><br></li>
+													<li><hr></li>
+
+													<li class="theme-title">Gradient Color</li>
+
+													<li class="list-inline-item"><span class="header-gradient-color1 bg-sunny-morning"></span></li>
+													<li class="list-inline-item"><span class="header-gradient-color2 bg-tempting-azure"></span></li> 
+													<li class="list-inline-item"><span class="header-gradient-color3 bg-amy-crisp"></span></li>
+													<li class="list-inline-item"><span class="header-gradient-color4 bg-mean-fruit"></span></li>
+													<li class="list-inline-item"><span class="header-gradient-color5 bg-malibu-beach"></span></li> 
+													<li class="list-inline-item"><span class="header-gradient-color6 bg-ripe-malin"></span></li> 
+													<li class="list-inline-item"><span class="header-gradient-color7 bg-plum-plate"></span></li>
+													
+											</ul>
+										</div>
+									</div>
+									
+								  </div>
+							  </li>
+							</ul>
+						  </div>
+						  <div>
+							<ul class="list-group m-0">
+								<li class="list-group-item border-0">
+								  <div class="row">
+									<div class="col">
+									  <h5 class="pb-2">Apps Sidebar Style</h5>
+									</div>
+									<div class="col  text-end">
+									  <a class="reset text-white bg-dark" id="ChagesidebarDefault">Reset Default</a>
+									</div>
+								  </div>
+								  <div class="theme-settings-swatches">
+									  <div class="themes">
+										  <div class="themes-body">
+											  <ul id="theme-change2" class="theme-colors border-0 list-inline-item list-unstyled">
+													  <li class="theme-title">Solid Color</li>
+													  <li class="list-inline-item"><span class="sidebar-solid-black bg-black"></span></li>
+													  <li class="list-inline-item"><span class="sidebar-solid-pink bg-primary"></span></li>
+													  <li class="list-inline-item"><span class="sidebar-solid-orange bg-secondary1"></span></li> 
+													  <li class="list-inline-item"><span class="sidebar-solid-purple bg-success"></span></li>
+													  <!-- <li class="list-inline-item"><span class="sidebar-solid-blue bg-info"></span></li> -->
+													  <li class="list-inline-item"><span class="sidebar-solid-green bg-warnings"></span></li>
+													  <li><br></li>
+													  <li><hr></li>
+
+													  <li class="theme-title">Gradient Color</li>
+
+													  <li class="list-inline-item"><span class="sidebar-gradient-color1 bg-sunny-morning"></span></li>
+													  <li class="list-inline-item"><span class="sidebar-gradient-color2 bg-tempting-azure"></span></li> 
+													  <li class="list-inline-item"><span class="sidebar-gradient-color3 bg-amy-crisp"></span></li>
+													  <li class="list-inline-item"><span class="sidebar-gradient-color4 bg-mean-fruit"></span></li>
+													  <li class="list-inline-item"><span class="sidebar-gradient-color5 bg-malibu-beach"></span></li> 
+													  <li class="list-inline-item"><span class="sidebar-gradient-color6 bg-ripe-malin"></span></li> 
+													  <li class="list-inline-item"><span class="sidebar-gradient-color7 bg-plum-plate"></span></li>
+													  
+											  </ul>
+										  </div>
+									  </div>
+									  
+									</div>
+								</li>
+							  </ul>
+							<div class="row Default-font">
+								<div class="col">
+									<h5 class="pb-2">Font Style</h5>
+								</div>
+								<div class="col text-end">
+									<a class="reset text-white bg-dark font-Default">Reset Default</a>
+								</div>
+							</div>
+							<ul class="list-inline-item list-unstyled font-family border-0 p-0" id="theme-change">
+							  
+							  <li class="list-inline-item roboto-font" >Roboto</li>
+							  <li class="list-inline-item poppins-font">Poppins</li>
+							  <li class="list-inline-item montserrat-font" >Montserrat</li>
+							  <li class="list-inline-item inter-font">Inter</li>
+							</ul>
+						</div>
+						
+					</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<!--theme settings-->
+        <div class="sidebar-contact">
+          	<div class="toggle" data-bs-toggle="modal" data-bs-target="#settings"><i class="fa fa-cog fa-w-16 fa-spin fa-2x"></i></div>
+           
+        </div>
+
+		
+		
+		<!-- jQuery -->
+        <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+		
+		<!-- Bootstrap Core JS -->
+        <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+		
+		<!-- Slimscroll JS -->
+		<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
+		
+		<!-- Chart JS -->
+		<script src="{% static 'assets/plugins/morris/morris.min.js' %}"></script>
+		<script src="{% static 'assets/plugins/raphael/raphael.min.js' %}"></script>
+		{% comment %} <script src="{% static 'assets/js/chart.js' %}"></script> {% endcomment %}
+		{% comment %} <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> {% endcomment %}
+		{% comment %} <script src="{% static 'assets/js/chartsLine.js' %}"></script>        								 {% endcomment %}
+        		
+		{% comment %} <script src="{% static 'assets/js/linebar.min.js' %}"></script> {% endcomment %}
+		{% comment %} <script src="{% static 'assets/js/piechart.js' %}"></script> {% endcomment %}
+		{% comment %} <script src="{% static 'assets/js/apex.min.js' %}"></script> {% endcomment %}
+        				
+
+        <!-- Select2 JS -->
+		<script src="{% static 'assets/js/select2.min.js' %}"></script>
+
+		<!-- Datatable JS -->
+		<script src="{% static 'assets/js/jquery.dataTables.min.js' %}"></script>
+		<script src="{% static 'assets/js/dataTables.bootstrap4.min.js' %}"></script>
+
+		<!-- Datetimepicker JS -->
+		<script src="{% static 'assets/js/moment.min.js' %}"></script>
+		<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+
+
+		 <!-- Custom JS -->
+		<!-- theme JS -->
+		<script src="{% static 'assets/js/theme-settings.js' %}"></script>
+
+		<!-- Custom JS -->
+		<script src="{% static 'assets/js/app.js' %}"></script>
+
+        <!-- <script src="{% static 'assets/js/dynamicActive.js' %}"></script> -->
+
+		<!-- Chosen Select -->
+		{% comment %} <script type="text/javascript" src="{% static 'w3/scripts/chosen.min.js' %}"></script> {% endcomment %}
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+		<script type="text/javascript" src="{% static 'w3/scripts/custom.js' %}"></script>
+		
+		<script>
+			$(document).ready(() => {
+				$(document).on('click', '.add-brand-toggle-btn', function () {
+					const companySlug = $(this).data("company-slug");
+					$('#add-product-brand-form').prop('action', `/admin/add_brand/${companySlug}`)
+				});
+
+				$(document).on('click', '.add-category-toggle-btn', function () {
+					const companySlug = $(this).data("company-slug");
+					$('#add-product-category-form').prop('action', `/admin/add_category/${companySlug}`)
+				});
+
+				$(document).on('click', '.add-sub-category-toggle-btn', function () {
+					const companySlug = $(this).data("company-slug");
+					$('#add-product-sub-category-form').prop('action', `/admin/add_sub_category/${companySlug}`)
+				});
+
+				$(document).on('click', '.add-color-toggle-btn', function () {
+					const companySlug = $(this).data("company-slug");
+					$('#add-product-color-form').prop('action', `/admin/add_color/${companySlug}`)
+				});
+				
+				let hexaPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;  
+
+				// Scripts of Product Brand (Start)
+				function validateAddProductBrandForm() {  					   
+					let formValid = true       
+
+					const productBrand = $('#product-brand-name-input').val().trim();            
+
+					if (!productBrand) {
+						$('#product-brand-name-input').addClass('is-invalid');
+						$('#product-brand-name-input').focus();
+						formValid = false;
+
+					} else {
+						$('#product-brand-name-input').addClass('is-valid');
+						$('#product-brand-name-input').blur();
+						
+					}            
+					
+					
+					if (formValid == true) {
+						$('#add-product-brand-form').submit()
+					}            
+				}    
+				
+				$(document).on('click', '#brand-submit-button', () => validateAddProductBrandForm());
+				
+				// Inputting
+
+				$('#product-brand-name-input').on('input', function () {
+					if (!$(this).val()) {
+						$(this).addClass('is-invalid');
+						$(this).removeClass('is-valid');
+					} else {
+						$(this).addClass('is-valid');
+						$(this).removeClass('is-invalid');
+					}
+				});			
+				// Scripts of Product Brand (End)
+
+				// Scripts of Product Category (Start)
+				function validateAddProductCategoryForm() {  					   
+					let formValid = true       
+		
+					const productCategory = $('#product-category-name-input').val().trim();            
+		
+					if (!productCategory) {
+						$('#product-category-name-input').addClass('is-invalid');
+						$('#product-category-name-input').focus();
+						formValid = false;
+		
+					} else {
+						$('#product-category-name-input').addClass('is-valid');
+						$('#product-category-name-input').blur();
+								
+					}            
+		
+		
+					if (formValid == true) {
+						$('#add-product-category-form').submit()
+					}            
+				}    
+		
+				$('#category-submit-button').click(() => validateAddProductCategoryForm());
+				
+				// Inputting
+		
+				$('#product-category-name-input').on('input', function () {
+					if (!$(this).val()) {
+						$(this).addClass('is-invalid');
+						$(this).removeClass('is-valid');
+					} else {
+						$(this).addClass('is-valid');
+						$(this).removeClass('is-invalid');
+					}
+				});
+				// Scripts of Product Category (End)
+
+				// Scripts of Product Sub Category (Start)
+				function validateAddProductSubCategoryForm() {  					   
+					let formValid = true       
+		
+					const categoryDropdown = $('#sub-category-category-dropdown').val();
+		
+					if (!categoryDropdown) {
+						$('#sub-category-category-dropdown').removeClass('is-valid').addClass('is-invalid');
+						$('#sub-category-category-dropdown').focus();
+						formValid = false;
+					} else {
+						$('#sub-category-category-dropdown').removeClass('is-invalid').addClass('is-valid');
+						$('#sub-category-category-dropdown').blur();						
+					}            
+
+					
+					const productSubCategory = $('#product-sub-category-name-input').val().trim();            
+		
+					if (!productSubCategory) {
+						$('#product-sub-category-name-input').addClass('is-invalid');
+						$('#product-sub-category-name-input').focus();
+						formValid = false;
+		
+					} else {
+						$('#product-sub-category-name-input').addClass('is-valid');
+						$('#product-sub-category-name-input').blur();
+								
+					}
+
+					if (formValid == true) {
+						$('#add-product-sub-category-form').submit()
+					}            
+				}    
+		
+				$('#sub-category-submit-button').click(() => validateAddProductSubCategoryForm());
+				
+				// Inputting
+		
+				$('#product-sub-category-name-input').on('input', function () {
+					if (!$(this).val()) {
+						$(this).removeClass('is-valid').addClass('is-invalid');
+					} else {
+						$(this).removeClass('is-invalid').addClass('is-valid');
+					}
+				});
+
+				// Changing
+				$('#sub-category-category-dropdown').on('change', function () {
+					if (!$(this).val()) {
+						$(this).removeClass('is-valid').removeClass('is-invalid');
+					} else {
+						$(this).removeClass('is-invalid').addClass('is-valid');
+					}
+				});
+
+				// Scripts of Product Sub Category (End)
+
+				// Scripts of Product Color (Start)
+				function validateAddProductColorForm() {  					
+				
+					let formValid = true					
+		
+					let productColor = $('#product-color-name-input').val()
+					let hexa = $('#product-hexa-input').val()
+
+					if (productColor) {
+						productColor = productColor.trim();
+					}
+
+
+					if (hexa) {
+						hexa = hexa.trim();
+					}
+		
+					if (!productColor) {
+						$('#product-color-name-input').addClass('is-invalid');
+						$('#product-color-name-input').focus();
+						formValid = false;
+		
+					} else {
+						$('#product-color-name-input').addClass('is-valid');
+						$('#product-color-name-input').blur();
+								
+					}
+
+					if (!hexa || !hexaPattern.test(hexa)) {
+						$('#product-hexa-input').addClass('is-invalid');
+						$('#product-hexa-input').focus();
+						formValid = false;
+		
+					} else {
+						$('#product-hexa-input').addClass('is-valid');
+						$('#product-hexa-input').blur();
+								
+					}
+		
+		
+					if (formValid == true) {
+						$('#add-product-color-form').submit()
+					}            
+				}    
+		
+				$('#color-submit-button').click(() => validateAddProductColorForm());
+		
+				// Inputting
+		
+				$('#product-color-name-input').on('input', function () {
+					if (!$(this).val()) {
+						$(this).addClass('is-invalid');
+						$(this).removeClass('is-valid');
+					} else {
+						$(this).addClass('is-valid');
+						$(this).removeClass('is-invalid');
+					}
+				});
+
+				$('#product-hexa-input').on('input', function () {
+					if (!$(this).val() || !hexaPattern.test($(this).val())) {
+						$(this).addClass('is-invalid');
+						$(this).removeClass('is-valid');
+					} else {
+						$(this).addClass('is-valid');
+						$(this).removeClass('is-invalid');
+					}
+				});
+				// Scripts of Product Color (End)
+
+				// Scripts of Company Type (Start)
+				function validateAddCompanyTypeForm() {  					   
+					let formValid = true       
+
+					const companyType = $('#company-type-input').val().trim();            
+
+					if (!companyType) {
+						$('#company-type-input').addClass('is-invalid');
+						$('#company-type-input').focus();
+						formValid = false;
+
+					} else {
+						$('#company-type-input').addClass('is-valid');
+						$('#company-type-input').blur();
+						
+					}            
+										
+					if (formValid == true) {
+						$('#add-company-type-form').submit()
+					}            
+				}    
+				
+				$(document).on('click', '#company-type-submit-button', () => validateAddCompanyTypeForm());
+				
+				// Inputting
+
+				$('#company-type-input').on('input', function () {
+					if (!$(this).val().trim()) {
+						$(this).addClass('is-invalid');
+						$(this).removeClass('is-valid');
+					} else {
+						$(this).addClass('is-valid');
+						$(this).removeClass('is-invalid');
+					}
+				});			
+				// Scripts of Company Type (End)
+			})
+			</script>
+			
+
+		{% block scripts %}{% endblock scripts %}	
+
+		<script>
+			$('.btn-secondary').click(function () {
+				if ($(this).html() == "Cancel") {
+					$('.btn-close').click();
+				}
+			});
+		</script>
+
+		<script>
+			function getCourses() {
+				const program = $('#program-dropdown').val();
+				const company = `{{current_company.slug}}`;
+	
+				$.ajax({
+					type: 'GET',
+					url: `{% url 'education:get_courses' %}`,
+					dataType: 'json',
+					data: {
+						"program": program,
+						"company": company
+					},
+					success: response => {
+						if (response.courses && response.courses.length > 0) {
+							$('#course-dropdown').html(`<option value="" hidden disabled selected>Select Course</option>`);
+							response.courses.forEach(course => {
+								$('#course-dropdown').append(`<option value="${course.slug}">${course.name}</option>`)
+							})
+						}
+						
+						if (response.error) {
+							console.error("Error: ", response.error)
+						}
+					},
+					error: error => console.error("Error: ", error),
+				});            
+			};
+
+			// Get Sub Categories
+			function getSubCategories(isProduct = undefined) {
+				const category = $('#category-dropdown').val();
+				const company = `{{current_company.slug}}`;
+
+				let actionUrl = `{% url 'service:get_sub_categories' %}`
+
+				if (isProduct) {
+					actionUrl = `{% url 'product:get_sub_categories' %}`;
+
+					$('#product-dropdown').html('<option value="" hidden disabled selected>Select Product</option>');
+				} else {
+					$('#service-dropdown').html('<option value="" hidden disabled selected>Select Service</option>');
+				}
+
+	
+				$.ajax({
+					type: 'GET',
+					url: actionUrl,
+					dataType: 'json',
+					data: {
+						"category_slug": category,
+						"company_slug": company
+					},
+					success: response => {
+						$('#sub-category-dropdown').html(`<option value="" hidden disabled selected>Select Sub Category</option>`);
+						
+						if (response.sub_categories && response.sub_categories.length > 0) {
+							response.sub_categories.forEach(sub_category => {
+								$('#sub-category-dropdown').append(`<option value="${sub_category.slug}">${sub_category.name}</option>`)
+							})
+						}
+						
+						if (response.error) {
+							console.error("Error: ", response.error)
+						}
+					},
+					error: error => console.error("Error: ", error),
+				});            
+			};			
+	
+			// Get Products
+			function getProducts() {
+				const sub_category = $('#sub-category-dropdown').val();
+				const company = `{{current_company.slug}}`;
+	
+				$.ajax({
+					type: 'GET',
+					url: `{% url 'product:get_products' %}`,
+					dataType: 'json',
+					data: {
+						"sub_category_slug": sub_category,
+						"company_slug": company
+					},
+					success: response => {
+						$('#product-dropdown').html(`<option value="" hidden disabled selected>Select Product</option>`);
+						
+						if (response.products && response.products.length > 0) {
+							response.products.forEach(product => {
+								$('#product-dropdown').append(`<option value="${product.slug}">${product.name}</option>`)
+							})
+						}
+
+						if (response.error) {
+							console.error("Error: ", response.error)
+						}
+						
+					},
+					error: error => console.error("Error: ", error),
+				});            
+			};
+
+			// Get Services
+			function getServices() {
+				const sub_category = $('#sub-category-dropdown').val();
+				const company = `{{current_company.slug}}`;
+	
+				$.ajax({
+					type: 'GET',
+					url: `{% url 'service:get_services' %}`,
+					dataType: 'json',
+					data: {
+						"sub_category_slug": sub_category,
+						"company_slug": company
+					},
+					success: response => {
+						$('#service-dropdown').html(`<option value="" hidden disabled selected>Select Service</option>`);
+						
+						if (response.services && response.services.length > 0) {
+							response.services.forEach(service => {
+								$('#service-dropdown').append(`<option value="${service.slug}">${service.name}</option>`)
+							})
+						}
+						
+						if (response.error) {
+							console.error("Error: ", response.error)
+						}
+					},
+					error: error => console.error("Error: ", error),
+				});            
+			};
+
+			// Get Sub Categories
+			function getSubTypes() {
+				const type = $('#type-dropdown').val();
+				const company = `{{current_company.slug}}`;
+
+				$('#sub-type-dropdown').html(`<option value="" hidden disabled selected>Select Sub Type</option>`);
+	
+				$.ajax({
+					type: 'GET',
+					url: `{% url 'registration:get_registration_sub_types' %}`,
+					dataType: 'json',
+					data: {
+						"type_slug": type,
+						"company_slug": company
+					},
+					success: response => {						
+						
+						if (response.sub_types && response.sub_types.length > 0) {
+							response.sub_types.forEach(sub_type => {
+								$('#sub-type-dropdown').append(`<option value="${sub_type.slug}">${sub_type.name}</option>`)
+							})
+						}
+						
+						if (response.error) {
+							console.error("Error: ", response.error)
+						}
+					},
+					error: error => console.error("Error: ", error),
+				});            
+			};
+
+			function getRegistrations() {
+            const sub_type = $('#sub-type-dropdown').val();
+            const company = `{{current_company.slug}}`;
+
+            $('#registration-dropdown').html(`<option value="" hidden disabled selected>Select Registration</option>`);
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'registration:get_registrations' %}`,
+                dataType: 'json',
+                data: {
+                    "sub_type_slug": sub_type,
+                    "company_slug": company
+                },
+                success: response => {						
+                    
+                    if (response.registrations && response.registrations.length > 0) {
+                        response.registrations.forEach(registration => {
+                            $('#registration-dropdown').append(`<option value="${registration.slug}">${registration.title}</option>`)
+                        })
+                    }
+                    
+                    if (response.error) {
+                        console.error("Error: ", response.error)
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            });            
+        };
+		</script>
+    </body>
+</html>

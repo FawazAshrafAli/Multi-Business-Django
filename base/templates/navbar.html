@@ -1,0 +1,330 @@
+{% load static %}
+<nav class="navbar" itemscope="" itemtype="http://www.schema.org/SiteNavigationElement">
+    <div class="brand-and-icon">
+      <a href="index.html" class="navbar-brand"><img itemprop="image" src="{% if company_page %}{{company.logo.url}}{% else %}{% static 'images/cropped-bzindia_logo_2022.webp' %}{% endif %} " alt="" style="max-height: 55px;"></a>
+      <button type="button" class="navbar-toggler">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="navbar-collapse">
+      <ul class="navbar-nav">
+        <li itemprop="name"><a itemprop="url" href="{% url 'home:home' %}">home</a>  </li>
+
+        <li>
+          <a href="#" class="menu-link">
+            Company
+            <span class="drop-icon">
+              <i class="fas fa-chevron-down"></i>
+            </span>
+          </a>
+          <div class="sub-menu">
+            <!-- item -->
+            {% for company_type in company_types|slice:":4" %}
+            <div class="sub-menu-item">
+              <h4>{{company_type.name}}</h4>
+              <ul>
+                {% for company in company_type.companies|slice:":5" %}
+                <li itemprop="name"><a itemprop="url" href="{% if company_type.name == "Education" %}{% url 'education:home' company.slug %}{% elif company_type.name == "Product" %}{% url 'product:home' company.slug %}{% endif %}">{{company.name}}</a></li>
+                {% endfor %}
+                <!-- <li itemprop="name"><a itemprop="url" href="#">smart tv</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">computer & laptops</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">digital cameras</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">video games & accessories</a></li> -->
+              </ul>
+            </div>
+            {% endfor %}
+            <!-- end of item -->
+            <!-- item -->
+            <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+                <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+              <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+                <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+           <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+               <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+          </div>
+        </li>
+        
+          {% for company_type in company_types|slice:":4" %}
+          <li>
+          <a href="#" class="menu-link">
+            {{company_type.name}}
+            <span class="drop-icon">
+              <i class="fas fa-chevron-down"></i>
+            </span>
+          </a>
+          <div class="sub-menu">
+            <!-- item -->
+             {% for category in company_type.categories|slice:":4" %}
+            <div class="sub-menu-item">
+              <h4>{{category.name}}</h4>
+              <ul>
+                {% for sub_category in category.sub_categories|slice:":5" %}
+                <li itemprop="name"><a itemprop="url" href="#">{{sub_category.name}}</a></li>
+                {% endfor %}
+                <!-- <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li> -->
+              </ul>
+            </div>
+            {% endfor %}
+            <!-- end of item -->
+            <!-- item -->
+            <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+                <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+              <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+               <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+           <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+               <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+          <!-- </div>
+        </li> -->
+        {% endfor %}
+        
+    
+
+       <!-- <li>
+          <a href="#" class="menu-link">
+            Services
+            <span class="drop-icon">
+              <i class="fas fa-chevron-down"></i>
+            </span>
+          </a>
+          <div class="sub-menu"> -->
+            <!-- item -->
+            <!-- <div class="sub-menu-item">
+              <h4>top categories</h4>
+              <ul>
+                <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+            <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+               <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+              <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+                <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+           <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+                 <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+          <!-- </div>
+        </li> -->
+        
+        
+        <!-- <li>
+          <a href="#" class="menu-link">
+            Courses
+            <span class="drop-icon">
+              <i class="fas fa-chevron-down"></i>
+            </span>
+          </a>
+          <div class="sub-menu"> -->
+            <!-- item -->
+            <!-- <div class="sub-menu-item">
+              <h4>top categories</h4>
+              <ul>
+                <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+            <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+               <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+              <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+                <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+           <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+                 <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+          <!-- </div>
+        </li> -->
+
+
+        <!-- <li>
+          <a href="#" class="menu-link">
+            Products
+            <span class="drop-icon">
+              <i class="fas fa-chevron-down"></i>
+            </span>
+          </a>
+          <div class="sub-menu"> -->
+            <!-- item -->
+            <!-- <div class="sub-menu-item">
+              <h4>top categories</h4>
+              <ul>
+                <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+            <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+               <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+              <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+                <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+            <!-- item -->
+           <!-- <div class="sub-menu-item">
+              <h4>other categories</h4>
+              <ul>
+                 <li itemprop="name"><a itemprop="url" href="#">iphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">speakers</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">samsung devices</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">audio & headphones</a></li>
+                <li itemprop="name"><a itemprop="url" href="#">vehicles electronics & GPS</a></li>
+              </ul>
+            </div> -->
+            <!-- end of item -->
+          <!-- </div>
+        </li> -->
+          <li>
+          <a href="#">Contact Us</a>
+        </li>
+        <li style="border:none;">
+          <a href="#" target="_blank" class="customer_log"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Customer Login</a>
+        </li>
+      </ul>
+    </div>
+  </nav>

@@ -1,0 +1,360 @@
+<!-- footer section start -->
+
+<footer>
+    <div class="container">
+    
+<div class="row" style="padding-bottom:40px;">
+
+    {% for company in companies|slice:":12" %}
+    <div class="col col-md-3 col-12">
+        <button class="accordion">{{company.name}}</button>
+        <ul class="panel list-default" itemscope="" itemtype="http://www.schema.org/SiteNavigationElement">
+
+            {% for category in company.categories|slice:":10" %}
+            <li itemprop="name"><a itemprop="url" href="#">{{category.name}}</a></li>
+            {% endfor %}            
+
+        </ul>
+    </div>
+{% endfor %} 
+
+</div>
+
+
+<div class="row">
+  <h1 class="foot_head" onclick="toggleAccordion(this)"><a href="#"><i class="fa fa-crosshairs" aria-hidden="true"></i></a> Common Service Centre - CSC in Nearby Locations</h1>
+  <div class="footer_directory local-cscs">
+    <a class="anchor" href="#">CSCs in Perintalmanna</a>
+    <a class="anchor" href="#">CSCs in Perintalmanna</a>
+    <a class="anchor" href="#">CSCs in Perintalmanna</a>
+        <a class="anchor" href="#">CSCs in Perintalmanna</a>
+    <a class="anchor" href="#">CSCs in Perintalmanna</a>
+    <a class="anchor" href="#">CSCs in Perintalmanna</a>
+        <a class="anchor" href="#">CSCs in Perintalmanna</a>
+    <a class="anchor" href="#">CSCs in Perintalmanna</a>
+    <a class="anchor" href="#">CSCs in Perintalmanna</a>
+        <a class="anchor" href="#">CSCs in Perintalmanna</a>
+    <a class="anchor" href="#">CSCs in Perintalmanna</a>
+    <a class="anchor" href="#">CSCs in Perintalmanna</a>
+  </div>
+</div>
+
+<div class="row">
+  <h1 class="foot_head" onclick="toggleAccordion(this)"><a href="#"><i class="fa fa-crosshairs" aria-hidden="true"></i></a> Post Office & Pincode in Nearby Locations</h1>
+  <div class="footer_directory local-post-offices">
+    <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+    <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+    <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+        <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+    <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+    <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+        <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+    <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+    <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+        <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+    <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+    <a class="anchor" href="#">Post Offices in Perintalmanna</a>
+  </div>
+</div>
+
+<div class="row">
+ <h1 class="foot_head" onclick="toggleAccordion(this)"><a href="#"><i class="fa fa-crosshairs" aria-hidden="true"></i></a> Police Stations in Nearby Locations</h1>
+  <div class="footer_directory local-police-stations">
+    <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+    <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+    <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+        <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+    <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+    <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+        <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+    <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+    <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+        <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+    <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+    <a class="anchor" href="#">Police Stations in Perintalmanna</a>
+  </div>
+</div>
+
+<div class="row">
+ <h1 class="foot_head" onclick="toggleAccordion(this)"><a href="#"><i class="fa fa-crosshairs" aria-hidden="true"></i></a> Judicial Courts in Nearby Locations</h1>
+  <div class="footer_directory local-courts">
+    <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+    <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+    <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+        <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+    <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+    <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+        <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+    <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+    <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+        <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+    <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+    <a class="anchor" href="#">Judicial Courts in Perintalmanna</a>
+  </div>
+</div>
+
+
+<div class="row">
+ <h1 class="foot_head" onclick="toggleAccordion(this)"><a href="#"><i class="fa fa-crosshairs" aria-hidden="true"></i></a> Bank and IFSC in Nearby Locations</h1>
+  <div class="footer_directory local-banks">
+    <a class="anchor" href="#">Banks in Perintalmanna</a>
+    <a class="anchor" href="#">Banks in Perintalmanna</a>
+    <a class="anchor" href="#">Banks in Perintalmanna</a>
+        <a class="anchor" href="#">Banks in Perintalmanna</a>
+    <a class="anchor" href="#">Banks in Perintalmanna</a>
+    <a class="anchor" href="#">Banks in Perintalmanna</a>
+        <a class="anchor" href="#">Banks in Perintalmanna</a>
+    <a class="anchor" href="#">Banks in Perintalmanna</a>
+    <a class="anchor" href="#">Banks in Perintalmanna</a>
+        <a class="anchor" href="#">Banks in Perintalmanna</a>
+    <a class="anchor" href="#">Banks in Perintalmanna</a>
+    <a class="anchor" href="#">Banks in Perintalmanna</a>
+  </div>
+</div>
+
+
+<div class="row">
+ <h1 class="foot_head" onclick="toggleAccordion(this)"><a href="#"><i class="fa fa-crosshairs" aria-hidden="true"></i></a> Destinations in Nearby Locations</h1>
+  <div class="footer_directory local-destinations">
+    <a class="anchor" href="#">Destinations in Perintalmanna</a>
+    <a class="anchor" href="#">Destinations in Perintalmanna</a>
+    <a class="anchor" href="#">Destinations in Perintalmanna</a>
+        <a class="anchor" href="#">Destinations in Perintalmanna</a>
+    <a class="anchor" href="#">Destinations in Perintalmanna</a>
+    <a class="anchor" href="#">Destinations in Perintalmanna</a>
+        <a class="anchor" href="#">Destinations in Perintalmanna</a>
+    <a class="anchor" href="#">Destinations in Perintalmanna</a>
+    <a class="anchor" href="#">Destinations in Perintalmanna</a>
+        <a class="anchor" href="#">Destinations in Perintalmanna</a>
+    <a class="anchor" href="#">Destinations in Perintalmanna</a>
+    <a class="anchor" href="#">Destinations in Perintalmanna</a>
+  </div>
+</div>
+
+
+<div class="row">
+ <h1 class="foot_head" onclick="toggleAccordion(this)"><a href="#"><i class="fa fa-crosshairs" aria-hidden="true"></i></a> Popular Cities in India</h1>
+  <div class="footer_directory">
+<a class="anchor" href="#">Mumbai</a>
+<a class="anchor" href="#">Bengaluru</a>
+<a class="anchor" href="#">Hyderabad</a>
+<a class="anchor" href="#">Kolkata</a>
+<a class="anchor" href="#">Chennai</a>
+<a class="anchor" href="#">Pune</a>
+<a class="anchor" href="#">Ahmedabad</a>
+<a class="anchor" href="#">Surat</a>
+<a class="anchor" href="#">Jaipur</a>
+<a class="anchor" href="#">Lucknow</a>
+<a class="anchor" href="#">Kanpur</a>
+<a class="anchor" href="#">Indore</a>
+<a class="anchor" href="#">Patna</a>
+<a class="anchor" href="#">Nagpur</a>
+<a class="anchor" href="#">Visakhapatnam</a>
+<a class="anchor" href="#">Meerut</a>
+<a class="anchor" href="#">Bhopal</a>
+<a class="anchor" href="#">Varanasi</a>
+<a class="anchor" href="#">Agra</a>
+<a class="anchor" href="#">Nashik</a>
+<a class="anchor" href="#">Vijayawada</a>
+<a class="anchor" href="#">Guwahati</a>
+<a class="anchor" href="#">Rajkot</a>
+<a class="anchor" href="#">Warangal</a>
+<a class="anchor" href="#">Coimbatore</a>
+<a class="anchor" href="#">Thiruvananthapuram</a>
+<a class="anchor" href="#">Faridabad</a>
+<a class="anchor" href="#">Ghaziabad</a>
+<a class="anchor" href="#">Chandigarh</a>
+<a class="anchor" href="#">Ludhiana</a>
+<a class="anchor" href="#">Vadodara</a>
+<a class="anchor" href="#">Raipur</a>
+<a class="anchor" href="#">Jodhpur</a>
+<a class="anchor" href="#">Mangalore</a>
+<a class="anchor" href="#">Gwalior</a>
+<a class="anchor" href="#">Tiruchirappalli</a>
+<a class="anchor" href="#">Jamshedpur</a>
+<a class="anchor" href="#">Ranchi</a>
+<a class="anchor" href="#">Prayagraj</a>
+<a class="anchor" href="#">Jalandhar</a>
+<a class="anchor" href="#">Jabalpur</a>
+<a class="anchor" href="#">Chhatrapati Sambhaji Nagar</a>
+<a class="anchor" href="#">Bhubaneswar</a>
+<a class="anchor" href="#">Asansol</a>
+<a class="anchor" href="#">Mumbai</a>
+<a class="anchor" href="#">Gurugram</a>
+<a class="anchor" href="#">Mysuru</a>
+<a class="anchor" href="#">Noida</a>
+<a class="anchor" href="#">Kochi</a>
+<a class="anchor" href="#">Amritsar</a>
+<a class="anchor" href="#">Saharanpur</a>
+  </div>
+</div>
+
+
+
+ 
+      <div class="row" style="padding-top: 30px;">
+     
+        {% include "common_footer.html" %}
+        
+
+
+        
+        <div class="col-md-12 foot_area_cnt">
+          <h6> Lorem ipsum dolor sit amet, consectetur adipiscing elit. </h6>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis euismod gravida blandit. Vestibulum aliquam lobortis justo, eu tristique nunc ultrices sit amet. Fusce auctor pretium augue, id pellentesque augue congue ut. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras id leo consequat, scelerisque nisi sit amet, euismod augue. Proin ut metus velit. Pellentesque vehicula sem quis aliquet placerat. Aliquam ullamcorper sagittis ante at gravida.
+   
+   </p>
+   
+          <h6> Lorem ipsum dolor sit amet, consectetur adipiscing elit. </h6>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis euismod gravida blandit. Vestibulum aliquam lobortis justo, eu tristique nunc ultrices sit amet. Fusce auctor pretium augue, id pellentesque augue congue ut. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras id leo consequat, scelerisque nisi sit amet, euismod augue. Proin ut metus velit. Pellentesque vehicula sem quis aliquet placerat. Aliquam ullamcorper sagittis ante at gravida.
+   
+   </p>
+   
+   
+          <h6> Lorem ipsum dolor sit amet, consectetur adipiscing elit. </h6>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis euismod gravida blandit. Vestibulum aliquam lobortis justo, eu tristique nunc ultrices sit amet. Fusce auctor pretium augue, id pellentesque augue congue ut. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras id leo consequat, scelerisque nisi sit amet, euismod augue. Proin ut metus velit. Pellentesque vehicula sem quis aliquet placerat. Aliquam ullamcorper sagittis ante at gravida.
+   
+   </p>
+   
+   
+          <h6> Lorem ipsum dolor sit amet, consectetur adipiscing elit. </h6>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis euismod gravida blandit. Vestibulum aliquam lobortis justo, eu tristique nunc ultrices sit amet. Fusce auctor pretium augue, id pellentesque augue congue ut. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras id leo consequat, scelerisque nisi sit amet, euismod augue. Proin ut metus velit. Pellentesque vehicula sem quis aliquet placerat. Aliquam ullamcorper sagittis ante at gravida.
+   
+   </p>
+             </div>
+        
+        
+        <div class="col-md-12">
+          <div class="copy-right-bx">
+            <div class="copy-right-bx-cntnt">
+              <span class="ftr-spn-cpy-1">&copy; <script type="text/javascript">var year = new Date();document.write(year.getFullYear());</script> BZIndia - Top Companies in India</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+     
+  </footer>
+<!-- recent artical-section start -->
+
+  <section>
+   
+  
+    <div class="recent-artical-secton">     
+      <div class="recent-artical-cntnt-clm">
+        <div class="recent-artical">
+        
+          <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          
+                <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          
+                <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          
+          
+                <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+          
+          
+                <div class="recent-artical_padd">
+            <div class="team-slider-pad-cntnt">
+              <h6>
+                <a href="#"> <span>ISO Certification Consultants in Kuzhithura</span> </a>
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- recent artical-section end -->
+
+  <!-- top move button -->
+  <div class="whthspp-btn">
+    <a href="https://wa.me/9645850158" target="_blank">
+      <i class="fa fa-whatsapp"></i><span>WhatsApp<br><small>+91 9645850158</small></span>
+    </a>
+  </div>
+
+  <div class="adjust-call">
+    <a href="tel:9645850158">
+      <i class="fa fa-phone"></i><span>PhoneNumber<br><small>+91 9645850158</small></span>
+    </a>
+  </div>
+
+  <div class="mov-top-btn">
+    <a href="#banner-top">To The Top</a>
+  </div>

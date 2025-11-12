@@ -1,0 +1,215 @@
+
+{% extends "admin_base/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Update Blog{% endblock title %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'w3/css/chosen-style.css' %}">
+<link rel="stylesheet" href="{% static 'w3/css/main-color.css' %}" id="colors">
+{% endblock styles %}
+
+{% block content %}  
+<!-- Page Content -->
+<div class="content container-fluid">
+	
+	<!-- Page Header -->
+	<div class="crms-title row bg-white mb-4">
+		<div class="col  p-0">
+			<h3 class="page-title">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-edit"></i>
+			</span> Update Blog </h3>
+		</div>
+		<div class="col p-0 text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Blog</a></li>
+				<li class="breadcrumb-item active">Update Blog</li>
+			</ul>
+		</div>
+	</div>
+	<!-- /Page Header -->
+
+	<!-- Content Starts -->
+    <div class="row">
+        {% include "message.html" %}
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'superadmin:update_blog' blog.slug %}" enctype="multipart/form-data" id="add-multipage-form">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Update Blog</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label for="title-input">Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="title-input" name="title" placeholder="Title of the blog" value="{{blog.title}}" required>
+                            </div>    
+                            <div class="col-sm-6 mb-3">
+                                <label for="image-input">Image <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="image-input" name="image" {% if not blog.image %}required{% endif %}>
+                                {% if blog.image %}
+                                <small><span>Current Image: <a href="{{blog.image.url}}" target="_blank">{{blog.get_image_name}}</a></span></small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label for="type-dropdown">Type <span class="text-danger">*</span></label>
+                                <select name="type" id="type-dropdown" class="form-control" required>
+                                    <option value="" selected disabled hidden>Select Type</option>
+                                    {% for type in types %}
+                                    <option value="{{type}}" {% if type == blog.blog_type %}selected{% endif %}>{{type}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-6 mb-3" id="company-div"></div>
+                        </div>
+                        <div id="dynamic-content">
+                            
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-sm-12 mb-3">
+                                <label for="meta-tag-input" class="form-label">Meta Tags <span class="text-danger">*</span></label>
+                                <select data-placeholder="Select Meta Tags" class="chosen-select" name="meta_tag" multiple>
+                                    {% for tag in tags %}
+                                    <option value="{{tag.slug}}" {% if tag in blog.meta_tags.all %}selected{% endif %}>{{tag.name}}</option>
+                                    {% endfor %}									
+								</select>                               
+                            </div>    
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 mb-3">
+                                <label for="meta-description-input">Meta Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control" name="meta_description" id="meta-description-input" placeholder="Meta Description" required>{% if blog.meta_description %}{{blog.meta_description}}{% endif %}</textarea>
+                                <div class="invalid-feedback">
+                                    Please provide the meta description.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>    
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 mb-3">
+                                <label for="summary-input">Summary <span class="text-danger">*</span></label>
+                                <textarea class="form-control" name="summary" id="summary-input" placeholder="Summary" required>{% if blog.summary %}{{blog.summary}}{% endif %}</textarea>
+                                <div class="invalid-feedback">
+                                    Please provide the summary.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>    
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 mb-3">
+                                {{form.media}}
+                                {{form.content|as_crispy_field}}
+                            </div>    
+                        </div>
+
+                    </div>
+                </div>     
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Save</button>
+                </div>
+            </form>
+                
+        </div>
+	<!-- /Content End -->
+	</div>
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script>
+
+    $(document).ready(() => {        
+
+        function checkType(typeValue) {
+            $('#dynamic-content').empty();
+
+            if (typeValue == "General") {
+                $('#company-div').empty();
+            } else {
+                $('#company-div').html(`
+                    <label for="company-dropdown">Company <span class="text-danger">*</span></label>
+                    <select name="company" id="company-dropdown" class="form-control" required>
+                        <option value="" selected disabled hidden>Select Company</option>
+                        {% for company in companies %}
+                        <option value="{{company.slug}}" {% if company.slug == blog.company.slug %}selected{% endif %}>{{company.name}}</option>
+                        {% endfor %}
+                    </select>
+                `)
+
+                const companyType = typeValue;
+                const currentBlogCompany = `{{blog.company.slug}}`;
+
+                $.ajax({
+                    type: 'GET',
+                    url: `{% url 'company:get_filtered_companies' %}`,
+                    dataType: 'json',
+                    data: {'company_type': companyType},
+                    success: response => {
+                        if (response.companies) {
+                            $('#company-dropdown').html(`<option value="" selected disabled hidden>Select Company</option>`);                            
+
+                            response.companies.forEach(company => {
+                                $('#company-dropdown').append(`<option value="${company.slug}" ${company.slug == currentBlogCompany && 'selected'}>${company.name}</option>`);
+                            })
+
+                        }
+
+                        if (response.status === "failed" && response.message) {
+                            console.error("Error: ", error);
+                        }
+                    },
+                    error: error => console.error("Error: ", error),
+                });                
+            };
+        }
+
+        $('#type-dropdown').on('change', function () {
+            const typeValue = $(this).val();
+            checkType(typeValue);            
+        });
+
+        if ($('#type-dropdown').val()) {
+            const typeValue = $('#type-dropdown').val();
+            checkType(typeValue);            
+        };
+            
+
+        // Function for adding new meta tag
+        $(document).on('input', '.search-field input', function () {
+            const text = $(this).val().trim();
+
+            if (text.endsWith(',')) {
+                const tag = text.replace(',', '');
+
+                const newOption = `<option value="${tag}" selected>${tag}</option>`;
+
+                const optionExists = $('select[name="meta_tag"] option').filter(function() {
+                    return $(this).val().toLowerCase() === tag.toLowerCase() | $(this).html().toLowerCase() === tag.toLowerCase();
+                }).length > 0;
+
+                if (!optionExists) {
+                    $('select[name="meta_tag"]').append(newOption);
+    
+                    $('.chosen-select').trigger("chosen:updated");
+                }
+
+                $(this).val('');
+            }
+        });
+    });
+</script>
+{% endblock scripts %}

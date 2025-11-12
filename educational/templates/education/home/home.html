@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block schemas %}
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Training Courses",
+    "description": "A list of available training courses",
+    "itemListElement": [
+      {% for course in courses %}
+      {
+        "@type": "Course",
+        "name": "{{course.name}}",
+        "description": "{{course.description}}",
+        "provider": {
+          "@type": "Organization",
+          "name": "{{course.company.name}}"
+        },
+        "image": "https://{{request.get_host}}{% if course.image %}{{course.image.url}}{% else %}#{% endif %}", // Add image URL here
+        "hasCourseInstance": {
+          "@type": "CourseInstance",
+          "courseMode": ["{{course.mode}}"],
+          "endDate": "{{course.starting_date|date:'Y-m-d'}}",
+          "startDate": "{{course.ending_date|date:'Y-m-d'}}",
+          "courseWorkload": "P{{course.duration}}M"  // Duration format: P[n]DT[n]H[n]M[n]S
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "{{course.price}}",
+          "priceCurrency": "INR",
+          "url": "https://{{request.get_host}}/course/{{course.slug}}",
+          "category": "{{course.program.name}}"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "{{course.rating}}",
+          "bestRating": "5",
+          "ratingCount": "{{course.rating_count}}"
+        }
+      }{% if not forloop.counter %},{% endif %}
+      {% endfor %}      
+      // Add more courses as needed
+    ]
+  }
+  </script>
+
+{% include "education/base_schemas.html" %}    
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "WebSite",
+  "name": "Title Name",
+  "url": "https://www.bzindia.in/registration"
+}
+</script> 
+
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.bzindia.in/home/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Education",
+      "item": "https://www.bzindia.in/education/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{company.name}}",
+      "item": "https://www.bzindia.in{{request.path}}"
+    }
+  ]
+}
+</script> 
+
+{% endblock schemas %}
+
+{% block content %}
+<!--banner-slider start -->
+
+<div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-indicators">
+      <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+      </div>
+      
+    
+      <div class="carousel-inner">
+        {% for course in courses|slice:':3' %}
+        <div class="carousel-item {% if forloop.counter == 1 %}active{% endif %}" style="{% if forloop.counter == 1 %}background: url(/static/images/inner-pge-slider1.jpg);{% elif forloop.counter == 2 %}background: url(/static/images/inner-pge-slider2.jpg);{% else %}background: url(/static/images/BZindia-hm-banner.jpg);{% endif %}">
+          <div class="overlayy">
+            <div class="banner-slider-cntnt">
+              <div>
+                <h3>{{course.name}}</h3>
+                <p>Every slide includes a background, which can be a picture or solid color.</p>
+                <a href="#" class="primary_button" style="visibility: visible; " tabindex="-1">Read More</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}        
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+    </div>
+
+ 
+  <!--major clients-section start  -->
+
+  <section class="major-sectin">
+    <div class="major-clients-sldr-bx mb-5">
+      <h2>CORPORATE PARTNERS
+      </h2>
+      <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+      <!-- venture slider -->
+
+      <div class="major-clients-slider" data-aos="fade-up">
+        {% for client in clients %}
+        <div class="major-clients-slider_padd">
+          <div>
+            <a href="#">
+              <img src="{{client.image.url}}" height="125" alt="" style="object-fit: covers;">
+            </a>
+          </div>
+        </div>
+        {% endfor %}        
+      </div>
+    </div>
+  </section>
+
+  <!--manjor clients-section end  -->
+
+  <section class="inner_home_content_sec">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12" data-aos="fade-up">
+          <h1>{{company.name}}</h1>
+          <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+          <p>{{company.description}}
+            
+            </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+ 
+
+  <!-- registraton faq setion stat -->
+
+  <section>
+    <div class="container-fluid">
+
+      <div class="registration-faq-section my-5"  data-aos="fade-up">
+        <!-- <div class="registrtn-fq-bg-img">
+        <img src="images/wht-we-do-bg.png" alt="">
+      </div> -->
+        <div class="row">
+          <div class="col-md-8">
+
+            <div class="regstrtn-faq-space">
+
+              <div class="registrsn-fq-scrool-bar-clm">
+                <h3>Education FAQ'S</h3>
+                <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+                <div class="registrsn-fq-scrool-bar-clm-cntnt">
+                  <div class=" pre-scrollable" style="height: 500px;overflow-y: auto;">
+                    
+ <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+  
+  {% for faq in faqs|slice:":5" %}
+  <div itemprop="mainEntity" itemscope itemtype="https://schema.org/Question" class="marg_btm_8">
+    <h6 itemprop="name" class="faqs_accordion">{{faq.question}}</h6>
+    <div class="faqs_panel" itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
+      <p itemprop="text">{{faq.answer}}</p>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-md-4 ">
+
+            <div class="regstrtn-faq-space"  data-aos="fade-up">
+
+              <div class="faq-form-section">
+                <h2>ONLINE EDUCATION IN INDIA</h2>
+                <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+                <form action="" method="post">
+                   <input type="text" name="name" placeholder="Your Name:"><br>
+                   <input type="tel" name="number" placeholder="Phone Number:"><br>
+                   <input type="email" name="email" placeholder="E-Mail Address:"><br>
+             <select class="country" name="country">
+                      <option value="0" selected disabled hidden>-- Select Services --</option>
+                    <option value="usa">ISO registration</option>
+                    <option value="canada">ISO registration</option>
+                    <option value="uk">ISO registration</option>
+                    <option value="australia">ISO registration</option>
+ 
+                   </select><br>
+                  <select class="country" name="state">
+                      <option value="0" selected disabled hidden>-- Select State --</option>
+                    <option value="Kerala">Kerala</option>
+                   
+                    <!-- Add more options as needed -->
+                  </select><br>
+
+                   <textarea name="message" rows="4" placeholder="Requirements:" cols="50"></textarea><br>
+                  <div class="frm-btn-sctn">
+                    <div>
+                      <button class="primary_button" role="button" type="submit">SUBMIT</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- registraton faq setion end -->
+  
+  <!-- registration-services-section start -->
+
+  <section>
+    <div class="container">
+      <div class="offerd-service-section" data-aos="fade-up">
+        <h2>OFFERED COURSES IN INDIA</h2>
+        <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+        <div class="offerd-service">
+        
+          {% for course in courses|slice:':10' %}
+          <div style="padding: 5px;">
+            <div class="position_relative img-scale max_size">
+              <figure class="picher_doc">
+                <img src="{% if course.image %}{{course.image.url}}{% else %}{% static 'images/Automation-Training-Institute-in-India.webp' %}{% endif %}" alt="" height="360.5" style="object-fit: cover;">
+                <div class="opacity-medium bg-extra-black"></div>
+            
+                <div class="inner_text">
+                  <h3 class="show_tital">{{course.name}}</h3>
+
+                  <p class="display_block">
+                    {{course.program.name}}
+                  </p>
+                
+                  <a href="{% url "education:course" course.slug %}" class="btn btn-text">Read More <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+              </figure>
+            </div>
+          </div>
+          {% endfor %}
+ 
+        </div>
+        <a href="#" class="primary_button" style="margin: 0 auto;">VIEW MORE</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- registration-services-section end -->
+
+  <!-- client-testimonial section start -->
+
+
+  {% include "education/testimonial_slider.html" %}  
+  
+  
+  {% include "find_near_by_slider.html" %}
+
+  <!-- offered-service section end -->
+
+  {% include "destination_slider.html" %}
+  
+  {% include "blog_slider.html" %}
+  
+{% endblock content %}

@@ -1,0 +1,298 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Update Services{% endblock title %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Services </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Services</li>
+			</ul>
+		</div>
+	</div>
+
+    <br>
+
+    <div class="row">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'customer:update_service' service.slug %}" class="needs-validation" enctype="multipart/form-data" id="edit-service-form" novalidate>
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" > Update Service</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name-input" > Service Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name-input" placeholder="Service Name" name="name" value="{{service.name}}" required>
+                                <div class="invalid-feedback">
+                                    Please enter a name for the service.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="image-input" > Image <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="image-input"  name="image" required>
+                                {% if service.image %}
+                                <small><span>Current Image: <a href="{{service.image.url}}" target="_blank">{{service.get_image_name}}</a></span><small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category-dropdown">Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="category-dropdown" name="category" required>
+                                    <option value="" hidden disabled selected>Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.slug}}" {% if category.slug == service.category.slug %}selected{% endif %}>{{category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sub-category-dropdown">Sub Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sub-category-dropdown" name="sub_category" required>
+                                    <option value="" hidden disabled selected>Select Sub Category</option>
+                                    {% for sub_category in sub_categories %}
+                                    <option value="{{sub_category.slug}}" {% if sub_category.slug == service.sub_category.slug %}selected{% endif %}>{{sub_category.name}}</option>
+                                    {% endfor %}                                   
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the sub category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                                                
+                        <div class="row">                       
+                            <div class="col-md-6 mb-3">
+                                <label for="duration-input">Duration (in days)</label>
+                                <input type="number" class="form-control" id="duration-input" name="duration" placeholder="Duration" value="{% if service.duration %}{{service.duration.days}}{% endif %}" required>
+                            </div> 
+                            <div class="col-md-6 mb-3">
+                                <label for="price-input">Price </label>
+                                <input type="text" class="form-control" id="price-input" name="price" placeholder="Price" value="{% if service.price %}{{service.price}}{% endif %}" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid price.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3 d-flex">
+                                <label for="is-active-input">Is Active&nbsp;</label>
+                                <input type="checkbox" id="is-active-input" name="is_active" {% if service.is_active %}checked{% endif %} style="margin: 0; padding: 0;">                     
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+        </div>
+	</div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        let pricePattern = /^(?!0(\.0{1,2})?$)(\$?)([1-9][0-9]*(\.[0-9]{1,2})?)$/;
+        let distancePattern = /^(?!0(\.0{1,2})?$)[0-9]+(\.[0-9]{1,2})?$/;
+        let weightPattern = /^(?!0(\.0+)?$)([1-9][0-9]*|[0-9]*\.[0-9]+)\s?(kg|g|lb|oz)$/i;
+
+        function validateForm() {  
+            const formValid = true       
+
+            let name = $('#name-input').val();
+            if (name) {
+                name = name.trim();
+            }
+
+            const categoryDropdown = $('#category-dropdown').val();
+            const subCategoryDropdown = $('#sub-category-dropdown').val();
+
+            let durations = $('#duration-input').val();
+            if (durations) {
+                durations = durations.trim();
+            }
+
+            let price = $('#price-input').val();
+            if (price) {
+                price = price.trim();
+            }
+
+            if (!name) {
+                $('#name-input').removeClass('is-valid').addClass('is-invalid');
+                $('#name-input').focus();
+                formValid = false;
+
+            } else {
+                $('#name-input').removeClass('is-invalid').addClass('is-valid');
+                $('#name-input').blur();
+                
+            }            
+
+            if (!categoryDropdown) {
+                $('#category-dropdown').addClass('is-invalid');
+                $('#category-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#category-dropdown').addClass('is-valid');
+                $('#category-dropdown').blur();
+                
+            }
+
+            if (!subCategoryDropdown) {
+                $('#sub-category-dropdown').addClass('is-invalid');
+                $('#sub-category-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#sub-category-dropdown').addClass('is-valid');
+                $('#sub-category-dropdown').blur();
+                
+            }            
+
+            if (durations && durations < 0) {
+                $('#duration-input').removeClass('is-valid').addClass('is-invalid');
+                $('#duration-input').focus();
+                formValid = false;
+
+            } else {
+                $('#duration-input').removeClass('is-invalid').addClass('is-valid');
+                $('#duration-input').blur();
+                
+            }
+
+            if (price && !pricePattern.test(price)) {
+                $('#price-input').removeClass('is-valid').addClass('is-invalid');
+                $('#price-input').focus();
+                formValid = false;
+
+            } else {
+                $('#price-input').removeClass('is-invalid').addClass('is-valid');
+                $('#price-input').blur();
+                
+            }            
+
+            if (formValid == true) {
+                $('#edit-service-form').submit()
+            }
+
+        }
+
+       $('#submit-button').click(validateForm);
+
+        // Inputting
+
+        $('#name-input, #duration-input, #price-input').on('input', function () {
+            let thisValue = $(this).val();
+
+            if (thisValue) {
+                thisValue = thisValue.trim();
+            }
+
+            if (!thisValue) {
+                if ($(this).prop('id') == "name-input") {
+                    $('#name-input').removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $('#name-input').removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+
+            if (thisValue) {
+                if ($(this).prop('id') == "duration-input" && thisValue < 0) {
+                    $(this).val(0);
+                };
+
+                if ($(this).prop('id') == "name-input") {
+                    $('#name-input').removeClass('is-invalid').addClass('is-valid');
+                }
+            }            
+        });
+
+        // changing
+
+        $('#category-dropdown, #sub-category-dropdown').on('change', function () {
+            if (($(this).prop('id') == 'category-dropdown' || $(this).prop('id') == 'sub-category-dropdown') && !$(this).val()) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+            
+        })                
+        
+        // Get Size and Sub Categories
+        function getSubCategories(category) {
+            const currentCompany = `{{current_company.slug}}`
+            $.ajax({
+                type: 'GET',
+                url: `/service/get_sub_categories/`,
+                dataType: 'json',
+                data: {"category_slug": category, "company_slug": currentCompany},
+                success: response => {
+                    let subCategories = response.sub_categories
+
+                    $('#sub-category-dropdown').html(`<option value="" hidden disabled selected>Select Sub Category</option>`);
+                    if (subCategories && subCategories.length) {
+                        subCategories.forEach(subCategory => {
+                            if (subCategory.standard) {
+                                $('#sub-category-dropdown').append(`<option value="${subCategory.slug}">${subCategory.name}&nbsp;&nbsp;&nbsp; ${subCategory.standard}</option>`)
+                            } else {
+                                $('#sub-category-dropdown').append(`<option value="${subCategory.slug}">${subCategory.name}</option>`)
+                            }
+                        })
+                    } else {
+                        $('#sub-category-dropdown').html(`<option value="" disabled selected>Select Sub Category</option>`);
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            })
+        }
+
+        $('#category-dropdown').on('change', function () {
+            const category = $(this).val();
+
+            getSubCategories(category);
+        });
+    })
+</script>
+{% endblock scripts %}

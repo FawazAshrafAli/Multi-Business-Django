@@ -1,0 +1,638 @@
+
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block company_content %}
+	<!-- Content Starts -->
+    <div class="row">
+
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'superadmin:update_product' product.company.slug product.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-product-form" novalidate>
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Update Product</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-md-12 mb-3">
+                                <label for="name-input" >Product Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name-input" placeholder="Product Name" name="name" value="{{product.name}}" required>
+                                <div class="invalid-feedback">
+                                    Please enter a name for the product.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category-dropdown">Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="category-dropdown" name="category" required>
+                                    <option value="" hidden disabled selected>Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.slug}}" {% if product.category.slug == category.slug %}selected{% endif %} >{{category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sub-category-dropdown">Sub Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sub-category-dropdown" name="sub_category" required>
+                                    <option value="" hidden disabled selected>Select Sub Category</option>
+                                    {% for sub_category in sub_categories %}
+                                    <option value="{{sub_category.slug}}" {% if product.sub_category.slug == sub_category.slug %}selected{% endif %} >{{sub_category.name}}</option>
+                                    {% endfor %}                                    
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the sub category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="image-input">Image <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="image-input" name="image" {% if not product.image %}required{% endif %}>
+                                {% if product.image %}
+                                <small id="current-image">Current image: <a href="{{product.image.url}}" target="_blank">{{product.image.name}}</a></small>
+                                {% endif %}
+                                <div class="invalid-feedback">  
+                                    Please provide product image.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="brand-dropdown">Brand <span class="text-danger">*</span></label>
+                                <select class="form-control" id="brand-dropdown" name="brand" required>
+                                    <option value="" hidden disabled selected>Select Brand</option>
+                                    {% for brand in brands %}
+                                    <option value="{{brand.slug}}" {% if product.brand.slug == brand.slug %}selected{% endif %}>{{brand.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the brand.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                                                                                                                                                                     
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-4 mb-3">
+                                <label for="sku-input">SKU</label>
+                                <input type="text" class="form-control" id="sku-input" name="sku" placeholder="SKU" value="{{product.sku}}">
+                                <div class="invalid-feedback">
+                                    Please enter a valid sku.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="stock-input">Stock <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="stock-input" name="stock" placeholder="Stock" value="{{product.stock}}" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid stock number.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div> 
+                            <div class="col-md-4 mb-3">
+                                <label for="price-input">Price <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="price-input" name="price" placeholder="Price" value="{{product.price}}" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid price.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Description </label>
+                                <textarea class="form-control" rows="3" id="description" name="description" placeholder="Description">{{product.description}}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Product Appearance</h4>
+                    </div>
+                    <div class="card-body">                    
+                        <div class="form-group row">
+                            <div class="col-md-6 mb-3">
+                                <label for="size-dropdown">Size </label>
+                                <select class="form-control" id="size-dropdown" name="size" multiple>
+                                    {% if not sizes %}
+                                    <option value="" disabled selected>Choose the category to list the sizes.</option>   
+                                    {% else %}
+                                    {% for size in sizes %}
+                                    <option value="{{size.slug}}" {% if size.slug in product.size_slugs %}selected{% endif %}>{{size.name}}</option>
+                                    {% endfor %}
+                                    {% endif %}                       
+                                </select>                                
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="company-type-dropdown">Colors </label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {% for color in colors|slice:':9' %}
+                                        <label style="display:flex; justify-content: start; align-items: center;"><input type="checkbox" name="color" value="{{color.slug}}" {% if color.slug in product.color_slugs %}checked{% endif %} style="margin-right: 5px;"><div style="height: 15px; width: 15px; border: 1px solid silver; margin-right: 5px; background-color: {{color.hexa}};"></div>{{color.name}}</label>
+                                        {% endfor %}
+                                    </div>
+                                    {% if colors|length > 9 %}
+                                    <div class="col-md-6">
+                                        {% for color in colors|slice:'9:18' %}
+                                        <label style="display:flex; justify-content: start; align-items: center;"><input type="checkbox" name="color" value="{{color.slug}}" {% if color.slug in product.color_slugs %}checked{% endif %} style="margin-right: 5px;"><div style="height: 15px; width: 15px; border: 1px solid silver; margin-right: 5px; background-color: {{color.hexa}};"></div>{{color.name}}</label>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>                                
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-4 mb-3">
+                                <label for="length-input">Length</label>
+                                <input type="text" name="length" id="length-input" class="form-control" placeholder="Length" value="{{product.length}}">                                
+                                <div class="invalid-feedback">
+                                    Please enter a valid length measure.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="width-input">Width</label>
+                                <input type="text" name="width" id="width-input" class="form-control" placeholder="Width" value="{{product.width}}">                                
+                                <div class="invalid-feedback">
+                                    Please enter a valid width measure.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="height-input">Height</label>
+                                <input type="text" name="height" id="height-input" class="form-control" placeholder="Height" value="{{product.height}}">
+                                <div class="invalid-feedback">
+                                    Please enter a valid height measure.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>                        
+                        <div class="form-group row">
+                            <div class="col-md-6 mb-3">
+                                <label for="unit-dropdown">Unit of Length, Width and Height</label>
+                                <select class="form-control" id="unit-dropdown" name="unit">
+                                    <option value="" hidden disabled selected>Select Unit</option>
+                                    {% for unit in units %}
+                                    <option value="{{unit}}" {% if product.unit == unit %}selected{% endif %}>{{unit}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide a valid company type.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="weight-input">Weight</label>
+                                <input type="text" name="weight" id="weight-input" class="form-control" placeholder="Weight" {% if product.weight %} value="{{product.weight}}" {% endif %}>
+                                <span class="form-text text-muted">eg: 5 Kg, 30 g</span>
+                                <div class="invalid-feedback">
+                                    Please enter a valid weight.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+		
+	<!-- /Content End -->
+        </div>
+</div>
+<!-- /Page Content -->
+				
+{% endblock company_content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        
+        let distancePattern = /^(?!0(\.0{1,2})?$)[0-9]+(\.[0-9]{1,2})?$/;
+
+        function validateForm() {  
+            const formValid = true       
+
+            let name = $('#name-input').val();
+            if (name) {
+                name = name.trim();
+            }
+
+            const categoryDropdown = $('#category-dropdown').val();
+            const subCategoryDropdown = $('#sub-category-dropdown').val();
+
+            const brandDropdown = $('#brand-dropdown').val();
+
+            const imageInput = $('#image-input')[0];
+            const image = imageInput.files[0];                        
+            
+            let sku = $('#sku-input').val();
+            if (sku) {
+                sku = sku.trim();
+            }
+
+            let stock = $('#stock-input').val();
+            if (stock) {
+                stock = stock.trim();
+            }
+
+            let price = $('#price-input').val();
+            if (price) {
+                price = price.trim();
+            }
+
+            let length = $('#length-input').val();
+            if (length) {
+                length = length.trim();
+            }
+
+            let width = $('#width-input').val();
+            if (width) {
+                width = width.trim();
+            }
+
+            let height = $('#height-input').val();
+            if (height) {
+                height = height.trim();
+            }
+
+            const unitDropdown = $('#unit-dropdown').val();
+
+            let weight = $('#weight-input').val();
+            if (weight) {
+                weight = weight.trim();
+            }
+
+            if (!name) {
+                $('#name-input').removeClass('is-valid').addClass('is-invalid');
+                $('#name-input').focus();
+                formValid = false;
+
+            } else {
+                $('#name-input').removeClass('is-invalid').addClass('is-valid');
+                $('#name-input').blur();
+                
+            }            
+
+            if (!categoryDropdown) {
+                $('#category-dropdown').addClass('is-invalid');
+                $('#category-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#category-dropdown').addClass('is-valid');
+                $('#category-dropdown').blur();
+                
+            }
+
+            if (!subCategoryDropdown) {
+                $('#sub-category-dropdown').addClass('is-invalid');
+                $('#sub-category-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#sub-category-dropdown').addClass('is-valid');
+                $('#sub-category-dropdown').blur();
+                
+            }
+
+            if (!brandDropdown) {
+                $('#brand-dropdown').addClass('is-invalid');
+                $('#brand-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#brand-dropdown').addClass('is-valid');
+                $('#brand-dropdown').blur();
+                
+            }
+            
+            {% if not product.image %}
+
+            if (!image) {
+                $('#image-input').addClass('is-invalid');
+                $('#image-input').focus();
+                formValid = false;
+            } else {
+                $('#image-input').addClass('is-valid');
+                $('#image-input').blur();
+                
+            }     
+            
+            {% endif %}
+
+            if (!stock || stock < 1) {
+                $('#stock-input').removeClass('is-valid').addClass('is-invalid');
+                $('#stock-input').focus();
+                formValid = false;
+
+            } else {
+                $('#stock-input').removeClass('is-invalid').addClass('is-valid');
+                $('#stock-input').blur();
+                
+            }
+
+            if (!price) {
+                $('#price-input').removeClass('is-valid').addClass('is-invalid');
+                $('#price-input').focus();
+                formValid = false;
+
+            } else {
+                $('#price-input').removeClass('is-invalid').addClass('is-valid');
+                $('#price-input').blur();
+                
+            }
+
+            if (length && !distancePattern.test(length)) {
+                $('#length-input').removeClass('is-valid').addClass('is-invalid');
+                $('#length-input').focus();
+                formValid = false;
+
+            } else {
+                $('#length-input').removeClass('is-invalid').remove('is-valid');
+                $('#length-input').blur();
+                
+            }
+
+            if (width && !distancePattern.test(width)) {
+                $('#width-input').removeClass('is-valid').addClass('is-invalid');
+                $('#width-input').focus();
+                formValid = false;
+
+            } else {
+                $('#width-input').removeClass('is-invalid').remove('is-valid');
+                $('#width-input').blur();
+                
+            }
+
+            if (height && !distancePattern.test(height)) {
+                $('#height-input').removeClass('is-valid').addClass('is-invalid');
+                $('#height-input').focus();
+                formValid = false;
+
+            } else {
+                $('#height-input').removeClass('is-invalid').remove('is-valid');
+                $('#height-input').blur();
+                
+            }            
+
+            let validLength;
+            let validWidth;
+            let validHeight;
+
+            if (length) {
+                length = length.trim();
+                validLength = distancePattern.test(length);
+            }
+
+            if (width) {
+                width = width.trim();
+                validWidth = distancePattern.test(width);
+            }
+
+            if (height) {
+                height = height.trim();
+                validHeight = distancePattern.test(height);
+            }
+
+            if (!unitDropdown) {
+                if (validLength || validWidth || validHeight) {
+                    $('#unit-dropdown').prop('disabled', false)
+                    $('#unit-dropdown').addClass('is-invalid');
+                    $('#unit-dropdown').focus();
+                    formValid = false;
+                }
+
+            } else {
+                // $('#unit-dropdown').prop('disabled', true)
+                $('#unit-dropdown').addClass('is-valid');
+                $('#unit-dropdown').blur();
+            }                    
+
+            if (formValid == true) {
+                $('#add-product-form').submit()
+            }
+
+        }
+
+
+        $('#submit-button').click(validateForm);
+
+        // Inputting
+
+        $('#name-input, #sku-input, #price-input, #length-input, #width-input, #height-input, #weight-input').on('input', function () {
+            let thisValue = $(this).val();
+            if (thisValue) {
+                thisValue = thisValue.trim();
+            }
+
+            if (!thisValue) {
+                if ($(this).prop('id') == "sku-input" || $(this).prop('id') == "weight-input" || ["length-input", "width-input", "height-input"].includes($(this).prop('id'))) {
+                    $(this).removeClass('is-valid').removeClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-valid').addClass('is-invalid');                
+                }
+            } else {
+                if ($(this).prop('id') == "stock-input" && thisValue <= 0) {
+                    $(this).val(0);
+                    $(this).removeClass('is-valid').addClass('is-invalid');   
+
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+
+            if (thisValue) {                
+                
+                if (["length-input", "width-input", "height-input"].includes($(this).prop('id'))) {
+                    if (distancePattern.test(thisValue)) {
+                        console.log("entered")
+                        $(this).removeClass('is-invalid').addClass('is-valid');                  
+                    } else {
+                        $(this).removeClass('is-valid').addClass('is-invalid');
+                    }
+                }
+                                
+            }
+
+            let length = $('#length-input').val();
+            let width = $('#width-input').val();
+            let height = $('#height-input').val();
+
+            let validLength;
+            let validWidth;
+            let validHeight;
+
+            if (length) {
+                length = length.trim();
+                validLength = distancePattern.test(length);
+            }
+
+            if (width) {
+                width = width.trim();
+                validWidth = distancePattern.test(width);
+            }
+
+            if (height) {
+                height = height.trim();
+                validHeight = distancePattern.test(height);
+            }
+
+            if (validLength || validWidth || validHeight) {
+                $('#unit-dropdown').prop('disabled', false)
+            } else {
+                $('#unit-dropdown').prop('disabled', true)
+            }
+        });
+
+        // changing
+
+        $('#category-dropdown, #sub-category-dropdown, #brand-dropdown, #unit-dropdown, #image-input').on('change', function () {
+            if (($(this).prop('id') == 'category-dropdown' || $(this).prop('id') == 'sub-category-dropdown' || $(this).prop('id') == 'brand-dropdown') && !$(this).val()) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+
+            if ($(this).prop('id') == 'image-input' || $(this).prop('id') == 'logo-input') {
+                let imageInput = $('#image-input')[0];
+                let image = imageInput.files[0];                
+                if (!image) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+            
+            if ($(this).prop('id') == 'unit-dropdown') {
+                if ($(this).val() && ($('#length-input').val() || $('#width-input').val() || $('#height-input').val())) {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                } else {
+                    $(this).removeClass('is-valid').removeClass('is-invalid');
+                }
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+        })        
+
+        let length = $('#length-input').val();
+        let width = $('#width-input').val();
+        let height = $('#height-input').val();
+
+        let validLength;
+        let validWidth;
+        let validHeight;
+
+        if (length) {
+            length = length.trim();
+            validLength = distancePattern.test(length);
+        }
+
+        if (width) {
+            width = width.trim();
+            validWidth = distancePattern.test(width);
+        }
+
+        if (height) {
+            height = height.trim();
+            validHeight = distancePattern.test(height);
+        }
+
+        if (!validLength && !validWidth && !validHeight) {
+            $('#unit-dropdown').prop('disabled', true);
+        }
+
+
+        // Get Size and Sub Categories
+        function getSubCategoriesAndSizes(category) {
+            $.ajax({
+                type: 'GET',
+                url: '/customer/get_sub_categories_and_sizes/',
+                dataType: 'json',
+                data: {"category": category},
+                success: response => {
+                    let sizes = response.sizes;
+                    let subCategories = response.sub_categories
+
+                    $('#size-dropdown').html(`<option value="" hidden disabled selected>Select Size</option>`);
+                    if (sizes && sizes.length) {
+                        sizes.forEach(size => {
+                            if (size.standard) {
+                                $('#size-dropdown').append(`<option value="${size.slug}">${size.name}&nbsp;&nbsp;&nbsp; ${size.standard}</option>`)
+                            } else {
+                                $('#size-dropdown').append(`<option value="${size.slug}">${size.name}</option>`)
+                            }
+                        })
+                    } else {
+                        $('#size-dropdown').html(`<option value="" disabled selected>No size for the selected category</option>`);
+                    }
+
+                    $('#sub-category-dropdown').html(`<option value="" hidden disabled selected>Select Sub Category</option>`);
+                    if (subCategories && subCategories.length) {
+                        subCategories.forEach(subCategory => {
+                            if (subCategory.standard) {
+                                $('#sub-category-dropdown').append(`<option value="${subCategory.slug}">${subCategory.name}&nbsp;&nbsp;&nbsp; ${subCategory.standard}</option>`)
+                            } else {
+                                $('#sub-category-dropdown').append(`<option value="${subCategory.slug}">${subCategory.name}</option>`)
+                            }
+                        })
+                    } else {
+                        $('#sub-category-dropdown').html(`<option value="" disabled selected>Selected Catalog</option>`);
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            })
+        }
+
+        $('#category-dropdown').on('change', function () {
+            const category = $(this).val();
+
+            getSubCategoriesAndSizes(category);
+        });
+
+        // if ($('#category-dropdown').val()) {
+        //     const category = $('#category-dropdown').val();
+
+        //     getSubCategoriesAndSizes(category);
+        // }
+    })
+</script>
+{% endblock scripts %}

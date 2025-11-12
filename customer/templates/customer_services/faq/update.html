@@ -1,0 +1,184 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Update FAQ{% endblock title %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Services </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Services</li>
+			</ul>
+		</div>
+	</div>
+
+    <br>
+	<!-- Content Starts -->
+    <div class="row">
+        {% include "message.html" %}
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'customer:update_service_faq' faq.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-service-faq-form">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Update Service FAQ</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="category-dropdown" >Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="category-dropdown" name="category" required>
+                                    <option value="" hidden disabled selected>Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.slug}}" {% if faq.service.category.slug == category.slug %}selected{% endif %} >{{category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="sub-category-dropdown" >Sub Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sub-category-dropdown" name="sub_category" required>
+                                    <option value="" hidden disabled selected>Select Sub Category</option>
+                                    {% for sub_category in sub_categories %}
+                                    <option value="{{sub_category.slug}}" {% if faq.service.sub_category.slug == sub_category.slug %}selected{% endif %} >{{sub_category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the sub categories.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="service-dropdown" >Service <span class="text-danger">*</span></label>
+                                <select class="form-control" id="service-dropdown" name="service" required>
+                                    <option value="" hidden disabled selected>Select Service</option>
+                                    {% for service in services %}
+                                    <option value="{{service.slug}}" {% if faq.service.slug == service.slug %}selected{% endif %} >{{service.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the service.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            
+                        </div>             
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Question <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="question-input" name="question" placeholder="Question">{% if faq.question %}{{faq.question}}{% endif %}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Answer <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="answer-input" name="answer" placeholder="Answer">{% if faq.answer %}{{faq.answer}}{% endif %}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>     
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+        </div>
+	<!-- /Content End -->
+	</div>
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        // Get Sub Categories
+        function getSubCategories() {
+            const category = $('#category-dropdown').val();
+            const company = `{{current_company.slug}}`;
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'service:get_sub_categories' %}`,
+                dataType: 'json',
+                data: {
+                    "category_slug": category,
+                    "company_slug": company
+                },
+                success: response => {
+                    $('#sub-category-dropdown').html(`<option value="" hidden disabled selected>Select Sub Category</option>`);
+                    
+                    if (response.sub_categories && response.sub_categories.length > 0) {
+                        response.sub_categories.forEach(sub_category => {
+                            $('#sub-category-dropdown').append(`<option value="${sub_category.slug}">${sub_category.name}</option>`)
+                        })
+                    }
+                    
+                    if (response.error) {
+                        console.error("Error: ", response.error)
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            });            
+        };
+
+        $('#category-dropdown').on('change', () => getSubCategories());
+
+        // Get Services
+        function getServices() {
+            const sub_category = $('#sub-category-dropdown').val();
+            const company = `{{current_company.slug}}`;
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'service:get_services' %}`,
+                dataType: 'json',
+                data: {
+                    "sub_category_slug": sub_category,
+                    "company_slug": company
+                },
+                success: response => {
+                    $('#service-dropdown').html(`<option value="" hidden disabled selected>Select Service</option>`);
+                    
+                    if (response.services && response.services.length > 0) {
+                        response.services.forEach(service => {
+                            $('#service-dropdown').append(`<option value="${service.slug}">${service.name}</option>`)
+                        })
+                    }
+                    
+                    if (response.error) {
+                        console.error("Error: ", response.error)
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            });            
+        };
+
+        $('#sub-category-dropdown').on('change', () => getServices());
+    })
+</script>
+{% endblock scripts %}

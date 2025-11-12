@@ -1,0 +1,284 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block company_content %}
+					
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">									
+				<h5 class="card-title">Testimonials</h5>
+			</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Student Name</th>
+                                    <th>Place</th>
+                                    <th>Course</th>
+                                    <th>Testimonial</th>
+                                    <th class="text-center">Rating</th>
+                                    <th class="text-center">Ordering</th>
+									<th class="text-center">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for testimonial in testimonials %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>
+									<td>
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#testimonial-detail-modal" class="avatar testimonial-obj" data-name="{{testimonial.name}}" data-course="{{testimonial.course.name}}" data-place="{{testimonial.place.name}}" data-rating="{{testimonial.rating}}" data-order="{{testimonial.order}}" {% if testimonial.image %}data-image-name="{{testimonial.image.name}}" data-image-url="{{testimonial.image.url}}"{% endif %} data-testimonial="{{testimonial.text}}"><img alt="Image of client: {{testimonial.name}}" src="{% if testimonial.image %}{{testimonial.image.url}}{% else %}{% static 'assets/img/c-logo2.png' %}{% endif %}"></a>
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#testimonial-detail-modal" class="testimonial-obj" data-name="{{testimonial.name}}" data-course="{{testimonial.course.name}}" data-place="{{testimonial.place.name}}" data-rating="{{testimonial.rating}}" data-order="{{testimonial.order}}" {% if testimonial.image %}data-image-name="{{testimonial.image.name}}" data-image-url="{{testimonial.image.url}}"{% endif %} data-testimonial="{{testimonial.text}}">{{testimonial.name}}</a>
+                                    </td>
+                                    <td>{{testimonial.place.name}}</td>
+                                    <td>{{testimonial.course.name}}</td>
+                                    <td>{{testimonial.text|slice:'50'}}{% if testimonial.text|length > 50 %}...{% endif %}</td>
+                                    <td class="text-center">{{testimonial.rating}}</td>
+                                    <td class="text-center">{{testimonial.order}}</td>
+									
+									<td class="text-center">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item edit-testimonial-btn" href="{% url 'superadmin:update_student_testimonial' current_company.slug testimonial.slug %}">Edit This Testimonial</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete-testimonial-modal" data-name="{{testimonial.name}}" data-image="{{testimonial.image.name}}" data-image-url="{{testimonial.image.url}}" data-order="{{testimonial.order}}" data-slug="{{testimonial.slug}}">Remove This Testimonial</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>							
+		</div>						
+	</div>
+	
+
+<!-- /Page Content -->
+{% endblock company_content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete-testimonial-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="get">
+							<h4><span class="text-danger">Deleting</span> Testimonial. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Testimonial by:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Update Modal -->
+<div class="modal fade" id="update-testimonial-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+                <h4 class="modal-title text-center">Update Testimonial</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" enctype="multipart/form-data" id="update-testimonial-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label class="col-form-label">Cient Name <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="update-name-input" name="name" placeholder="Name of Testimonial">
+                                <div class="invalid-feedback">
+                                    Please provide the name.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                        
+                            <div class="form-group">
+                                <label class="col-form-label">Image <span class="text-danger">*</span></label>
+                                <input class="form-control" type="file" id="update-image-input" name="image" >
+                                <small><span id="current-image"></span></small>
+                                <div class="invalid-feedback">
+                                    Please provide the image.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        
+                            <div class="form-group">
+                                <label class="col-form-label">Order <span class="text-danger">*</span></label>
+                                <input class="form-control" type="number" id="update-order-input" name="order" placeholder="Order of testimonial in the slider">
+                            </div>
+                            
+                            <div class="form-group text-center">
+                                <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                            </div>
+                        </form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- Update modal -->
+
+<!-- Detail Modal -->
+<div class="modal right fade" id="testimonial-detail-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div class="row w-100">
+                    <div class="col-md-7 account d-flex">
+                        <div class="company_img">
+                            <a href="#" target="_blank"><img src="#" alt="User" class="user-image" class="img-fluid" id="image" /></a>
+                        </div>
+                    </div>                    
+                  </div>
+                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+              </div>
+
+            <div class="modal-body">
+                <div class="row" style="background: #eaeaea;">
+                    <div class="col-md-12">
+                        <h4 style="margin: 8px 0;">Testimonial by <span id="name"></span></h4>
+                    </div>
+                </div>
+                <br>                            
+                <table class="table">
+                    <tbody>                      
+                      <tr>
+                        <td class="border-0">Course</td>
+                        <td class="border-0" id="course"></td>
+                      </tr>
+                      <tr>
+                        <td class="border-0">Place</td>
+                        <td class="border-0" id="place"></td>
+                      </tr>
+                      <tr>
+                        <td class="border-0">Rating</td>
+                        <td class="border-0" id="rating"></td>
+                      </tr>
+                      <tr>
+                        <td class="border-0">Order</td>
+                        <td class="border-0" id="order"></td>
+                      </tr>
+                      <tr>
+                        <td class="border-0">Testimonial</td>
+                        <td class="border-0" id="testimonial"></td>
+                      </tr>                      
+                    </tbody>
+                  </table>
+                <hr>
+            </div>
+
+        </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+</div>
+<!-- Detail Modal -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+        // Deletion
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const testimonialSlug = $(this).data('slug');
+			const companySlug = `{{current_company.slug}}`
+
+			const actionUrl = `{% url 'superadmin:delete_student_testimonial' 'dummyCompanySlug' 'dummyTestimonialSlug' %}`
+			.replace('dummyCompanySlug', companySlug).replace('dummyTestimonialSlug', testimonialSlug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+        // Detail View
+        $('.testimonial-obj').click(function () {
+            $('#name, #course, #place, #rating, #order, testimonial').empty();
+
+            const name = $(this).data('name')
+            const imageName = $(this).data('image-name')
+            const imageUrl = $(this).data('image-url')
+            const course = $(this).data('course')
+            const place = $(this).data('place')
+            const rating = $(this).data('rating')
+            const order = $(this).data('order')
+            const testimonial = $(this).data('testimonial')
+
+            if (name) {
+                $('#name').html(name);
+            }
+
+            if (course) {
+                $('#course').html(course);
+            }
+
+            if (place) {
+                $('#place').html(place);
+            }
+
+            if (rating) {
+                $('#rating').html(rating);
+            }
+
+            if (order) {
+                $('#order').html(order);
+            }
+
+            if (testimonial) {
+                $('#testimonial').html(testimonial);
+            }
+
+            if (imageUrl) {
+                $('#image').prop('src', imageUrl);
+                $('#image').parent().prop('href', imageUrl);
+            }
+        });        
+	});
+</script>
+{% endblock scripts %}

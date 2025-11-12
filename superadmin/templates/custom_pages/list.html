@@ -1,0 +1,1016 @@
+{% extends "admin_base/base.html" %}
+{% load static %}
+
+{% block title %}Pages{% endblock title %}
+
+{% block content %}
+
+    <style>
+        .about-us-th, .about-us-td,
+        .privacy-policies-th, .privacy-policies-td, 
+        .terms-and-conditions-th, .terms-and-conditions-td {
+            text-overflow: ellipsis;
+            overflow-x: hidden;
+        }
+        .privacy-policies-th, .privacy-policies-td, .about-us-th, .about-us-td {
+            max-width: 700px;            
+        }
+        .terms-and-conditions-th, .terms-and-conditions-td {
+            max-width: 500px;
+        }
+    </style>
+			
+				<!-- Page Content -->
+                <div class="content container-fluid">
+
+                	<div class="crms-title row bg-white">
+                		<div class="col  p-0">
+                			<h3 class="page-title m-0">
+			                <span class="page-title-icon bg-gradient-primary text-white me-2">
+			                  <i class="fa fa-building" aria-hidden="true"></i>
+			                </span> Custom Pages </h3>
+                		</div>
+                		<div class="col p-0 text-end">
+                			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+								<li class="breadcrumb-item"><a href="{% url 'superadmin:home' %}">Dashboard</a></li>
+								{% if current_company_type %}
+								<li class="breadcrumb-item"><a href="{% url 'superadmin:companies' %}">Pages</a></li>
+								<li class="breadcrumb-item active">{{current_company_type.name}} Pages</li>
+								{% else %}
+								<li class="breadcrumb-item active">Custom Pages</li>
+								{% endif %}
+
+							</ul>
+                		</div>
+                	</div>
+
+					<div class="settings-menu-links">
+						<ul class="nav nav-tabs menu-tabs">							
+							<li class="nav-item {% if current_custom_page == "About Us" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:about_us' %}">About Us</a>
+							</li>
+                            <li class="nav-item {% if current_custom_page == "Contact Us" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:contact_us' %}">Contact Us</a>
+							</li>
+                            <li class="nav-item {% if current_custom_page == "FAQ" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:faq' %}">FAQ</a>
+							</li>
+                            <li class="nav-item {% if current_custom_page == "Privacy Policy" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:privacy_policies' %}">Privacy Policy</a>
+							</li>
+                            <li class="nav-item {% if current_custom_page == "Terms And Conditions" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:terms_and_conditions' %}">Terms &amp; Conditions</a>
+							</li>
+                            <li class="nav-item {% if current_custom_page == "Shipping And Delivery Policy" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:shipping_and_delivery_policies' %}">Shipping &amp; Delivery Policy</a>
+							</li>
+                            <li class="nav-item {% if current_custom_page == "Cancellation And Refund Policy" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:cancellation_and_refund_policies' %}">Cancellation &amp; Refund Policy</a>
+							</li>
+						</ul>
+					</div>
+					
+					<div class="row">
+                        <div class="row">
+                        {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                    <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-header">
+									{% if not current_custom_page %}
+									<h5 class="card-title text-center">Kindly select a page type to display the relevant list</h5>
+									{% else %}
+									<h5 class="card-title">{{current_custom_page}} Pages</h5>
+									{% endif %}
+								</div>								
+							</div>
+							{% if current_custom_page == "About Us" %}
+							<div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Company</th>
+                                                <th class="about-us-th">Content</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for about_us in about_us_objects %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>	
+                                                <td>
+                                                    <a class="about-us-object" href="#" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#about-us-modal" 
+                                                    data-company="{% if about_us.company %}{{about_us.company.name}}{% else %}BZIndia{% endif %}" 
+                                                    data-content="{{about_us.content}}" >{% if about_us.company %}{{about_us.company.name}}{% else %}BZIndia{% endif %} </a></td>								
+                                                <td class="about-us-td" title="{{about_us.content}}">{{about_us.content}}</td>
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="{% url 'superadmin:update_about_us' about_us.slug %}">Edit This About Us</a>
+                                                            <a class="dropdown-item delete-about-us-btn" href="#" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deletion-modal" 
+                                                            data-company="{% if about_us.company %}{{about_us.company.name}}{% else %}BZIndia{% endif %}" 
+                                                            data-slug="{{about_us.slug}}" >Remove This About Us</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_custom_page == "Contact Us" %}
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Company</th>
+
+                                                <th>Email</th>        
+                                                <th>Tel</th>
+            
+                                                <th>Place</th>
+                                                <th>City</th>                                                                                                
+                                                <th>State</th>                                                                                                
+                                                <th>Pincode</th>
+                                                            
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for contact_us in contact_us_objects %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>									
+                                                <td><a class="contact-us-object" href="#" data-bs-toggle="modal" data-bs-target="#contact-us-modal" data-company="{% if contact_us.company %}{{contact_us.company.name}}{% else %}BZIndia{% endif %}" data-email="{{contact_us.email}}" data-tel="{{contact_us.tel}}" data-mobile="{{contact_us.mobile}}" data-web="{{contact_us.web}}" data-address="{{contact_us.address}}" data-place="{{contact_us.place.name}}" data-district="{{contact_us.district.name}}" data-state="{{contact_us.state.name}}" data-pincode="{{contact_us.pincode}}" data-lat="{{contact_us.lat}}" data-lon="{{contact_us.lon}}" data-enabled-query="{{contact_us.provide_query}}" >{% if contact_us.company %}{{contact_us.company.name}}{% else %}BZIndia{% endif %}</a></td>
+
+                                                <td>{{contact_us.email}}</td>
+                                                <td>{{contact_us.tel}}</td>								
+            
+                                                <td>{{contact_us.place.name}}</td>
+                                                <td>{{contact_us.district.name}}</td>
+                                                <td>{{contact_us.state.name}}</td>
+                                                <td>{{contact_us.pincode}}</td>                                                
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="{% url 'superadmin:update_contact_us' contact_us.slug %}" >Edit This Contact Us</a>
+                                                            <a class="dropdown-item delete-btn delete-contact-us-btn" href="#" data-bs-toggle="modal" data-bs-target="#deletion-modal" data-company="{% if contact_us.company %}{{contact_us.company.name}}{% else %}BZIndia{% endif %}"  data-slug="{{contact_us.slug}}" >Remove This Contact Us</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_custom_page == "FAQ" %}
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Company</th>
+                                                <th>Question</th>
+                                                <th>Short Answer</th>                                           
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for faq in faqs %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>									
+                                                <td><a class="faq-object" href="#" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#faq-modal" 
+                                                    data-question="{{faq.question}}" 
+                                                    data-short-answer="{{faq.short_answer}}" 
+                                                    data-answer="{{faq.answer}}" 
+                                                    data-company="{% if faq.company %}{{faq.company.name}}{% else %}BZIndia{% endif %}" 
+                                                     >{% if faq.company %}{{faq.company.name}}{% else %}BZIndia{% endif %}</a></td>
+                                                <td>{% if faq.question|length > 50 %}{{faq.question|slice:":50"}}. . .{% else %}{{faq.question}}{% endif %}</td>
+                                                <td>{% if faq.short_answer|length > 50 %}{{faq.short_answer|slice:":50"}}. . .{% else %}{{faq.short_answer}}{% endif %}</td>                                                
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="{% url 'superadmin:update_faq' faq.slug %}">Edit This FAQ</a>
+                                                            <a class="dropdown-item delete-btn delete-faq-btn" href="#" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deletion-modal" 
+                                                            data-company="{% if faq.company %}{{faq.company.name}}{% else %}BZIndia{% endif %}" 
+                                                            data-question="{{faq.question}}" 
+                                                            data-slug="{{faq.slug}}" >Remove This FAQ</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_custom_page == "Privacy Policy" %}
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Company</th>
+                                                <th class="privacy-policies-th">Content</th>                                                
+                                                <th>Effective Date</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for privacy_policy in privacy_policies %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>									
+                                                <td><a class="privacy-policy-object" href="#" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#privacy-policy-modal" 
+                                                    data-content="{{privacy_policy.content}}" 
+                                                    data-support-email="{{privacy_policy.support_email}}" 
+                                                    data-effective-date="{{privacy_policy.effective_date}}" 
+                                                    data-company="{% if privacy_policy.company %}{{privacy_policy.company.name}}{% else %}BZIndia{% endif %}" 
+                                                    >{% if privacy_policy.company %}{{privacy_policy.company.name}}{% else %}BZIndia{% endif %}</a></td>
+                                                <td class="privacy-policies-td" title="{{privacy_policy.content}}">{{privacy_policy.content}}</td>                                            
+                                                <td>{{privacy_policy.effective_date}}</td>
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="{% url 'superadmin:update_privacy_policy' privacy_policy.slug %}">Edit This Privacy Policy</a>
+                                                            <a class="dropdown-item delete-btn delete-privacy-policy-btn" href="#" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deletion-modal" 
+                                                            data-company="{% if privacy_policy.company %}{{privacy_policy.company.name}}{% else %}BZIndia{% endif %}" 
+                                                            data-slug="{{privacy_policy.slug}}" >Remove This Privacy Policy</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_custom_page == "Terms And Conditions" %}
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Company</th>
+                                                <th class="terms-and-conditions-th">Content</th>
+                                                <th>Version</th>
+                                                <th>Effective Date</th>                                                
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for terms_and_condition in terms_and_conditions %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>									
+                                                <td><a class="terms-and-condition-object" href="#" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#terms-and-condition-modal" 
+                                                    data-company="{% if faq.company %}{{faq.company.name}}{% else %}BZIndia{% endif %}" 
+                                                    data-content="{{terms_and_condition.content}}" 
+                                                    data-version="{{terms_and_condition.version}}" 
+                                                    data-effective-date="{{terms_and_condition.effective_date}}" >{% if terms_and_condition.company %}{{terms_and_condition.company.name}}{% else %}BZIndia{% endif %}</a></td>
+                                                <td class="terms-and-conditions-td">{{terms_and_condition.content}}</td>
+                                                <td>{{terms_and_condition.version}}</td>
+                                                <td>{{terms_and_condition.effective_date}}</td>                                                
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="{% url 'superadmin:update_terms_and_condition' terms_and_condition.slug %}">Edit This Terms & Conditions</a>
+                                                            <a class="dropdown-item delete-btn delete-terms-and-condition-btn" href="#" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deletion-modal" 
+                                                            data-company="{% if terms_and_condition.company %}{{terms_and_condition.company.name}}{% else %}BZIndia{% endif %}" 
+                                                            data-slug="{{terms_and_condition.slug}}" >Remove This Terms & Conditions</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_custom_page == "Shipping And Delivery Policy" %}
+							<div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Company</th>
+                                                <th class="about-us-th">Content</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for policy in shipping_and_delivery_policies %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>	
+                                                <td><a class="snd-policy-object" href="#" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#snd-policy-modal" 
+                                                    data-company="{% if policy.company %}{{policy.company.name}}{% else %}BZIndia{% endif %}" 
+                                                    data-content="{{policy.content}}" 
+                                                    >{% if policy.company %}{{policy.company.name}}{% else %}BZIndia{% endif %}</a></td>								
+                                                <td class="about-us-td" title="{{policy.content}}">{{policy.content}}</td>
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_category" data-company="{{policy.company.name}}" data-slug="{{policy.slug}}">Edit This Shipping & Delivery Policies</a>
+                                                            <a class="dropdown-item delete-btn delete-shipping-and-delivery-policy-btn" href="#" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deletion-modal" 
+                                                            data-company="{% if policy.company %}{{policy.company.name}}{% else %}BZIndia{% endif %}" 
+                                                            data-slug="{{policy.slug}}" >Remove This Shipping & Delivery Policies</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_custom_page == "Cancellation And Refund Policy" %}
+							<div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Company</th>
+                                                <th class="about-us-th">Content</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for policy in Cancellation_and_refund_policies %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>	
+                                                <td><a class="snd-policy-object" href="#" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#snd-policy-modal" 
+                                                    data-company="{% if policy.company %}{{policy.company.name}}{% else %}BZIndia{% endif %}" 
+                                                    data-content="{{policy.content}}" >{% if policy.company %}{{policy.company.name}}{% else %}BZIndia{% endif %}</a></td>								
+                                                <td class="about-us-td" title="{{policy.content}}">{{policy.content}}</td>
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_category" data-company="{{policy.company.name}}" data-slug="{{policy.slug}}">Edit This Cancellation And Refund Policy</a>
+                                                            <a class="dropdown-item delete-btn delete-cancellation-and-refund-policy-btn" href="#" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deletion-modal" 
+                                                            data-company="{% if policy.company %}{{policy.company.name}}{% else %}BZIndia{% endif %}" 
+                                                            data-slug="{{policy.slug}}" >Remove This Cancellation And Refund Policy</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+							{% endif %}
+						</div>						
+					</div>
+					
+                </div>
+				<!-- /Page Content -->
+
+                <!-- Modals Start-->
+
+                <!-- Terms And Conditions Modal (Start) -->
+                <div class="modal right fade" id="terms-and-condition-modal" tabindex="-1" role="dialog" aria-modal="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+        
+                            <div class="modal-header">
+                                <h4 class="modal-title text-center company-name"></h4>
+                                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+                              </div>
+        
+                            <div class="modal-body">
+                                <div class="row" style="background: #eaeaea;">
+                                    <div class="col-md-12">
+                                        <h4 style="margin: 8px 0;">Terms &amp; Conditions</h4>                                        
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5 style="margin: 8px 0;">Version: <span id="tnc-version"></span></h5>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5 style="margin: 8px 0;">Effective Date: <span id="tnc-effective-date"></span></h5>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div id="tnc-content"></div>
+                                    </div>
+                                </div>
+        
+                            </div>
+        
+                        </div><!-- modal-content -->
+                    </div><!-- modal-dialog -->
+                </div>
+                <!-- Terms And Conditions Modal (End) -->
+
+                <!-- Privacy Policy Modal (Start) -->
+                <div class="modal right fade" id="privacy-policy-modal" tabindex="-1" role="dialog" aria-modal="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+        
+                            <div class="modal-header">
+                                <h4 class="modal-title text-center company-name"></h4>
+                                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+                              </div>
+        
+                            <div class="modal-body">
+                                <div class="row" style="background: #eaeaea;">
+                                    <div class="col-md-12">
+                                        <h4 style="margin: 8px 0;">Privacy Policy</h4>                                        
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">                                    
+                                    <div class="col-md-12">
+                                        <h5 style="margin: 8px 0;">Effective Date: <span id="privacy-policy-effective-date"></span></h5>
+                                    </div>
+                                </div>
+                                <br>
+                                <div id="privacy-policy-content"></div>
+    
+                            </div>
+        
+                        </div><!-- modal-content -->
+                    </div><!-- modal-dialog -->
+                </div>
+                <!-- Privacy Policy Modal (End) -->
+
+                <!-- FAQ Modal (Start) -->
+                <div class="modal right fade" id="faq-modal" tabindex="-1" role="dialog" aria-modal="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+        
+                            <div class="modal-header">
+                                <h4 class="modal-title text-center company-name"></h4>
+                                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+                              </div>
+        
+                            <div class="modal-body">
+                                <div class="row" style="background: #eaeaea;">
+                                    <div class="col-md-12">
+                                        <h4 style="margin: 8px 0;">FAQ</h4>
+                                    </div>
+                                </div>
+                                <br>
+                                <div>
+                                    <h6>Question:</h6>
+                                    <p id="question"></p>
+                                </div>
+                                <div>
+                                    <h6>Short Answer:</h6>
+                                    <p id="short-answer"></p>
+                                </div>
+                                <div>
+                                    <h6>Answer:</h6>
+                                    <p id="answer"></p>
+                                </div>
+                                <hr>
+                            </div>
+        
+                        </div><!-- modal-content -->
+                    </div><!-- modal-dialog -->
+                </div>
+                <!-- FAQ Modal (End) -->
+
+                <!-- Contact Us Modal (Start) -->
+                <div class="modal right fade" id="contact-us-modal" tabindex="-1" role="dialog" aria-modal="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+        
+                            <div class="modal-header">
+                                <h4 class="modal-title text-center company-name"></h4>
+                                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+                              </div>
+        
+                            <div class="modal-body">
+                                <div class="row" style="background: #eaeaea;">
+                                    <div class="col-md-12">
+                                        <h4 style="margin: 8px 0;">Contact Us</h4>
+                                    </div>
+                                </div>
+                                <div class="task-infos">
+                                    <div class="tab-content">
+                                        <div class="tab-pane show active" id="task-details">
+                                            <div class="crms-tasks">
+                                              <div class="tasks__item crms-task-item active">
+                                                <div class="accordion-header js-accordion-header">Contact</div> 
+                                                  <div class="accordion-body js-accordion-body">
+                                                    <div class="accordion-body__contents">
+                                                      <table class="table">
+                                                            <tbody>
+                                                              <tr>
+                                                                <td class="border-0">Email</td>
+                                                                <td class="border-0" id="contact-email"></td>
+                                                              </tr>
+                                                              <tr>
+                                                                <td class="border-0">Tel</td>
+                                                                <td class="border-0" id="contact-tel"></td>
+                                                              </tr>    
+                                                              <tr>
+                                                                <td class="border-0">Mobile</td>
+                                                                <td class="border-0" id="contact-mobile"></td>
+                                                              </tr>                                                              
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                          </div>
+                                          <div class="tasks__item crms-task-item active">
+                                            <div class="accordion-header js-accordion-header">Location</div> 
+                                              <div class="accordion-body js-accordion-body">
+                                                <div class="accordion-body__contents">
+                                                      <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                            <td class="border-0">Address</td>
+                                                            <td class="border-0" id="address"></td>
+                                                          </tr>     
+                                                          <tr>
+                                                            <td class="border-0">Place</td>
+                                                            <td class="border-0" id="place"></td>
+                                                          </tr>                                                          
+                                                          <tr>
+                                                            <td>District</td>
+                                                            <td id="district"></td>
+                                                          </tr>
+                                                          <tr>
+                                                            <td>State</td>
+                                                            <td id="state"></td>
+                                                          </tr>
+                                                          <tr>
+                                                            <td>Pincode</td>
+                                                            <td id="pincode"></td>
+                                                          </tr>
+                                                          <tr>
+                                                            <td>Latitude</td>
+                                                            <td id="lat"></td>
+                                                          </tr>
+                                                          <tr>
+                                                            <td>Longitude</td>
+                                                            <td id="lon"></td>
+                                                          </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                          </div>
+                                          <div class="tasks__item crms-task-item active">
+                                            <div class="accordion-header js-accordion-header">Social Media</div> 
+                                              <div class="accordion-body js-accordion-body">
+                                                <div class="accordion-body__contents">
+                                                  <table class="table">
+                                                    <tbody>
+                                                      <tr>
+                                                        <td class="border-0">Web</td>
+                                                        <td class="border-0" id="web"></td>
+                                                      </tr>                                                      
+                                                    </tbody>
+                                                  </table>
+                                                </div>
+                                                
+                                            </div>
+                                          </div>
+                                          <div class="tasks__item crms-task-item active">
+                                            <div class="accordion-header js-accordion-header">Extra</div> 
+                                              <div class="accordion-body js-accordion-body">
+                                                <div class="accordion-body__contents">
+                                                  <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>Enabled Query Form</td>
+                                                                <td>
+                                                                  <div class="form-check m-0 ps-0">
+                                                                    <label class="form-check-label">
+                                                                      <input class="checkbox" type="checkbox" id="enabled-query"> <i class="input-helper"></i><i class="input-helper"></i><i class="input-helper"></i></label>
+                                                                  </div>
+                                                                </td>
+                                                              </tr>                                                                                                               
+                                                        </tbody>
+                                                      </table>
+                                                </div>                                                
+                                            </div>
+                                          </div>                                          
+                                        </div>
+                                        </div>                                                                                    
+                                    </div>
+                                  </div>
+                            </div>
+        
+                        </div><!-- modal-content -->
+                    </div><!-- modal-dialog -->
+                </div>
+                <!-- Contact Us Modal (End) -->
+
+                <!-- About Us Modal (Start) -->
+                <div class="modal right fade" id="about-us-modal" tabindex="-1" role="dialog" aria-modal="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+        
+                            <div class="modal-header">
+                                <h4 class="modal-title text-center company-name"></h4>
+                                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+                              </div>
+        
+                            <div class="modal-body">
+                                <div class="row" style="background: #eaeaea;">
+                                    <div class="col-md-12">
+                                        <h4 style="margin: 8px 0;">About Us</h4>                                        
+                                    </div>
+                                </div>
+                                <br>                                
+                                <div id="about-us-content"></div>
+    
+                            </div>
+        
+                        </div><!-- modal-content -->
+                    </div><!-- modal-dialog -->
+                </div>
+                <!-- About Us Modal (End) -->
+
+                <!-- Shipping And Delivery Policy Modal (Start) -->
+                <div class="modal right fade" id="snd-policy-modal" tabindex="-1" role="dialog" aria-modal="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+        
+                            <div class="modal-header">
+                                <h4 class="modal-title text-center company-name"></h4>
+                                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+                              </div>
+        
+                            <div class="modal-body">
+                                <div class="row" style="background: #eaeaea;">
+                                    <div class="col-md-12">
+                                        <h4 style="margin: 8px 0;">Shipping &amp; Delivery Policy</h4>                                        
+                                    </div>
+                                </div>
+                                <br>                                
+                                <div id="snd-policy-content"></div>
+    
+                            </div>
+        
+                        </div><!-- modal-content -->
+                    </div><!-- modal-dialog -->
+                </div>
+                <!-- Shipping And Delivery Policy Modal (End) -->
+
+                <!-- Modal End -->
+    
+    <!-- Modal -->
+    <div class="modal fade" id="deletion-modal" tabindex="-1" role="dialog" aria-modal="true">
+        <div class="modal-dialog" role="document">
+            <button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form id="deletion-form" method="post">
+                                <h4><span class="text-danger">Deleting</span> <span id="deletion-heading"></span>. . .</h4>
+                                {% csrf_token %}
+                                <div class="form-group row">
+                                    <div class="col-md-12">
+                                        <label class="col-form-label">Are you sure?</label> <br>
+                                        <p id="deletion-sub-heading"></p>
+                                    </div>
+                                </div>							
+                                                            
+                                <div class="text-center d-flex justify-content-between py-3">
+                                    <button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+                                    <button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div><!-- modal-content -->
+        </div><!-- modal-dialog -->
+    </div><!-- modal -->
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        // Terms and conditions detail view toggling
+        $('.terms-and-condition-object').click(function () {
+            const company = $(this).data("company");
+            const tncContent = $(this).data("content");
+            const tncVersion = $(this).data("version");
+            const tncEffectiveDate = $(this).data("effective-date");
+
+            $('.company-name').html(company);
+            $('#tnc-content').html(tncContent);
+            $('#tnc-version').html(tncVersion);
+            $('#tnc-effective-date').html(tncEffectiveDate);
+        });
+
+        // Privacy policy detail view toggling
+        $('.privacy-policy-object').click(function () {
+            const company = $(this).data("company");
+            const privacyPolicyContent = $(this).data("content");
+            const supportEmail = $(this).data("support-email");            
+            const privacyPolicyEffectiveDate = $(this).data("effective-date");
+
+            $('.company-name').html(company);
+            $('#privacy-policy-content').html(`${privacyPolicyContent} <p>Email: <a href="mailto:${supportEmail}" target="_blank">${supportEmail}</p>`);
+            $('#privacy-policy-effective-date').html(privacyPolicyEffectiveDate);
+        });
+
+        // FAQ detail view toggling
+        $('.faq-object').click(function () {
+            const company = $(this).data("company");
+            const question = $(this).data("question");
+            const shortAnswer = $(this).data("short-answer");
+            const answer = $(this).data("answer");
+
+            $('.company-name').html(company);
+            $('#question').html(question);
+            $('#short-answer').html(shortAnswer);
+            $('#answer').html(answer);
+        });
+
+        // Contact us detail view toggling
+        $('.contact-us-object').click(function () {
+            const company = $(this).data("company");
+
+            const email = $(this).data("email");
+            const tel = $(this).data("tel");
+            const mobile = $(this).data("mobile");
+
+            const place = $(this).data("place");
+            const district = $(this).data("district");
+            const state = $(this).data("state");
+            const pincode = $(this).data("pincode");
+
+            const web = $(this).data("web");
+
+            const address = $(this).data("address");
+
+            const lat = $(this).data("lat");
+            const lon = $(this).data("lon");
+
+            const enabledQuery = $(this).data("enabled-query");
+
+            $('.company-name').html(company);
+
+            $('#contact-email').html(email);
+            $('#contact-tel').html(tel);
+            $('#contact-mobile').html(mobile);
+
+            $('#place').html(place);
+            $('#district').html(district);
+            $('#state').html(state);
+            $('#pincode').html(pincode);
+
+            $('#web').html(web);
+            $('#address').html(address);
+
+            $('#lat').html(lat);
+            $('#lon').html(lon);
+            
+            $('#enabled-query').prop('checked', `${(enabledQuery == "True") ? true : false}`);
+            
+        });
+
+        // About us detail view toggling
+        $('.about-us-object').click(function () {
+            const company = $(this).data("company");
+            const content = $(this).data("content");
+
+            $('.company-name').html(company);
+            $('#about-us-content').html(content);
+        });
+
+        // Shipping and policy detail view toggling
+        $('.snd-policy-object').click(function () {
+            const company = $(this).data("company");
+            const content = $(this).data("content");
+
+            $('.company-name').html(company);
+            $('#snd-policy-content').html(content);
+        });
+
+
+        $('.delete-about-us-btn').click(function () {
+            const company = $(this).data("company");
+            const slug = $(this).data("slug");
+
+            let actionUrl = `{% url 'superadmin:delete_about_us' 'dummyAboutUsSlug' %}`
+            .replace('dummyAboutUsSlug', slug)
+
+            $('#deletion-heading').html("About Us");
+            $('#deletion-sub-heading').html(`<i>Company:</i> <span>${company}</span>`);
+            
+            $('#deletion-form').prop("action", actionUrl);
+        })
+
+        $('.delete-contact-us-btn').click(function () {
+            const company = $(this).data("company");
+            const slug = $(this).data("slug");
+
+            let actionUrl = `{% url 'superadmin:delete_contact_us' 'dummyContactUsSlug' %}`
+            .replace('dummyContactUsSlug', slug)
+
+            $('#deletion-heading').html("Contact Us");
+            $('#deletion-sub-heading').html(`<i>Company:</i> <span>${company}</span>`);
+            
+            $('#deletion-form').prop("action", actionUrl);
+        })
+
+        $('.delete-faq-btn').click(function () {
+            const company = $(this).data("company");
+            const question = $(this).data("question");
+            const slug = $(this).data("slug");
+
+            console.log(company)
+            console.log(question)
+            console.log(slug)
+
+            let actionUrl = `{% url 'superadmin:delete_faq' 'dummyFaqSlug' %}`
+            .replace('dummyFaqSlug', slug)
+
+            $('#deletion-heading').html("FAQ");
+            $('#deletion-sub-heading').html(`
+            <i>Company:</i> <span>${company}</span><br>
+            <i>Question:</i> <span>${question}</span>
+            `);
+            
+            $('#deletion-form').prop("action", actionUrl);
+        })
+
+        $('.delete-privacy-policy-btn').click(function () {
+            const company = $(this).data("company");
+            const slug = $(this).data("slug");            
+
+            let actionUrl = `{% url 'superadmin:delete_privacy_policy' 'dummyPrivacyPolicySlug' %}`
+            .replace('dummyPrivacyPolicySlug', slug)
+
+            $('#deletion-heading').html("Privacy Policy");
+            $('#deletion-sub-heading').html(`<i>Company:</i> <span>${company}</span>`);
+            
+            $('#deletion-form').prop("action", actionUrl);
+        });
+
+        $('.delete-terms-and-condition-btn').click(function () {
+            const company = $(this).data("company");
+            const slug = $(this).data("slug");            
+
+            let actionUrl = `{% url 'superadmin:delete_terms_and_condition' 'dummyTermsAndConditionSlug' %}`
+            .replace('dummyTermsAndConditionSlug', slug)
+
+            $('#deletion-heading').html("Terms And Conditions");
+            $('#deletion-sub-heading').html(`<i>Company:</i> <span>${company}</span>`);
+            
+            $('#deletion-form').prop("action", actionUrl);
+        });
+
+        $('.delete-shipping-and-delivery-policy-btn').click(function () {
+            const company = $(this).data("company");
+            const slug = $(this).data("slug");            
+
+            let actionUrl = `{% url 'superadmin:delete_shipping_and_delivery_policy' 'dummyShippingAndDeliveryPolicySlug' %}`
+            .replace('dummyShippingAndDeliveryPolicySlug', slug)
+
+            $('#deletion-heading').html("Shipping And Delivery Policy");
+            $('#deletion-sub-heading').html(`<i>Company:</i> <span>${company}</span>`);
+            
+            $('#deletion-form').prop("action", actionUrl);
+        });
+
+        $('.delete-cancellation-and-refund-policy-btn').click(function () {
+            const company = $(this).data("company");
+            const slug = $(this).data("slug");            
+
+            let actionUrl = `{% url 'superadmin:delete_cancellation_and_refund_policy' 'dummyCancellationAndRefundPolicySlug' %}`
+            .replace('dummyCancellationAndRefundPolicySlug', slug)
+
+            $('#deletion-heading').html("Cancellation And Refund Policy");
+            $('#deletion-sub-heading').html(`<i>Company:</i> <span>${company}</span>`);
+            
+            $('#deletion-form').prop("action", actionUrl);
+        });
+    });
+</script>
+{% endblock scripts %}

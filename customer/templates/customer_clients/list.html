@@ -1,0 +1,320 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}{% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}s{% endblock title %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> {% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}s </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">{% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}s</li>
+			</ul>
+		</div>
+	</div>
+	<!-- Page Header -->
+	<div class="page-header pt-3 mb-0 ">
+		<div class="row">
+			<div class="col">
+				<div class="dropdown">
+					<a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Recently Viewed</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="#">Recently Viewed</a>
+						<a class="dropdown-item" href="#">Items I'm following</a>
+						<a class="dropdown-item" href="#">All Registrations</a>
+						<a class="dropdown-item" href="#">Registrations added in the last 24 hours</a>
+						<a class="dropdown-item" href="#">Registrations added in the last 7 days</a>						
+					</div>
+				</div>
+			</div>
+			<div class="col text-end">
+				<ul class="list-inline-item ps-0">
+					<li class="nav-item dropdown list-inline-item add-lists">
+						<a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+							<div class="nav-profile-text">
+								<i class="fa fa-th" aria-hidden="true"></i>
+							</div>
+						</a>
+						<div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+							<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-new-list">Add New Registration</a>
+						</div>
+					</li>
+					<li class="list-inline-item">
+						<a href="{% url 'customer:add_clients' %}" class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-registration">New {% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Header -->	
+	<div class="row">
+        {% include "message.html" %}
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">									
+                    <h5 class="card-title">{% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}s</h5>
+                </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                <thead>
+                                    <tr>
+                                        <th class="checkBox">
+                                            <label class="container-checkbox">
+                                                <input type="checkbox">
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        </th>
+                                        <th>Name</th>
+                                        <th>Order</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for client in clients %}
+                                    <tr>
+                                        <td class="checkBox">
+                                            <label class="container-checkbox">
+                                                <input type="checkbox">
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <a href="#" class="avatar"><img alt="Image of client: {{client.name}}" src="{% if client.image %}{{client.image.url}}{% else %}{% static 'assets/img/c-logo2.png' %}{% endif %}"></a>
+                                            <a href="#">{{client.name}}</a>
+                                        </td>
+                                        <td>{{client.order}}</td>
+                                        
+                                        <td class="text-end">
+                                            <div class="dropdown dropdown-action">
+                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item edit-client-btn" href="#" data-bs-toggle="modal" data-bs-target="#update-client-modal" data-name="{{client.name}}" data-image="{{client.image.name}}" data-image-url="{{client.image.url}}" data-order="{{client.order}}" data-slug="{{client.slug}}">Edit This {% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}</a>
+                                                    <a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete-client-modal" data-name="{{client.name}}" data-image="{{client.image.name}}" data-image-url="{{client.image.url}}" data-order="{{client.order}}" data-slug="{{client.slug}}">Remove This {% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>							
+            </div>						
+        </div>
+    </div>
+</div>
+
+<!-- /Page Content -->
+{% endblock content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete-client-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="post">
+                            {% csrf_token %}
+							<h4><span class="text-danger">Deleting</span> {% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>{% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Update Modal -->
+<div class="modal fade" id="update-client-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+                <h4 class="modal-title text-center">Update {% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" enctype="multipart/form-data" id="update-client-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label class="col-form-label">Name <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="update-name-input" name="name" placeholder="Name of {% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %}">
+                                <div class="invalid-feedback">
+                                    Please provide the name.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                        
+                            <div class="form-group">
+                                <label class="col-form-label">Image <span class="text-danger">*</span></label>
+                                <input class="form-control" type="file" id="update-image-input" name="image" >
+                                <small><span id="current-image"></span></small>
+                                <div class="invalid-feedback">
+                                    Please provide the image.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        
+                            <div class="form-group">
+                                <label class="col-form-label">Order <span class="text-danger">*</span></label>
+                                <input class="form-control" type="number" id="update-order-input" name="order" placeholder="Order of corporate partner on the slider">
+                            </div>
+                            
+                            <div class="form-group text-center">
+                                <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                            </div>
+                        </form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- Update modal -->
+
+<!-- Detail Modal -->
+<div class="modal right fade" id="client-detail-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title text-center company-name"></h4>
+                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+              </div>
+
+            <div class="modal-body">
+                <div class="row" style="background: #eaeaea;">
+                    <div class="col-md-12">
+                        <h4 style="margin: 8px 0;">{% if company.type.name == "Education" %}Corporate Partner{% else %}Client{% endif %} of <span id="course-name"></span></h4>
+                    </div>
+                </div>
+                <br>                
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 style="margin: 8px 0;">Question: </span></h5>
+                        <p id="question"></p>
+                    </div>                    
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 style="margin: 8px 0;">Answer: </span></h5>
+                        <p id="answer"></p>
+                    </div>                    
+                </div>
+                <br>
+            </div>
+
+        </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+</div>
+<!-- Detail Modal -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+        // Deletion
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const clientSlug = $(this).data('slug');
+
+			const actionUrl = `{% url 'customer:delete_client' 'dummyClientSlug' %}`
+			.replace('dummyClientSlug', clientSlug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+        // Detail View
+        $('.client-obj').click(function () {
+            $('#question, #answer').empty();
+
+            const course = $(this).data('course')
+            const question = $(this).data('question')
+            const answer = $(this).data('answer')
+
+            if (course) {
+                $('#course-name').html(course);
+            }
+
+            if (question) {
+                $('#question').html(question);
+            }
+
+            if (answer) {
+                $('#answer').html(answer);
+            }
+        });
+
+        // Editing
+        $('.edit-client-btn').click(function () {
+            const name = $(this).data('name');
+            const image = $(this).data('image');
+            const imageUrl = $(this).data('image-url');
+            const order = $(this).data('order');
+            const clientSlug = $(this).data('slug');
+            const companySlug = `{{current_company.slug}}`;
+
+            const actionUrl = `{% url 'customer:update_client' 'dummyClientSlug' %}`
+            .replace('dummyClientSlug', clientSlug);
+
+            $('#update-name-input, #update-order-input').val('');
+
+            if (name) {
+                $('#update-name-input').val(name);
+            }
+
+            if (order) {
+                $('#update-order-input').val(order);
+            }
+
+            if (image) {
+                $('#current-image').html(`Curren Image: <a href="${imageUrl}" target="_blank" >${image}</a>`);
+            }
+
+            $('#update-client-form').prop('action', actionUrl);
+        });
+	});
+</script>
+{% endblock scripts %}

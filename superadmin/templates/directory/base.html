@@ -1,0 +1,97 @@
+{% extends "admin_base/base.html" %}
+{% load static %}
+
+{% block title %}{{current_directory}}{% endblock title %}
+
+{% block content %}
+			
+				<!-- Page Content -->
+                <div class="content container-fluid">
+
+                	<div class="crms-title row bg-white">
+                		<div class="col  p-0">
+                			<h3 class="page-title m-0">
+			                <span class="page-title-icon bg-gradient-primary text-white me-2">
+			                  <i class="fa fa-building" aria-hidden="true"></i>
+			                </span> {{current_directory}} </h3>
+                		</div>
+                		<div class="col p-0 text-end">
+                			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+								<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'superadmin:directories' %}">Directories</a></li>                                
+								<li class="breadcrumb-item active">{{current_directory}}</li>
+							</ul>
+                		</div>
+                	</div>
+
+					<div class="settings-menu-links">
+						<ul class="nav nav-tabs menu-tabs">
+                            {% if current_company.type.name == "Product" %}
+
+                                <li class="nav-item {% if products_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:products' current_company.slug %}">Products</a>
+                                </li>
+                                <li class="nav-item {% if categories_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:categories' current_company.slug %}">Categories</a>
+                                </li>
+                                <li class="nav-item {% if selected_tab == "Sub Category" %}active{% endif %}">
+                                    <a class="nav-link" href="#">Sub Categories</a>
+                                </li>
+
+                            {% endif %}
+
+                            {% if current_company.type.name == "Education" %}
+
+                                <li class="nav-item {% if course_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:courses' current_company.slug %}">Courses</a>
+                                </li>
+                                <li class="nav-item {% if course_program_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:course_programs' current_company.slug %}">Programs</a>
+                                </li>
+                                <li class="nav-item {% if course_specialization_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:course_specializations' current_company.slug %}">Specializations</a>
+                                </li>
+
+                            {% endif %}
+
+                            {% if current_company.type.name == "Service" %}
+                                <li class="nav-item {% if service_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:services' current_company.slug %}">Services</a>
+                                </li>
+                                <li class="nav-item {% if service_category_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:service_categories' current_company.slug %}">Category</a>
+                                </li>
+                                <li class="nav-item {% if service_sub_category_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:service_sub_categories' current_company.slug %}">Sub Category</a>
+                                </li>
+
+                            {% endif %}
+
+                            {% if current_company.type.name == "Registration" %}
+                                <li class="nav-item {% if registration_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:registrations' current_company.slug %}">Registration</a>
+                                </li>
+                                <li class="nav-item {% if registration_type_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:registration_types' current_company.slug %}">Registration Type</a>
+                                </li>
+                                <li class="nav-item {% if registration_sub_type_page %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'superadmin:registration_sub_types' current_company.slug %}">Registration Sub Type</a>
+                                </li>
+
+                            {% endif %}
+						</ul>
+					</div>
+					
+                    {% include "message.html" %}
+
+					{% block directory_content %}{% endblock directory_content %}
+					
+                </div>
+				<!-- /Page Content -->
+{% endblock content %}
+
+{% block modal %}
+
+{% block directory_modal %}{% endblock directory_modal %}
+
+{% endblock modal %}

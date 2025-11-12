@@ -1,0 +1,270 @@
+
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Update Testimonial{% endblock title %}
+
+{% block content %}  
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="fa fa-quote-left"></i>
+			</span> Update Testimonial </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Update Testimonial</li>
+			</ul>
+		</div>
+	</div>
+
+    <br>
+    <div class="row">
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'customer:update_testimonial' testimonial.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-course-faq-form">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Update Testimonial</h4>
+                    </div>
+                    <div class="card-body">                        
+
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label">Student Name <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="name-input" name="name" placeholder="Name of Client" value="{{testimonial.name}}" required>
+                                <div class="invalid-feedback">
+                                    Please provide the name.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label">Image <span class="text-danger">*</span></label>
+                                <input class="form-control" type="file" id="image-input" name="image">
+                                <small><span id="current-image">Current Image: {% if testimonial.image %}<a href="{{testimonial.image.url}}" target="_blank">{{testimonial.get_image_name}}</a>{% endif %}</span></small>
+                                <div class="invalid-feedback">
+                                    Please provide the image.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label">Company <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="company-input" name="company" placeholder="Name of Client's Company" value="{{testimonial.client_company}}" required>
+                                <div class="invalid-feedback">
+                                    Please provide the company.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label" for="state-dropdown" >State <span class="text-danger">*</span></label>
+                                <select class="form-control" id="state-dropdown" name="state" required>
+                                    <option value="" hidden disabled selected>Select State</option>
+                                    {% for state in states %}
+                                    <option value="{{state.slug}}" {% if testimonial.place.state.slug == state.slug %}selected{% endif %}>{{state.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the state.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">                            
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label" for="district-dropdown" >District <span class="text-danger">*</span></label>
+                                <select class="form-control" id="district-dropdown" name="district" required>
+                                    <option value="" hidden disabled selected>Select District</option>
+                                    {% for district in districts %}
+                                    <option value="{{district.slug}}" {% if testimonial.place.district.slug == district.slug %}selected{% endif %}>{{district.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the district.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label" for="place-dropdown" >Place <span class="text-danger">*</span></label>
+                                <select class="form-control" id="place-dropdown" name="place" required>
+                                    <option value="" hidden disabled selected>Select Place</option>
+                                    {% for place in places %}
+                                    <option value="{{place.slug}}" {% if testimonial.place.slug == place.slug %}selected{% endif %}>{{place.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the place.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label" for="rating-dropdown" >Rating <span class="text-danger">*</span></label>
+                                <select class="form-control" id="rating-dropdown" name="rating" required>
+                                    <option value="" hidden disabled selected>Select Rating</option>
+                                    {% for rating in ratings %}
+                                    <option value="{{rating}}" {% if testimonial.rating == rating %}selected{% endif %} {% if not testimonial.rating and rating == 5 %}selected{% endif %}>{{rating}}</option>
+                                    {% endfor %}                                    
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the rating.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label class="col-form-label">Order <span class="text-danger">*</span></label>
+                                <input class="form-control" type="number" id="order-input" name="order" value="{{testimonial.order}}" placeholder="Order in the slider" required>
+                                <div class="invalid-feedback">
+                                    Please provide the order.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>                        
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Testimonal Text <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="testimonial-input" name="testimonial" placeholder="Testimonal Text">{% if testimonial.text %}{{testimonial.text}}{% endif %}</textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>     
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+        </div>
+	<!-- /Content End -->
+	</div>
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        function populateDistricts() {
+            const state = $(this).val();
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'locations:get_districts' %}`,
+                dataType: 'json',
+                data: {"state": state},
+
+                success: response => {
+                    $('#district-dropdown').html('<option value="" selected disabled hidden>Select District</option>');
+                    
+                    const districts = response.districts;
+
+                    if (districts) {
+
+                        districts.forEach(district => {
+                            $('#district-dropdown').append(`<option value="${district.slug}" ${district.slug == '{{testimonial.place.district.slug}}' && 'selected'}>${district.name}</option>`);
+                        });
+                    }
+                },
+
+                error: error => console.error("Error: ", error),
+            });
+        };
+
+        function populatePlaces() {
+            const district = $(this).val();
+            const state = $('#state-dropdown').val();
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'locations:get_places' %}`,
+                dataType: 'json',
+                data: {
+                    "district": district,
+                    "state": state
+                },
+
+                success: response => {
+                    $('#place-dropdown').html('<option value="" selected disabled hidden>Select Place</option>');
+                    
+                    const places = response.places;
+
+                    if (places) {
+
+                        places.forEach(place => {
+                            $('#place-dropdown').append(`<option value="${place.slug}" ${place.slug == '{{testimonial.place.slug}}' && 'selected'}>${place.name}</option>`);
+                        });
+                    }
+                },
+
+                error: error => console.error("Error: ", error),
+            });
+        };
+        
+        // Get Districts
+        $(document).on('change', '#state-dropdown', populateDistricts);
+
+        // Get Places
+        $(document).on('change', '#district-dropdown', populatePlaces);
+
+        // Get Courses
+        function getCourses() {
+            const program = $('#program-dropdown').val();
+            const company = `{{company.slug}}`;
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'education:get_courses' %}`,
+                dataType: 'json',
+                data: {
+                    "program": program,
+                    "company": company
+                },
+                success: response => {
+                    $('#course-dropdown').html(`<option value="" hidden disabled selected>Select Course</option>`);
+
+                    if (response.courses && response.courses.length > 0) {
+                        response.courses.forEach(course => {
+                            $('#course-dropdown').append(`<option value="${course.slug}">${course.name}</option>`)
+                        })
+                    }
+                    
+                    if (response.error) {
+                        console.error("Error: ", response.error)
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            });            
+        };
+
+        $('#program-dropdown').on('change', () => getCourses());
+    });
+</script>
+{% endblock scripts %}

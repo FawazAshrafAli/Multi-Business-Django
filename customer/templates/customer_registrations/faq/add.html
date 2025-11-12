@@ -1,0 +1,132 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Add FAQs{% endblock title %}
+
+{% block content %}  
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Add FAQ </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Add FAQ</li>
+			</ul>
+		</div>
+	</div>
+
+    <br>
+    <div class="row">
+        {% include "message.html" %}
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'customer:add_registration_faqs' %}" class="needs-validation" enctype="multipart/form-data" id="add-registration-faq-form">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Add Registration FAQ</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">                            
+                            <div class="col-md-6 mb-3">
+                                <label for="type-dropdown" >FAQs <span class="text-danger">*</span></label>
+                                <select class="form-control" id="type-dropdown" name="type" required>
+                                    <option value="" hidden disabled selected>Select Type</option>
+                                    {% for type in types %}
+                                    <option value="{{type.slug}}">{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the registration type.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="sub-type-dropdown" >Registration Sub Type <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sub-type-dropdown" name="sub_type" required>
+                                    <option value="" hidden disabled selected>Select Sub Type</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the registration sub type.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                        </div>                                                
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Question <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="question-input" name="question" placeholder="Question"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Answer <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="answer-input" name="answer" placeholder="Answer"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>     
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+        </div>
+	<!-- /Content End -->
+	</div>
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        // Get Sub Categories
+        function getSubTypes() {
+            const type = $('#type-dropdown').val();
+            const company = `{{company.slug}}`;
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'registration:get_registration_sub_types' %}`,
+                dataType: 'json',
+                data: {
+                    "type_slug": type,
+                    "company_slug": company
+                },
+                success: response => {
+                    $('#sub-type-dropdown').html(`<option value="" hidden disabled selected>Select Sub Type</option>`);
+                    
+                    if (response.sub_types && response.sub_types.length > 0) {
+                        response.sub_types.forEach(sub_type => {
+                            $('#sub-type-dropdown').append(`<option value="${sub_type.slug}">${sub_type.name}</option>`)
+                        })
+                    }
+                    
+                    if (response.error) {
+                        console.error("Error: ", response.error)
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            });            
+        };
+
+        $('#type-dropdown').on('change', () => getSubTypes());
+        
+    });
+</script>
+{% endblock scripts %}

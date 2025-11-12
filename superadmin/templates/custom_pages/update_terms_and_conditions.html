@@ -1,0 +1,106 @@
+
+{% extends "admin_base/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Update Terms And Conditions{% endblock title %}
+
+{% block content %}
+
+<!-- Page Content -->
+<div class="content container-fluid">
+	
+	<!-- Page Header -->
+	<div class="crms-title row bg-white mb-4">
+		<div class="col  p-0">
+			<h3 class="page-title">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="la la-columns"></i>
+			</span> Update Terms And Conditions </h3>
+		</div>       
+		<div class="col p-0 text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Terms And Conditions</a></li>
+				<li class="breadcrumb-item active">Update Terms And Conditions</li>
+			</ul>
+		</div>
+	</div>
+	<!-- /Page Header -->
+
+    <div class="settings-menu-links">
+        <ul class="nav nav-tabs menu-tabs">							
+            <li class="nav-item {% if current_custom_page == "About Us" %}active{% endif %}">
+                <a class="nav-link" href="{% url 'superadmin:about_us' %}">About Us</a>
+            </li>
+            <li class="nav-item {% if current_custom_page == "Contact Us" %}active{% endif %}">
+                <a class="nav-link" href="{% url 'superadmin:contact_us' %}">Contact Us</a>
+            </li>
+            <li class="nav-item {% if current_custom_page == "FAQ" %}active{% endif %}">
+                <a class="nav-link" href="{% url 'superadmin:faq' %}">FAQ</a>
+            </li>
+            <li class="nav-item {% if current_custom_page == "Privacy Policy" %}active{% endif %}">
+                <a class="nav-link" href="{% url 'superadmin:privacy_policies' %}">Privacy Policy</a>
+            </li>
+            <li class="nav-item {% if current_custom_page == "Terms And Conditions" %}active{% endif %}">
+                <a class="nav-link" href="{% url 'superadmin:terms_and_conditions' %}">Terms &amp; Conditions</a>
+            </li>
+            <li class="nav-item {% if current_custom_page == "Shipping And Delivery Policy" %}active{% endif %}">
+                <a class="nav-link" href="{% url 'superadmin:shipping_and_delivery_policies' %}">Shipping &amp; Delivery Policy</a>
+            </li>
+            <li class="nav-item {% if current_custom_page == "Cancellation And Refund Policy" %}active{% endif %}">
+                <a class="nav-link" href="{% url 'superadmin:cancellation_and_refund_policies' %}">Cancellation &amp; Refund Policy</a>
+            </li>
+        </ul>
+    </div>
+	
+	<!-- Content Starts -->
+    <div class="row">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'superadmin:update_terms_and_condition' terms_and_conditions.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-custom-page-form">
+                {% csrf_token %}
+                {{ form.media }}
+
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Terms And Conditions</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            {{form|crispy}}
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="version-input">Version <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="version" id="version-input" placeholder="Version" value="{{terms_and_conditions.version}}">
+                            </div>                            
+                            <div class="form-group col-md-6">
+                                <label class="form-label">Effective Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="t-and-c-effective-date-input" name="effective_date" value="{{terms_and_conditions.effective_date|date:'Y-m-d'}}"/>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>        
+                
+		
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+{% endblock scripts %}

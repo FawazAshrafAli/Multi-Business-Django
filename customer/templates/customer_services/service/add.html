@@ -1,0 +1,532 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Add Services{% endblock title %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Services </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Services</li>
+			</ul>
+		</div>
+	</div>
+
+    <br>
+
+    <div class="row">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'customer:add_services' %}" class="needs-validation" enctype="multipart/form-data" id="add-service-form" novalidate>
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" > Add Service</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name-input" > Service Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name-input" placeholder="Service Name" name="name" required>
+                                <div class="invalid-feedback">
+                                    Please enter a name for the service.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="image-input" > Image <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="image-input" name="image" required>                                
+                            </div>
+                            
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category-dropdown">Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="category-dropdown" name="category" required>
+                                    <option value="" hidden disabled selected>Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.slug}}">{{category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sub-category-dropdown">Sub Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sub-category-dropdown" name="sub_category" required>
+                                    <option value="" hidden disabled selected>Select Sub Category</option>                                    
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the sub category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                                                
+                        <div class="row">                       
+                            <div class="col-md-6 mb-3">
+                                <label for="duration-input">Duration (in days)</label>
+                                <input type="number" class="form-control" id="duration-input" name="duration" placeholder="Duration" required>
+                            </div> 
+                            <div class="col-md-6 mb-3">
+                                <label for="price-input">Price </label>
+                                <input type="text" class="form-control" id="price-input" name="price" placeholder="Price" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid price.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-4 mb-3 d-flex">
+                                <label for="is-active-input">Is Active&nbsp;</label>
+                                <input type="checkbox" id="is-active-input" name="is_active" checked style="margin: 0; padding: 0;">                     
+                            </div>
+                        </div>                        
+                    </div>
+                </div>                
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+		</div>
+	<!-- /Content End -->
+    </div>
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        
+        let skuPattern = /^[a-zA-Z0-9-_]+$/;
+        let pricePattern = /^(?!0(\.0{1,2})?$)(\$?)([1-9][0-9]*(\.[0-9]{1,2})?)$/;
+        let distancePattern = /^(?!0(\.0{1,2})?$)[0-9]+(\.[0-9]{1,2})?$/;
+        let weightPattern = /^(?!0(\.0+)?$)([1-9][0-9]*|[0-9]*\.[0-9]+)\s?(kg|g|lb|oz)$/i;
+
+        function validateForm() {  
+            const formValid = true       
+
+            let name = $('#name-input').val();
+            if (name) {
+                name = name.trim();
+            }
+
+            const categoryDropdown = $('#category-dropdown').val();
+            const subCategoryDropdown = $('#sub-category-dropdown').val();
+
+            const brandDropdown = $('#brand-dropdown').val();
+
+            const imageInput = $('#image-input')[0];
+            const image = imageInput.files[0];                        
+            
+            let sku = $('#sku-input').val();
+            if (sku) {
+                sku = sku.trim();
+            }
+
+            let durations = $('#duration-input').val();
+            if (durations) {
+                durations = durations.trim();
+            }
+
+            let price = $('#price-input').val();
+            if (price) {
+                price = price.trim();
+            }
+
+            let length = $('#length-input').val();
+            if (length) {
+                length = length.trim();
+            }
+
+            let width = $('#width-input').val();
+            if (width) {
+                width = width.trim();
+            }
+
+            let height = $('#height-input').val();
+            if (height) {
+                height = height.trim();
+            }
+
+            const unitDropdown = $('#unit-dropdown').val();
+
+            let weight = $('#weight-input').val();
+            if (weight) {
+                weight = weight.trim();
+            }
+
+            if (!name) {
+                $('#name-input').removeClass('is-valid').addClass('is-invalid');
+                $('#name-input').focus();
+                formValid = false;
+
+            } else {
+                $('#name-input').removeClass('is-invalid').addClass('is-valid');
+                $('#name-input').blur();
+                
+            }            
+
+            if (!categoryDropdown) {
+                $('#category-dropdown').addClass('is-invalid');
+                $('#category-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#category-dropdown').addClass('is-valid');
+                $('#category-dropdown').blur();
+                
+            }
+
+            if (!subCategoryDropdown) {
+                $('#sub-category-dropdown').addClass('is-invalid');
+                $('#sub-category-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#sub-category-dropdown').addClass('is-valid');
+                $('#sub-category-dropdown').blur();
+                
+            }
+
+            if (!brandDropdown) {
+                $('#brand-dropdown').addClass('is-invalid');
+                $('#brand-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#brand-dropdown').addClass('is-valid');
+                $('#brand-dropdown').blur();
+                
+            }
+
+            if (!image) {
+                $('#image-input').addClass('is-invalid');
+                $('#image-input').focus();
+                formValid = false;
+            } else {
+                $('#image-input').addClass('is-valid');
+                $('#image-input').blur();
+                
+            }
+            
+            if (sku && !skuPattern.test(sku)) {
+                $('#sku-input').removeClass('is-valid').addClass('is-invalid');
+                $('#sku-input').focus();
+                formValid = false;
+
+            } else {
+                $('#sku-input').removeClass('is-invalid').remove('is-valid');
+                $('#sku-input').blur();
+                
+            }
+
+            // if (!durations || durations < 0) {
+            //     $('#duration-input').removeClass('is-valid').addClass('is-invalid');
+            //     $('#duration-input').focus();
+            //     formValid = false;
+
+            // } else {
+            //     $('#duration-input').removeClass('is-invalid').addClass('is-valid');
+            //     $('#duration-input').blur();
+                
+            // }
+
+            if (price && !pricePattern.test(price)) {
+                $('#price-input').removeClass('is-valid').addClass('is-invalid');
+                $('#price-input').focus();
+                formValid = false;
+
+            } else {
+                $('#price-input').removeClass('is-invalid').addClass('is-valid');
+                $('#price-input').blur();
+                
+            }
+
+            if (length && !distancePattern.test(length)) {
+                $('#length-input').removeClass('is-valid').addClass('is-invalid');
+                $('#length-input').focus();
+                formValid = false;
+
+            } else {
+                $('#length-input').removeClass('is-invalid').remove('is-valid');
+                $('#length-input').blur();
+                
+            }
+
+            if (width && !distancePattern.test(width)) {
+                $('#width-input').removeClass('is-valid').addClass('is-invalid');
+                $('#width-input').focus();
+                formValid = false;
+
+            } else {
+                $('#width-input').removeClass('is-invalid').remove('is-valid');
+                $('#width-input').blur();
+                
+            }
+
+            if (height && !distancePattern.test(height)) {
+                $('#height-input').removeClass('is-valid').addClass('is-invalid');
+                $('#height-input').focus();
+                formValid = false;
+
+            } else {
+                $('#height-input').removeClass('is-invalid').remove('is-valid');
+                $('#height-input').blur();
+                
+            }            
+
+            let validLength;
+            let validWidth;
+            let validHeight;
+
+            if (length) {
+                length = length.trim();
+                validLength = distancePattern.test(length);
+            }
+
+            if (width) {
+                width = width.trim();
+                validWidth = distancePattern.test(width);
+            }
+
+            if (height) {
+                height = height.trim();
+                validHeight = distancePattern.test(height);
+            }
+
+            if (!unitDropdown) {
+                if (validLength || validWidth || validHeight) {
+                    $('#unit-dropdown').prop('disabled', false)
+                    $('#unit-dropdown').addClass('is-invalid');
+                    $('#unit-dropdown').focus();
+                    formValid = false;
+                }
+
+            } else {
+                // $('#unit-dropdown').prop('disabled', true)
+                $('#unit-dropdown').addClass('is-valid');
+                $('#unit-dropdown').blur();
+            }
+            
+            if (weight && !weightPattern.test(weight)) {
+                $('#weight-input').removeClass('is-valid').addClass('is-invalid');
+                $('#weight-input').focus();
+                formValid = false;
+
+            } else {
+                $('#weight-input').removeClass('is-invalid').remove('is-valid');
+                $('#weight-input').blur();
+                
+            }
+
+            if (formValid == true) {
+                $('#add-service-form').submit()
+            }
+
+        }
+
+
+//        $('#submit-button').click(validateForm);
+        $('#submit-button').click(() => $('#add-service-form').submit());
+
+        // Inputting
+
+        $('#name-input, #sku-input, #duration-input, #price-input, #length-input, #width-input, #height-input, #weight-input').on('input', function () {
+            let thisValue = $(this).val();
+            if (thisValue) {
+                thisValue = thisValue.trim();
+            }
+
+            if (!thisValue) {
+                if ($(this).prop('id') == "sku-input" || $(this).prop('id') == "weight-input" || ["length-input", "width-input", "height-input"].includes($(this).prop('id'))) {
+                    $(this).removeClass('is-valid').removeClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-valid').addClass('is-invalid');                
+                }
+            } else {
+                if ($(this).prop('id') == "duration-input" && thisValue < 0) {
+                    $(this).val(0);
+                }
+            }
+
+            if (thisValue) {
+                if ($(this).prop('id') == "sku-input") {
+                    if (skuPattern.test(thisValue)) {
+                        $(this).removeClass('is-invalid').addClass('is-valid');                    
+                    } else {
+                        $(this).removeClass('is-valid').addClass('is-invalid');
+                    }
+                }
+                
+                if (["length-input", "width-input", "height-input"].includes($(this).prop('id'))) {
+                    if (distancePattern.test(thisValue)) {
+                        console.log("entered")
+                        $(this).removeClass('is-invalid').addClass('is-valid');                  
+                    } else {
+                        $(this).removeClass('is-valid').addClass('is-invalid');
+                    }
+                }
+                
+                if ($(this).prop('id') == "weight-input") {
+                    if (weightPattern.test(thisValue)) {
+                        $(this).removeClass('is-invalid').addClass('is-valid');                    
+                    } else {
+                        $(this).removeClass('is-valid').addClass('is-invalid');
+                    }
+                }
+            }
+
+            let length = $('#length-input').val();
+            let width = $('#width-input').val();
+            let height = $('#height-input').val();
+
+            let validLength;
+            let validWidth;
+            let validHeight;
+
+            if (length) {
+                length = length.trim();
+                validLength = distancePattern.test(length);
+            }
+
+            if (width) {
+                width = width.trim();
+                validWidth = distancePattern.test(width);
+            }
+
+            if (height) {
+                height = height.trim();
+                validHeight = distancePattern.test(height);
+            }
+
+            if (validLength || validWidth || validHeight) {
+                $('#unit-dropdown').prop('disabled', false)
+            } else {
+                $('#unit-dropdown').prop('disabled', true)
+            }
+        });
+
+        // changing
+
+        $('#category-dropdown, #sub-category-dropdown, #brand-dropdown, #unit-dropdown, #image-input').on('change', function () {
+            if (($(this).prop('id') == 'category-dropdown' || $(this).prop('id') == 'sub-category-dropdown' || $(this).prop('id') == 'brand-dropdown') && !$(this).val()) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+
+            if ($(this).prop('id') == 'image-input' || $(this).prop('id') == 'logo-input') {
+                let imageInput = $('#image-input')[0];
+                let image = imageInput.files[0];                
+                if (!image) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+            
+            if ($(this).prop('id') == 'unit-dropdown') {
+                if ($(this).val() && ($('#length-input').val() || $('#width-input').val() || $('#height-input').val())) {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                } else {
+                    $(this).removeClass('is-valid').removeClass('is-invalid');
+                }
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+        })        
+
+        let length = $('#length-input').val();
+        let width = $('#width-input').val();
+        let height = $('#height-input').val();
+
+        let validLength;
+        let validWidth;
+        let validHeight;
+
+        if (length) {
+            length = length.trim();
+            validLength = distancePattern.test(length);
+        }
+
+        if (width) {
+            width = width.trim();
+            validWidth = distancePattern.test(width);
+        }
+
+        if (height) {
+            height = height.trim();
+            validHeight = distancePattern.test(height);
+        }
+
+        if (!validLength && !validWidth && !validHeight) {
+            $('#unit-dropdown').prop('disabled', true);
+        }
+
+        
+        // Get Size and Sub Categories
+        function getSubCategories(category) {
+            const currentCompany = `{{company.slug}}`
+            $.ajax({
+                type: 'GET',
+                url: `/service/get_sub_categories/`,
+                dataType: 'json',
+                data: {"category_slug": category, "company_slug": currentCompany},
+                success: response => {
+                    let subCategories = response.sub_categories
+
+                    $('#sub-category-dropdown').html(`<option value="" hidden disabled selected>Select Sub Category</option>`);
+                    if (subCategories && subCategories.length) {
+                        subCategories.forEach(subCategory => {
+                            if (subCategory.standard) {
+                                $('#sub-category-dropdown').append(`<option value="${subCategory.slug}">${subCategory.name}&nbsp;&nbsp;&nbsp; ${subCategory.standard}</option>`)
+                            } else {
+                                $('#sub-category-dropdown').append(`<option value="${subCategory.slug}">${subCategory.name}</option>`)
+                            }
+                        })
+                    } else {
+                        $('#sub-category-dropdown').html(`<option value="" disabled selected>Select Sub Category</option>`);
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            })
+        }
+
+        $('#category-dropdown').on('change', function () {
+            const category = $(this).val();
+
+            getSubCategories(category);
+        });
+    })
+</script>
+{% endblock scripts %}

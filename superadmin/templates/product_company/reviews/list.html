@@ -1,0 +1,260 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block company_content %}
+					
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">									
+				<h5 class="card-title">Reviews</h5>
+			</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Reviewer</th>
+                                    <th>Review Text</th>
+                                    <th class="text-center">Rating</th>
+                                    <th class="text-center">Ordering</th>
+									<th class="text-center">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for review in reviews %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>
+									<td>
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#review-detail-modal" class="avatar review-obj" data-name="{{review.review_by}}" data-product="{{review.product.name}}" data-rating="{{review.rating}}" data-order="{{review.order}}" data-review="{{review.text}}"><img alt="Image of reviewer: {{review.review_by}}" src="{% if review.user and review.user.image %}{{review.user.image.url}}{% else %}{% static 'assets/img/c-logo2.png' %}{% endif %}"></a>
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#review-detail-modal" class="review-obj" data-name="{{review.review_by}}" data-product="{{review.product.name}}" data-rating="{{review.rating}}" data-order="{{review.order}}" data-review="{{review.text}}">{% if review.review_by %}{{review.review_by}}{% else %}{{review.user.username}}{% endif %}</a>
+                                    </td>
+                                    <td>{{review.text|slice:'50'}}{% if review.text|length > 50 %}...{% endif %}</td>
+                                    <td class="text-center">{{review.rating}}</td>
+                                    <td class="text-center">{{review.order}}</td>
+									
+									<td class="text-center">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+                                                {% if review.review_by %}
+												<a class="dropdown-item edit-review-btn" href="{% url 'superadmin:update_product_review' current_company.slug review.slug %}">Edit This Review</a>
+                                                {% endif %}
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete-review-modal" data-name="{{review.review_by}}" data-image="{{review.image.name}}" data-image-url="{{review.image.url}}" data-order="{{review.order}}" data-slug="{{review.slug}}">Remove This Review</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>							
+		</div>						
+	</div>
+	
+
+<!-- /Page Content -->
+{% endblock company_content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete-review-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="get">
+							<h4><span class="text-danger">Deleting</span> Review. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Review by:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Update Modal -->
+<div class="modal fade" id="update-review-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+                <h4 class="modal-title text-center">Update Review</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" enctype="multipart/form-data" id="update-review-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label class="col-form-label">Cient Name <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="update-name-input" name="name" placeholder="Name of Review">
+                                <div class="invalid-feedback">
+                                    Please provide the name.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                        
+                            <div class="form-group">
+                                <label class="col-form-label">Image <span class="text-danger">*</span></label>
+                                <input class="form-control" type="file" id="update-image-input" name="image" >
+                                <small><span id="current-image"></span></small>
+                                <div class="invalid-feedback">
+                                    Please provide the image.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        
+                            <div class="form-group">
+                                <label class="col-form-label">Order <span class="text-danger">*</span></label>
+                                <input class="form-control" type="number" id="update-order-input" name="order" placeholder="Order of review in the slider">
+                            </div>
+                            
+                            <div class="form-group text-center">
+                                <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                            </div>
+                        </form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- Update modal -->
+
+<!-- Detail Modal -->
+<div class="modal right fade" id="review-detail-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                
+                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+              </div>
+
+            <div class="modal-body">
+                <div class="row" style="background: #eaeaea;">
+                    <div class="col-md-12">
+                        <h4 style="margin: 8px 0;">Review by <span id="name"></span></h4>
+                    </div>
+                </div>
+                <br>                            
+                <table class="table">
+                    <tbody>                                            
+                      <tr>
+                        <td class="border-0">Product</td>
+                        <td class="border-0" id="product"></td>
+                      </tr>
+                      <tr>
+                        <td class="border-0">Rating</td>
+                        <td class="border-0" id="rating"></td>
+                      </tr>
+                      <tr>
+                        <td class="border-0">Order</td>
+                        <td class="border-0" id="order"></td>
+                      </tr>
+                      <tr>
+                        <td class="border-0">Review</td>
+                        <td class="border-0" id="review"></td>
+                      </tr>                      
+                    </tbody>
+                  </table>
+                <hr>
+            </div>
+
+        </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+</div>
+<!-- Detail Modal -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+        // Deletion
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const reviewSlug = $(this).data('slug');
+			const companySlug = `{{current_company.slug}}`
+
+			const actionUrl = `{% url 'superadmin:delete_product_review' 'dummyCompanySlug' 'dummyReviewSlug' %}`
+			.replace('dummyCompanySlug', companySlug).replace('dummyReviewSlug', reviewSlug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+        // Detail View
+        $('.review-obj').click(function () {
+            $('#name, #company, #place, #rating, #order, review').empty();
+
+            const name = $(this).data('name')            
+            const product = $(this).data('product')
+            const rating = $(this).data('rating')
+            const order = $(this).data('order')
+            const review = $(this).data('review')
+
+            if (name) { 
+                $('#name').html(name);
+            }            
+
+            if (product) {
+                $('#product').html(product);
+            }
+
+            if (rating) {
+                $('#rating').html(rating);
+            }
+
+            if (order) {
+                $('#order').html(order);
+            }
+
+            if (review) {
+                $('#review').html(review);
+            }            
+        });        
+	});
+</script>
+{% endblock scripts %}

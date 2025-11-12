@@ -1,0 +1,4 @@
+Saudi Arabia
+
+# top_left = (32.2, 34.4) # fetched till 0.02 precision
+# bottom_right = (16.3, 55.7) # fetched till 0.02 precision

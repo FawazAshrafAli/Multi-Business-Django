@@ -1,0 +1,323 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Services{% endblock title %}
+
+{% block content %}
+
+<style>
+	#weight-div, #dimension-div, #size-div {
+		display: hidden;
+	}
+</style>
+			
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Services </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Services</li>
+			</ul>
+		</div>
+	</div>
+	
+	<!-- Page Header -->
+	<div class="page-header pt-3 mb-0 ">
+		<div class="row">
+			<div class="col">
+				<div class="dropdown">
+					<a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Recently Viewed</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="#">Recently Viewed</a>
+						<a class="dropdown-item" href="#">Items I'm following</a>
+						<a class="dropdown-item" href="#">All Services</a>
+						<a class="dropdown-item" href="#">Services added in the last 24 hours</a>
+						<a class="dropdown-item" href="#">Services added in the last 7 days</a>						
+					</div>
+				</div>
+			</div>
+			<div class="col text-end">
+				<ul class="list-inline-item ps-0">
+					<li class="nav-item dropdown list-inline-item add-lists">
+						<a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+							<div class="nav-profile-text">
+								<i class="fa fa-th" aria-hidden="true"></i>
+							</div>
+						</a>
+						<div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+							<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-new-list">Add New Service</a>
+						</div>
+					</li>
+					<li class="list-inline-item">
+						<a href="#" class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-service">New Service</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Header -->
+
+
+	<!-- Content Starts -->
+	<div class="row">
+		{% if messages %}
+			<ul class="messages">
+				{% for message in messages %}
+					<li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+		<div class="col-md-12">
+			<div class="card mb-0">
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Service</th>
+									<th>Category</th>
+									<th>Sub Category</th>
+									<th class="text-center">Duration</th>
+									<th class="text-center">Price</th>
+									<th class="text-center">Created</th>
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for service in services %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>
+									<td>
+										<a href="#" class="avatar"><img alt="" src="{% if service.image %}{{service.image.url}}{% else %}{% static 'assets/img/c-logo2.png' %}{% endif %}"></a>
+										<a href="#" class="service-detail-toggle" data-bs-toggle="modal" data-bs-target="#service-detail-modal" data-name="{{service.name}}" {% if service.image %}data-image="{{service.image.url}}"{% endif %} data-description="{{service.description}}" data-price="{{service.price}}" data-category="{{service.category.name}}" data-sub-category="{{service.sub_category.name}}" data-duration="{{service.duration.days}}" data-created="{{service.created}}" data-updated="{{service.updated}}"
+										>{{service.name|slice:':25'}}{% if service.name|length > 25%}. . .{% endif %}</a>
+									</td>
+									<td>{{service.category.name}}</td>
+									<td>{{service.sub_category.name}}</td>
+									<td class="text-center">{% if service.duration %}{{service.duration.days}} days{% else %} Not Provided {% endif %}</td>									
+									<td class="text-center">&#8377; {{service.price}}</td>
+									<td class="text-center">{{service.created}}</td>
+									<td class="text-center">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item" href="{% url 'customer:update_service' service.slug %}">Edit This Service</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{service.name}}" data-slug="{{service.slug}}" >Remove This Service</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="post">
+							{% csrf_token %}
+							<h4><span class="text-danger">Removing</span> Service. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Service:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Service Details Modal (Start) -->
+<div class="modal right fade" id="service-detail-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+	  <div class="modal-content">
+
+		<div class="modal-header">
+		  
+		  <div class="row w-100">
+			 <div class="col-md-7 account d-flex">
+					<div class="company_img">
+						<img src="assets/img/c-logo.png" id="service-image" alt="User" class="user-image" class="img-fluid" />
+					</div>
+					<div>
+						<p class="mb-0">Service</p>
+						<span class="modal-title service-name"></span>
+					</div>
+				</div>			
+		  </div>
+		  <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+		</div>
+
+		<div class="modal-body project-pipeline">
+			
+		  <div class="task-infos pt-3">			  
+			  <div class="tab-content">
+				  <div class="tab-pane show active" id="pipeline-task-details">
+					  <div class="crms-tasks">
+						<div class="tasks__item crms-task-item active">
+						  <div class="accordion-header js-accordion-header">Service Details</div> 
+							<div class="accordion-body js-accordion-body">
+							  <div class="accordion-body__contents">
+								  <table class="table">
+									  <tbody>										  
+										  <tr>
+											<td>Service Name</td>
+											<td class="service-name"></td>
+										  </tr>
+										  <tr>
+											<td>Category</td>
+											<td id="service-category"></td>
+										  </tr>
+										  <tr>
+											<td>Sub Category</td>
+											<td id="service-sub-category"></td>
+										  </tr>
+										  <tr>
+											<td>Duration</td>
+											<td id="service-duration"></td>
+										  </tr>										
+										  <tr>
+											<td>Price</td>
+											<td id="service-price"></td>
+										  </tr>
+									  </tbody>
+								  </table>
+							  </div>
+						  </div>
+					</div>					
+					<div class="tasks__item crms-task-item">
+					  <div class="accordion-header js-accordion-header">Description</div> 
+						<div class="accordion-body js-accordion-body">
+						  <div class="accordion-body__contents">
+								<table class="table">
+									<tbody>
+									  <tr>
+										<td>Description</td>
+										<td id="service-description"></td>
+									  </tr>
+									</tbody>
+							  </table>
+						  </div>
+						  
+					  </div>
+					</div>
+					<div class="tasks__item crms-task-item">
+					  <div class="accordion-header js-accordion-header">Dates</div> 
+						<div class="accordion-body js-accordion-body">
+						  <div class="accordion-body__contents">
+							<table class="table">
+								<tbody>
+								  <tr>
+									<td>Created</td>
+									<td id="service-created"></td>
+								  </tr>
+								  <tr>
+									<td>Last Updated</td>
+									<td id="service-updated"></td>
+								  </tr>
+								</tbody>
+						  </table>
+						  </div>
+					  </div>
+					</div>					
+				  </div>
+				  </div>					  				  
+			  </div>
+		</div>
+	  </div>
+
+	  </div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+  </div><!-- modal -->
+  <!-- Service Details Modal (End) -->
+  {% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const slug = $(this).data('slug');
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', `/customer/delete_service/${slug}`);
+		});
+
+		$(".service-detail-toggle").click(function () {
+			const name = $(this).data("name");
+			const image = $(this).data("image");
+			const category = $(this).data("category");
+			const subCategory = $(this).data("sub-category");
+			const duration = $(this).data("duration");			
+			const price = $(this).data("price");			
+			const description = $(this).data("description");
+			const created = $(this).data("created");
+			const updated = $(this).data("updated");
+
+			$('.service-name').html(name);
+			$('#service-image').prop('src', image);
+			$('#service-category').html(category);
+			$('#service-sub-category').html(subCategory);
+			$('#service-duration').html(duration ? `${duration} days` : "Not Provided");
+			$('#service-price').html(`&#8377; ${price}`);
+			$('#service-description').html(description);
+			$('#service-created').html(created);
+			$('#service-updated').html(updated);
+
+			
+		})
+	});
+</script>
+{% endblock scripts %}

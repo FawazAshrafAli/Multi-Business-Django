@@ -1,0 +1,41 @@
+{% extends "admin_base/base.html" %}
+{% load static %}
+{% block title %} Home {% endblock title %}
+{% block content %}
+<div class="content container-fluid">
+	
+	<!-- Page Header -->
+	<div class="crms-title row bg-white mb-4">
+		<div class="col  p-0">
+			<h3 class="page-title">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="la la-columns"></i>
+			</span> Home </h3>
+		</div>
+		<div class="col p-0 text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Company</a></li>
+				<li class="breadcrumb-item active">Add Company</li>
+			</ul>
+		</div>
+	</div>
+	<!-- /Page Header -->
+
+	<!-- Content Starts -->
+    <div class="row">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="col-lg-12">                
+            <div class="position-absolute d-fixed px-5 py-3" style="top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #fff;">
+                <h2>Welcome to the Admin Home Page</h2>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

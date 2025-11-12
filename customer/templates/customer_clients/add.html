@@ -1,0 +1,117 @@
+
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Add Corporate Partners{% endblock title %}
+
+{% block content %}  
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Add Corporate Partners </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Add Corporate Partners</li>
+			</ul>
+		</div>
+	</div>
+
+    <br>
+    <div class="row">
+        {% include "message.html" %}
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'customer:add_clients' %}" class="needs-validation" enctype="multipart/form-data" id="add-course-faq-form">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Add Corporate Partners</h4>
+                    </div>
+                    <div class="card-body">                        
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Name <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="name-input" name="name" placeholder="Name of Corporate Partner">
+                                <div class="invalid-feedback">
+                                    Please provide the name.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label class="col-form-label">Image <span class="text-danger">*</span></label>
+                                <input class="form-control" type="file" id="image-input" name="image" >
+                                <div class="invalid-feedback">
+                                    Please provide the image.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="col-form-label">Order <span class="text-danger">*</span></label>
+                                <input class="form-control" type="number" id="order-input" name="order" placeholder="Order of corporate partner on slider">
+                            </div>
+                        </div>
+                    </div>
+                </div>     
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+        </div>
+	<!-- /Content End -->
+	</div>
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        function getCourses() {
+            const program = $('#program-dropdown').val();
+            const company = `{{current_company.slug}}`;
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'education:get_courses' %}`,
+                dataType: 'json',
+                data: {
+                    "program": program,
+                    "company": company
+                },
+                success: response => {
+                    if (response.courses && response.courses.length > 0) {
+                        response.courses.forEach(course => {
+                            $('#course-dropdown').append(`<option value="${course.slug}">${course.name}</option>`)
+                        })
+                    } else {
+                        $('#course-dropdown').html(`<option value="" hidden disabled selected>Select Course</option>`);
+                    }
+                    
+                    if (response.error) {
+                        console.error("Error: ", response.error)
+                    }
+                },
+                error: error => console.error("Error: ", error),
+            });            
+        };
+
+        $('#program-dropdown').on('change', () => getCourses());
+    })
+</script>
+{% endblock scripts %}

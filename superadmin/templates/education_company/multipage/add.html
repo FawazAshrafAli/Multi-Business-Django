@@ -1,0 +1,1204 @@
+
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Add {{current_company.name}} Multi Page{% endblock title %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'w3/css/chosen-style.css' %}">
+<link rel="stylesheet" href="{% static 'w3/css/main-color.css' %}" id="colors">
+
+<style>    
+    .add-button {
+        color: green;
+        background: #fff;
+        border: none;
+        box-shadow: 0 0 3px silver;
+        width: 50px;
+    }
+
+    .add-button:hover {
+        color: #fff;
+        background: linear-gradient(to bottom, lime, green, darkgreen);
+    }
+
+    .add-button:active {
+        background: darkgreen;
+    }
+
+    .remove-button {
+        color: red;
+        background: #fff;
+        border: none;
+        box-shadow: 0 0 3px silver;
+        width: 50px;
+    }
+
+    .remove-button:hover {
+        color: #fff;
+        background: linear-gradient(to bottom, darkred, red, darkred);
+    }
+
+    .tag {
+        border:1px solid #d3d3d3;
+        border-radius: 15px;
+        padding: 5px 15px 5px 15px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #2a2873;
+        text-decoration: none;
+        font-weight: 600;
+        width: fit-content;
+        margin: 0 5px;
+    }
+
+    #remove-horizontal-tab-btn, #remove-vertical-tab-btn {
+        display: none;
+    }
+
+    #slider-div img {
+        width: 35px;
+        height: 35px;
+    }
+
+    #state-dropdown-section {
+        display: none;
+    }
+</style>
+
+<link rel="stylesheet" href="{% static 'w3/css/chosen-style.css' %}">
+<link rel="stylesheet" href="{% static 'w3/css/main-color.css' %}" id="colors">
+{% endblock styles %}
+
+{% block company_content %}  
+
+	<!-- Content Starts -->
+    <div class="row">
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'superadmin:add_course_multipage' current_company.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-course-form" novalidate>
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Course Name</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">                            
+                            <div class="col-sm-4">
+                                <label class="col-form-label">Title</label>
+                                <input class="form-control"  type="text" id="title-input" name="title" placeholder="Title" required>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="col-form-label">Sub Title</label>
+                                <input class="form-control" type="text" id="sub-title-input" name="sub_title" placeholder="Sub Title" required>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="course-dropdown" class="form-label">Course <span class="text-danger">*</span></label>
+                                <select class="form-control" name="course" required>
+                                    <option value="" disabled hidden selected>Select Course</option>
+                                    {% for course in courses %}
+                                    <option value="{{course.slug}}">{{course.name}}</option>
+                                    {% endfor %}									
+								</select>
+                            </div>
+                        </div>             
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Summary <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="summary-input" name="summary" placeholder="Summary"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                {{form.media}}
+                                {{form.description|as_crispy_field}}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <label class="col-form-label">Meta Title</label>
+                                <input class="form-control"  type="text" id="meta-title-input" name="meta_title" placeholder="Meta Title" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="meta-tag-input">Meta Tags <span class="text-danger">*</span></label>
+                                <select data-placeholder="Select Meta Tags" class="chosen-select" name="meta_tag" multiple>
+                                    {% for tag in tags %}
+                                    <option value="{{tag.slug}}">{{tag.name}}</option>
+                                    {% endfor %}									
+								</select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label class="col-form-label">Meta Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="3" id="meta-description-input" name="meta_description" placeholder="Meta Description" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <label for="url-type-radio" class="col-form-label">URL Type</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="url_type" id="location-filtered" value="location_filtered" required><label class="form-check-label" for="location-filtered">Location Filtered</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="url_type" id="slug-filtered" value="slug_filtered" checked required><label class="form-check-label" for="slug-filtered">Slug Filtered</label>
+                                </div><br>
+                                <small class="text-muted">Preview: <span id="current-url-preview">https://bzindia.in/category/course-location-name(Location/Coutry/State/District)</span></small>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="course-region-input" class="col-form-label">Course Region</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="course_region" id="all-state-selection" value="all" checked required><label class="form-check-label" for="all-state-selection">All States</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="course_region" id="selected-state-selection" value="selected"  required><label class="form-check-label" for="selected-state-selection">Selected States</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row" id="state-dropdown-section">
+                            <div class="col-sm-12">
+                                <label for="state-dropdown" class="form-label">Available States <span class="text-danger">*</span></label>
+                                <select data-placeholder="Select States" class="chosen-select" name="available_states" id="state-dropdown" multiple>
+                                    {% for state in states %}
+                                    <option value="{{state.slug}}" >{{state.name}}</option>
+                                    {% endfor %}									
+								</select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row" id="slider-section">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="slider-program-dropdown" >Slider Program <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="slider-program-dropdown" name="program" required>
+                                        <option value="" hidden disabled selected>Select Program</option>
+                                        {% for program in programs %}
+                                        <option value="{{program.slug}}" >{{program.name}}</option>
+                                        {% endfor %}                                    
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please provide the program.
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Looks good!
+                                    </div>
+                                </div>                                
+                            </div>    
+                            
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="slider-detail-dropdown" >Slider Course Details <span class="text-danger">*</span></label>
+                                    <select data-placeholder="Select Course Details" class="chosen-select" id="slider-detail-dropdown" name="course_details" multiple required>
+                                                                   
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please provide the slider course detail.
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Looks good!
+                                    </div>
+                                </div>                 
+                                
+                            </div>
+                        </div>
+
+                        <div class="task-infos">
+                            <div class="tab-content">
+                                <div class="tab-pane show active" id="task-details">
+                                    <div class="crms-tasks">
+                                      <div class="tasks__item crms-task-item active">
+                                        <div class="accordion-header js-accordion-header">Features</div> 
+                                          <div class="accordion-body js-accordion-body">
+                                            <div class="accordion-body__contents">
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-3 d-flex align-items-start justify-content-end">                                                    
+                                                        <label for="hide-features">
+                                                            <input type="checkbox" class="form-control-checkbox" id="hide-features" name="hide_features" {% if multipage.hide_features %}checked{% endif %}>&nbsp;Hide Features
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div style="display: flex; flex-direction: row;">
+                                                    <input type="text" class="form-control" id="feature-input" placeholder="Feature" required>
+                                                    <button class="add-button" type="button" id="add-feature-btn">ADD</button>
+                                                </div>
+                                                <br>
+                                                <ol class="row" id="feature-div"></ol>
+
+                                            </div>
+                                        </div>
+                                  </div>
+                                  <div class="tasks__item crms-task-item active">
+                                    <div class="accordion-header js-accordion-header">Vertical Tab</div> 
+                                      <div class="accordion-body js-accordion-body">
+                                        <div class="accordion-body__contents" id="vertical-tab-main-div">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="main-title-input" >Main Title <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="main-title-input" placeholder="Main Title" name="vertical_title" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3 d-flex align-items-start justify-content-end">                                                    
+                                                    <label for="hide-vertical-tab">
+                                                        <input type="checkbox" class="form-control-checkbox" id="hide-vertical-tab" name="hide_vertical_tab" {% if multipage.hide_vertical_tab %}checked{% endif %}>&nbsp;Hide Vertical Tab
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <br>
+                                            <div class="vertical-tab-div" id="vertical-tab-div">
+                                                <div class="vertical-tab-inner-div">
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label>Heading of Tab1 <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control" placeholder="Heading of Tab1" name="vertical_heading" required>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label  >Sub Heading of Tab1 <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control" placeholder="Sub Heading of Tab1" name="vertical_sub_heading" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12 mb-3">
+                                                            <label >Summary of Tab1 <span class="text-danger">*</span></label>
+                                                            <textarea type="text" class="form-control" placeholder="Summary of Tab1" name="vertical_summary" required></textarea>
+                                                        </div>            
+                                                    </div>
+                                                    <div style="display: flex; flex-direction: row;">
+                                                        <input type="text" class="form-control vertical-tab-bullet-input" placeholder="Bullet Points of Tab1" required>
+                                                        <button class="add-button add-vertical-tab-bullet" type="button">ADD</button>
+                                                    </div>
+                                                    <br>
+                                                    <ol class="row tab-bullet-div"></ol>
+                                                    <input class="vertical-bullet-count" type="number" name="vertical_bullet_count" hidden>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center" id="vertical-tab-btn-div">
+                                                <button class="add-button" id="add-vertical-tab-btn" type="button" style="width: fit-content;">Add Another Tab</button>
+                                                <button class="remove-button" id="remove-vertical-tab-btn" type="button" style="width: fit-content;">Remove Tab</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                  </div>
+                                  <div class="tasks__item crms-task-item active">
+                                    <div class="accordion-header js-accordion-header">Horizontal Tab</div> 
+                                      <div class="accordion-body js-accordion-body">
+                                        <div class="accordion-body__contents" id="horizontal-tab-main-div">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="main-title-input" >Main Title <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="main-title-input" placeholder="Main Title" name="horizontal_title" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3 d-flex align-items-start justify-content-end">                                                    
+                                                    <label for="hide-horizontal-tab">
+                                                        <input type="checkbox" class="form-control-checkbox" id="hide-horizontal-tab" name="hide_horizontal_tab" {% if multipage.hide_horizontal_tab %}checked{% endif %}>&nbsp;Hide Horizontal Tab
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <br>
+                                            <div class="horizontal-tab-div" id="horizontal-tab-div">
+                                                <div class="horizontal-tab-inner-div">
+                                                    <div class="row">
+                                                        <div class="col-md-12 mb-3">
+                                                            <label>Heading of Tab1 <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control" placeholder="Heading of Tab1" name="horizontal_heading" required>
+                                                        </div>    
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12 mb-3">
+                                                            <label >Summary of Tab1 <span class="text-danger">*</span></label>
+                                                            <textarea type="text" class="form-control" placeholder="Summary of Tab1" name="horizontal_summary" required></textarea>
+                                                        </div>            
+                                                    </div>
+                                                    <div style="display: flex; flex-direction: row;">
+                                                        <input type="text" class="form-control horizontal-tab-bullet-input" placeholder="Bullet Points of Tab1" required>
+                                                        <button class="add-button add-horizontal-tab-bullet" type="button">ADD</button>
+                                                    </div>
+                                                    <br>
+                                                    <ol class="row tab-bullet-div"></ol>
+                                                    <input class="horizontal-bullet-count" type="number" name="horizontal_bullet_count" hidden>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center" id="horizontal-tab-btn-div">
+                                                <button class="add-button" id="add-horizontal-tab-btn" type="button" style="width: fit-content;">Add Another Tab</button>
+                                                <button class="remove-button" id="remove-horizontal-tab-btn" type="button" style="width: fit-content;">Remove Tab</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                  </div>
+                                    <div class="tasks__item crms-task-item active">
+                                        <div class="accordion-header js-accordion-header">Table</div> 
+                                        <div class="accordion-body js-accordion-body">
+                                            <div class="accordion-body__contents">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Table Title <span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" placeholder="Title of Table" name="table_title" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3 d-flex align-items-start justify-content-end">                                                    
+                                                        <label for="hide-table">
+                                                            <input type="checkbox" class="form-control-checkbox" id="hide-table" name="hide_table" {% if multipage.hide_table %}checked{% endif %}>&nbsp;Hide Table
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr id="table-header">
+                                                            <th><input type="text" class="form-control" placeholder="Heading of Column1" name="table_heading" title="Heading of Column1"></th>
+                                                            <th><button class="add-button" id="add-column-btn" type="button" style="width: fit-content;">Add Column</button><br><button class="remove-button" id="remove-column-btn" type="button" style="width: fit-content;">Remove Column</button></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="table-body">
+                                                        <tr id="row-1">
+                                                            <td><input type="text" class="form-control" placeholder="Data of Column1" name="table_data"></td>
+                                                        </tr>
+                                                        <tr><td><button class="add-button" id="add-row-btn" type="button" style="width: fit-content;">Add Row</button>&nbsp;<button class="remove-button" id="remove-row-btn" type="button" style="width: fit-content;">Remove Row</button></td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tasks__item crms-task-item active">
+                                        <div class="accordion-header js-accordion-header">Bullet Points</div> 
+                                        <div class="accordion-body js-accordion-body">
+                                            <div class="accordion-body__contents">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label>Title <span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" placeholder="Title of Bullet Points" name="bullet_title" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3 d-flex align-items-start justify-content-end">                                                    
+                                                        <label for="hide-bullets">
+                                                            <input type="checkbox" class="form-control-checkbox" id="hide-bullets" name="hide_bullets" {% if multipage.hide_bullets %}checked{% endif %}>&nbsp;Hide Bullet Points
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div style="display: flex; flex-direction: row;">
+                                                            <input type="text" class="form-control bullet-input" id="bullet-input" placeholder="Bullet Point" required>
+                                                            <button class="add-button" type="button" id="add-bullet-btn">ADD</button>
+                                                        </div>
+                                                        <br>
+                                                        <ol class="row" id="bullet-div"></ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                                    
+                                    <div class="tasks__item crms-task-item active">
+                                        <div class="accordion-header js-accordion-header">Timeline</div> 
+                                          <div class="accordion-body js-accordion-body">
+                                            <div class="accordion-body__contents" id="horizontal-tab-main-div">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="main-title-input" >Title <span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" id="timeline-title-input" placeholder="Title of Timeline" name="timeline_title" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3 d-flex align-items-start justify-content-end">                                                    
+                                                        <label for="hide-timeline">
+                                                            <input type="checkbox" class="form-control-checkbox" id="hide-timeline" name="hide_timeline" {% if multipage.hide_timeline %}checked{% endif %}>&nbsp;Hide Timeline
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <br>
+                                                <div class="timeline-div" id="timeline-div">
+                                                    <div class="timeline-inner-div">
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-3">
+                                                                <label>Timeline 1 <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" placeholder="Heading of Timeline 1" name="timeline_heading" required>
+                                                            </div>    
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-3">
+                                                                <label >Summary of Timeline 1 <span class="text-danger">*</span></label>
+                                                                <textarea type="text" class="form-control" placeholder="Summary of Timeline 1" name="timeline_summary" required></textarea>
+                                                            </div>            
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center" id="timeline-btn-div">
+                                                    <button class="add-button" id="add-timeline-btn" type="button" style="width: fit-content;">Add Another Timeline</button>
+                                                    <button class="remove-button" id="remove-timeline-btn" type="button" style="width: fit-content;">Remove Timeline</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tasks__item crms-task-item active">
+                                        <div class="accordion-header js-accordion-header">FAQs</div> 
+                                          <div class="accordion-body js-accordion-body">
+                                            <div class="accordion-body__contents" id="faq-main-div">                                                
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-3 d-flex align-items-start justify-content-end">                                                    
+                                                        <label for="hide-faqs">
+                                                            <input type="checkbox" class="form-control-checkbox" id="hide-faqs" name="hide_faqs" {% if multipage.hide_faqs %}checked{% endif %}>&nbsp;Hide FAQs
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="faq-div" id="faq-div">
+                                                    <div class="faq-inner-div">
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-3">
+                                                                <label>Question of FAQ 1 <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" placeholder="Question of FAQ 1" name="faq_question" required>
+                                                            </div>    
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-3">
+                                                                <label >Answer of FAQ 1 <span class="text-danger">*</span></label>
+                                                                <textarea type="text" class="form-control" placeholder="Answer of FAQ 1" name="faq_answer" required></textarea>
+                                                            </div>            
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center" id="faq-btn-div">
+                                                    <button class="add-button" id="add-faq-btn" type="button" style="width: fit-content;">Add Another Timeline</button>
+                                                    <button class="remove-button" id="remove-faq-btn" type="button" style="width: fit-content;">Remove Timeline</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tasks__item crms-task-item active">
+                                        <div class="accordion-header js-accordion-header">Text Editors</div> 
+                                        <div class="accordion-body js-accordion-body">
+                                            <div class="accordion-body__contents" id="text-editor-main-div">
+                                                <br>
+                                                <div class="text-editor-div" id="text-editor-div">                                                    
+                                                    <div class="text-editor-inner-div">
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-3">
+                                                                <label>TItle of Text Editor 1 <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" placeholder="TItle of Text Editor 1" name="text_editor_title" required>
+                                                            </div>    
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-3">
+                                                                <label >Content of Text Editor 1 <span class="text-danger">*</span></label>
+                                                                <textarea class="form-control" placeholder="Summary of Text Editor 1" name="text_editor_content" id="text-editor-content" required></textarea>
+                                                            </div>            
+                                                        </div>
+                                                        <br>                                                    
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center" id="text-editor-btn-div">
+                                                    <button class="add-button" id="add-text-editor-btn" type="button" style="width: fit-content;">Add Another Text Editor</button>
+                                                    <button class="remove-button" id="remove-text-editor-btn" type="button" style="width: fit-content;">Remove Text Editor</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                </div>                                
+                            </div>
+                          </div>
+
+                    </div>
+                </div>     
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+        </div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock company_content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        
+        let durationPattern = /^[1-9]\d*$/;
+        let pricePattern = /^(?!0(\.0{1,2})?$)(\$?)([1-9][0-9]*(\.[0-9]{1,2})?)$/;
+
+        function validateForm() {  
+            const formValid = true       
+
+            let name = $('#name-input').val();
+            if (name) {
+                name = name.trim();
+            }
+
+            const programDropdown = $('#program-dropdown').val();
+
+            const modeDropdown = $('#mode-dropdown').val();                                  
+            
+            let duration = $('#duration-input').val();
+            if (duration) {
+                duration = duration.trim();
+            }
+
+            let price = $('#price-input').val();
+            if (price) {
+                price = price.trim();
+            }            
+
+            if (!name) {
+                $('#name-input').removeClass('is-valid').addClass('is-invalid');
+                $('#name-input').focus();
+                formValid = false;
+
+            } else {
+                $('#name-input').removeClass('is-invalid').addClass('is-valid');
+                $('#name-input').blur();
+                
+            }            
+
+            if (!programDropdown) {
+                $('#program-dropdown').addClass('is-invalid');
+                $('#program-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#program-dropdown').addClass('is-valid');
+                $('#program-dropdown').blur();
+                
+            }
+
+            if (!modeDropdown) {
+                $('#mode-dropdown').addClass('is-invalid');
+                $('#mode-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#mode-dropdown').addClass('is-valid');
+                $('#mode-dropdown').blur();
+                
+            }            
+            
+            if (duration && !durationPattern.test(duration)) {
+                $('#duration-input').removeClass('is-valid').addClass('is-invalid');
+                $('#duration-input').focus();
+                formValid = false;
+
+            } else {
+                $('#duration-input').removeClass('is-invalid').remove('is-valid');
+                $('#duration-input').blur();
+                
+            }
+
+            if (!price || !pricePattern.test(price)) {
+                $('#price-input').removeClass('is-valid').addClass('is-invalid');
+                $('#price-input').focus();
+                formValid = false;
+
+            } else {
+                $('#price-input').removeClass('is-invalid').addClass('is-valid');
+                $('#price-input').blur();
+                
+            }
+            
+            if (formValid == true) {
+                $('#add-course-form').submit()
+            }
+
+        }
+
+        $('#submit-button').click(validateForm);
+
+        // Inputting
+
+        $('#name-input, #duration-input, #price-input').on('input', function () {
+            let thisValue = $(this).val();
+            if (thisValue) {
+                thisValue = thisValue.trim();
+            }
+
+            if (!thisValue) {
+                if ($(this).prop('id') == "name-input") {
+                    $(this).removeClass('is-valid').removeClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-valid').addClass('is-invalid');                
+                }
+            } else {
+                 if ($(this).prop('id') == "price-input" && !pricePattern.test(thisValue)) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+
+            if (thisValue) {
+                if ($(this).prop('id') == "duration-input") {
+                    if (durationPattern.test(thisValue)) {
+                        $(this).removeClass('is-invalid').addClass('is-valid');                    
+                    } else {
+                        $(this).removeClass('is-valid').addClass('is-invalid');
+                    }
+                }
+                            
+            }
+            
+        });
+
+        // changing
+
+        $('#program-dropdown, #mode-dropdown, #unit-dropdown, #image-input').on('change', function () {
+            if (($(this).prop('id') == 'program-dropdown' || $(this).prop('id') == 'sub-category-dropdown' || $(this).prop('id') == 'brand-dropdown') && !$(this).val()) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+
+            if ($(this).prop('id') == 'image-input' || $(this).prop('id') == 'logo-input') {
+                let imageInput = $('#image-input')[0];
+                let image = imageInput.files[0];                
+                if (!image) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+                        
+        })                        
+        
+        // Add Multiple Feature 
+        $('#add-feature-btn').click(function () {
+            const feature = $('#feature-input').val();
+            
+            if (feature && feature.trim()) {
+                $('#feature-div').append(
+                    `<li class="col-md-6">${feature}<input type="text" name="feature" value="${feature}" hidden>&nbsp;<button class="remove-button" type="button" id="remove-feature-btn" style="width: 17px; height: 17px; padding: 0; border-radius: 50%;" title="Remove '${feature}'"><i class="fa fa-close" style="padding: 0;"></i></button></li>`
+                );
+            }
+            $('#feature-input').val('');
+        });
+
+        // Remove feature
+        $(document).on('click', '#remove-feature-btn', function () {
+            const feature = $(this).parent();
+
+            feature.remove();
+        });
+        
+
+        //  Add Multiple Vertical Bullet Point
+        $(document).on('click', '.vertical-tab-div .add-button', function () {
+            const parentDiv = $(this).parent().parent();            
+
+            const olTag = parentDiv.find('ol');
+            const bulletInput = parentDiv.find('.vertical-tab-bullet-input')
+            const bulletPoint = bulletInput.val();
+
+            if (bulletPoint.trim()) {
+                olTag.append(
+                    `<li class="col-md-6">${bulletPoint}<input type="text" name="vertical_bullet" value="${bulletPoint}" hidden>&nbsp;<button class="remove-button" type="button" id="remove-vertical-bullet-btn" style="width: 17px; height: 17px; padding: 0; border-radius: 50%;" title="Remove '${bulletPoint}'"><i class="fa fa-close" style="padding: 0;"></i></button></li>`
+                );
+            }
+
+            bulletInput.val('');
+
+            // Count bullets for vertical tab
+            const bulletCountInput = parentDiv.find('.vertical-bullet-count');
+            const bulletCount = olTag.find('li').length;            
+            bulletCountInput.val(bulletCount)
+
+        });
+
+        // Remove vertical bullet points
+        $(document).on('click', '#remove-vertical-bullet-btn', function () {
+            const parentElement = $(this).parent();
+
+            parentElement.remove();
+        });
+
+
+        // Add Multiple Vertical tabs
+        $('#add-vertical-tab-btn').click(function () {
+            let verticalTabNumber = $('.vertical-tab-inner-div').length;
+
+            verticalTabNumber++;
+            
+            let currentVerticalTabNumber = verticalTabNumber;
+
+            $('#vertical-tab-div').append(`
+                <div class="vertical-tab-inner-div">
+                    <hr>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Heading of Tab${currentVerticalTabNumber} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Heading of Tab${currentVerticalTabNumber}" name="vertical_heading" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label  >Sub Heading of Tab${currentVerticalTabNumber} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Sub Heading of Tab${currentVerticalTabNumber}" name="vertical_sub_heading" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label >Summary of Tab${currentVerticalTabNumber} <span class="text-danger">*</span></label>
+                            <textarea type="text" class="form-control" placeholder="Summary of Tab${currentVerticalTabNumber}" name="vertical_summary" required></textarea>
+                        </div>            
+                    </div>
+                    <div style="display: flex; flex-direction: row;">
+                        <input type="text" class="form-control vertical-tab-bullet-input" placeholder="Bullet Points of Tab${currentVerticalTabNumber}" required>
+                        <button class="add-button add-vertical-tab-bullet" type="button">ADD</button>
+                    </div>
+                    <br>
+                    <ol class="row tab-bullet-div"></ol>
+                    <input class="vertical-bullet-count" type="number" name="vertical_bullet_count" hidden>
+                </div>
+            `);
+        });        
+
+        // Remove vertical tab
+        $(document).on('click', '#remove-vertical-tab-btn', function () {
+            const varticalTabCount = $('.vertical-tab-inner-div').length;
+            
+            if (varticalTabCount > 1) {
+                const tab = $('.vertical-tab-inner-div').last();
+                tab.remove();
+            }
+        });
+
+        // Visibility of vertical tab's remove tab btn
+        $(document).on('click', '#add-vertical-tab-btn, #remove-vertical-tab-btn', function () {
+            const verticalTabCount = $('.vertical-tab-inner-div').length;
+
+            if (verticalTabCount > 1) {
+                $('#remove-vertical-tab-btn').show();                
+            } else {
+                $('#remove-vertical-tab-btn').hide();
+            }
+        });
+
+        // Add Multiple Horizontal tabs
+        $('#add-horizontal-tab-btn').click(function () {
+            let horizontalTabNumber = $('.horizontal-tab-inner-div').length;
+
+            horizontalTabNumber++;
+            
+            let currentHorizontalTabNumber = horizontalTabNumber;
+
+            $('#horizontal-tab-div').append(`
+                <div class="horizontal-tab-inner-div">
+                    <hr>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label>Heading of Tab${currentHorizontalTabNumber} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Heading of Tab${currentHorizontalTabNumber}" name="horizontal_heading" required>
+                        </div>             
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label >Summary of Tab${currentHorizontalTabNumber} <span class="text-danger">*</span></label>
+                            <textarea type="text" class="form-control" placeholder="Summary of Tab${currentHorizontalTabNumber}" name="horizontal_summary" required></textarea>
+                        </div>            
+                    </div>
+                    <div style="display: flex; flex-direction: row;">
+                        <input type="text" class="form-control horizontal-tab-bullet-input" placeholder="Bullet Points of Tab${currentHorizontalTabNumber}" required>
+                        <button class="add-button add-horizontal-tab-bullet" type="button">ADD</button>
+                    </div>
+                    <br>
+                    <ol class="row tab-bullet-div"></ol>
+                    <input class="horizontal-bullet-count" type="number" name="horizontal_bullet_count" hidden>
+                </div>
+            `);
+            
+        });
+
+        //  Add Multiple Horizontal Bullet Point
+        $(document).on('click', '.horizontal-tab-div .add-button', function () {
+            const parentDiv = $(this).parent().parent();            
+
+            const olTag = parentDiv.find('ol');
+            const bulletInput = parentDiv.find('.horizontal-tab-bullet-input')
+            const bulletPoint = bulletInput.val();
+
+            if (bulletPoint.trim()) {
+                olTag.append(
+                    `<li class="col-md-6">${bulletPoint}<input type="text" name="horizontal_bullet" value="${bulletPoint}" hidden>&nbsp;<button class="remove-button" type="button" id="remove-horizontal-bullet-btn" style="width: 17px; height: 17px; padding: 0; border-radius: 50%;" title="Remove '${bulletPoint}'"><i class="fa fa-close" style="padding: 0;"></i></button></li>`
+                );
+            }
+
+            bulletInput.val('');
+
+            // Count bullets for horizontal tab
+            const bulletCountInput = parentDiv.find('.horizontal-bullet-count');
+            const bulletCount = olTag.find('li').length;            
+            bulletCountInput.val(bulletCount)
+        });
+
+        // Remove horizontal bullet points
+        $(document).on('click', '#remove-horizontal-bullet-btn', function () {
+            const parentElement = $(this).parent();
+
+            parentElement.remove();
+        });
+        
+        // Remove Horizontal Tab
+        $(document).on('click', '#remove-horizontal-tab-btn', function () {
+            const horizontalTabCount = $('.horizontal-tab-inner-div').length;
+            
+            if (horizontalTabCount > 1) {
+                const tab = $('.horizontal-tab-inner-div').last();
+                tab.remove();
+            }
+        });
+        
+        // Visibility of horizontal tab's remove tab btn
+        $(document).on('click', '#add-horizontal-tab-btn, #remove-horizontal-tab-btn', function () {
+            const horizontalTabCount = $('.horizontal-tab-inner-div').length;
+
+            if (horizontalTabCount > 1) {
+                $('#remove-horizontal-tab-btn').show();                
+            } else {
+                $('#remove-horizontal-tab-btn').hide();
+            }
+        });
+
+
+        // Add column for table
+        $(document).on('click', '#add-column-btn', function () {
+            let columnNumber = $('#table-header th').length - 1;
+
+            columnNumber++;
+
+            const bodyLength = $('#table-body tr').length;
+
+            let content = $('#table-header').html();
+
+            content = content.replace('<th><button class="add-button" id="add-column-btn" type="button" style="width: fit-content;">Add Column</button><br><button class="remove-button" id="remove-column-btn" type="button" style="width: fit-content;">Remove Column</button></th>', `<th><input type="text" class="form-control" placeholder="Heading of Column${columnNumber}" name="table_heading" title="Heading of Column${columnNumber}"></th>`);
+
+            $('#table-header').html(content);
+
+            $('#table-header').append(
+                `<th><button class="add-button" id="add-column-btn" type="button" style="width: fit-content;">Add Column</button><br><button class="remove-button" id="remove-column-btn" type="button" style="width: fit-content;">Remove Column</button></th>`
+            );
+
+            for (i = 1; i < bodyLength; i++) {
+                const rowId = '#row-' + i;
+                $(rowId).append(`<td><input type="text" class="form-control" placeholder="Data of Column${columnNumber}" name="table_data"></td>`);
+            }
+
+        });
+
+        // Add row for table
+        $(document).on('click', '#add-row-btn', function () {
+            let rowCount = $('#table-body tr').length - 1;
+            
+            rowCount ++;
+
+            const headLength = $('#table-header th').length - 1;
+            let row = '';
+
+            for (colCount = 1; colCount <= headLength; colCount++) {
+               row += `<td><input type="text" class="form-control" placeholder="Data of Column${colCount}" name="table_data"></td>`
+            };
+
+            let tableBodyContent = $('#table-body').html();            
+    
+            tableBodyContent = tableBodyContent.replace('<tr><td><button class="add-button" id="add-row-btn" type="button" style="width: fit-content;">Add Row</button>&nbsp;<button class="remove-button" id="remove-row-btn" type="button" style="width: fit-content;">Remove Row</button></td></tr>', `<tr id="row-${rowCount}">${row}</tr>`)
+    
+            $('#table-body').html(tableBodyContent);
+    
+            $('#table-body').append(
+                `<tr><td><button class="add-button" id="add-row-btn" type="button" style="width: fit-content;">Add Row</button>&nbsp;<button class="remove-button" id="remove-row-btn" type="button" style="width: fit-content;">Remove Row</button></td></tr>`
+            );
+
+        });
+
+        // Remove row of table
+        $(document).on('click', '#remove-row-btn', function () {
+            const bodyLength = $('#table-body tr').length - 1;
+
+            if (bodyLength > 1) {
+
+                $(`#table-body tr:nth-child(${bodyLength})`).remove();
+            }
+        });
+
+        // Remove column of table
+        $(document).on('click', '#remove-column-btn', function () {
+            const columnLength = $('#table-header th').length - 1;
+
+            if (columnLength > 1) {
+                $(`tr td:nth-child(${columnLength}), tr th:nth-child(${columnLength})`).remove();
+            }
+        });
+
+        // Adding bullet points for bullet point section
+        $(document).on('click', '#add-bullet-btn', function () {
+            const bulletPoint = $('#bullet-input').val();
+
+            if (bulletPoint.trim()) {
+                $('#bullet-div').append(
+                    `<li class="col-md-6">${bulletPoint}<input type="text" name="bullet" value="${bulletPoint}" hidden>&nbsp;<button class="remove-button" type="button" id="remove-bullet-btn" style="width: 17px; height: 17px; padding: 0; border-radius: 50%;" title="Remove '${bulletPoint}'"><i class="fa fa-close" style="padding: 0;"></i></button></li>`
+                );
+            }
+
+            $('#bullet-input').val('');
+        });        
+
+        // Remove bullet points
+        $(document).on('click', '#remove-bullet-btn', function () {
+            const parentElement = $(this).parent();
+
+            parentElement.remove();
+        });
+
+
+        // Add New Timeline
+        $('#add-timeline-btn').click(function () {
+            let timelineCount = $('.timeline-inner-div').length;
+
+            timelineCount++;
+            
+            $('#timeline-div').append(`
+                <div class="timeline-inner-div">
+                    <hr>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label>Timeline ${timelineCount} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Heading of Timeline ${timelineCount}" name="timeline_heading" required>
+                        </div>    
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label >Summary of Timeline ${timelineCount} <span class="text-danger">*</span></label>
+                            <textarea type="text" class="form-control" placeholder="Summary of Timeline ${timelineCount}" name="timeline_summary" required></textarea>
+                        </div>            
+                    </div>                                                        
+                </div>
+            `);            
+        });
+
+        // Remove Timeline
+        $(document).on('click', '#remove-timeline-btn', function () {
+            const timelineCount = $('.timeline-inner-div').length;
+            
+            if (timelineCount > 1) {
+                const timeline = $('.timeline-inner-div').last();
+                timeline.remove();
+            }
+        });
+        
+        // Visibility of timelines's remove timeline btn
+        $(document).on('click', '#add-timeline-btn, #remove-timeline-btn', function () {
+            const timelineCount = $('.timeline-inner-div').length;
+
+            if (timelineCount > 1) {
+                $('#remove-timeline-btn').show();                
+            } else {
+                $('#remove-timeline-btn').hide();
+            }
+        });
+
+        // Add New FAQ
+        $('#add-faq-btn').click(function () {
+            let faqCount = $('.faq-inner-div').length;
+
+            faqCount++;
+            
+            $('#faq-div').append(`
+                <div class="faq-inner-div">
+                    <hr>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label>Question of FAQ ${faqCount} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Question of FAQ ${faqCount}" name="faq_question" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label >Answer of FAQ ${faqCount} <span class="text-danger">*</span></label>
+                            <textarea type="text" class="form-control" placeholder="Answer of FAQ ${faqCount}" name="faq_answer" required></textarea>
+                        </div>            
+                    </div>                                                        
+                </div>
+            `);            
+        });
+
+        // Remove FAQ
+        $(document).on('click', '#remove-faq-btn', function () {
+            const faqCount = $('.faq-inner-div').length;
+            
+            if (faqCount > 1) {
+                const faq = $('.faq-inner-div').last();
+                faq.remove();
+            }
+        });
+        
+        // Visibility of faq's remove faq btn
+        $(document).on('click', '#add-faq-btn, #remove-faq-btn', function () {
+            const faqCount = $('.faq-inner-div').length;
+
+            if (faqCount > 1) {
+                $('#remove-faq-btn').show();                
+            } else {
+                $('#remove-faq-btn').hide();
+            }
+        });
+
+        // Prevent form submission on pressing enter key
+        $(document).on("keydown", "form", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+            }
+        });
+        
+
+        // Function for adding new meta tags
+        $(document).on('input', '.search-field input', function () {
+            const text = $(this).val().trim();
+
+            if (text.endsWith(',')) {
+                const tag = text.replace(',', '');
+
+                const newOption = `<option value="${tag}" selected>${tag}</option>`;
+
+                const optionExists = $('select[name="meta_tag"] option').filter(function() {
+                    return $(this).val().toLowerCase() === tag.toLowerCase() | $(this).html().toLowerCase() === tag.toLowerCase();
+                }).length > 0;
+
+                if (!optionExists) {
+                    $('select[name="meta_tag"]').append(newOption);
+    
+                    $('.chosen-select').trigger("chosen:updated");
+                }
+
+                $(this).val('');
+            }
+        });
+
+        $('input[name="url_type"]').on('change', function () {
+            const currentUrlType = $(this).val();
+
+            if (currentUrlType === "location_filtered") {
+                $('#current-url-preview').html("https://bzindia.in/category/course/state-name/district-or-location-name/");                
+            } else {
+                $('#current-url-preview').html("https://bzindia.in/category/course-location-name(Location/Coutry/State/District)");
+            }
+        });
+
+        $('input[name="course_region"]').on('change', function () {
+            if ($(this).val() != "all") {
+                $('#state-dropdown-section').show();
+                $('#state-dropdown').prop("required", true);
+                
+            } else {
+                $('#state-dropdown-section').hide();
+                $('#state-dropdown').prop("required", false);
+
+            }
+        });        
+
+        // Get Course Details
+        function getCourseDetails(program) {
+            const company = `{{current_company.slug}}`
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'education:get_course_details' %}`,
+                dataType: 'json',
+                data: {
+                    "program": program,
+                    "company": company
+                },
+                
+                success: response => {
+                    $('#slider-detail-dropdown').empty();
+                    if (response.course_details && response.course_details.length > 0) {
+                        response.course_details.forEach(detail => {
+                            $('#slider-detail-dropdown').append(`<option value="${detail.slug}">${detail.course__name}</option>`)
+                        })
+                    }
+
+                    if (response.error) {
+                        console.error("Error: ", response.error)
+                    }
+
+                    $('#slider-detail-dropdown').trigger("chosen:updated");
+                },
+                error: error => console.error("Error: ", error),
+            })
+        }        
+
+        $('#slider-program-dropdown').on('change', function () {
+            const program = $(this).val();
+
+            getCourseDetails(program);
+        });
+
+        // Add Multiple Text Editors
+        $('#add-text-editor-btn').click(function () {
+            let textEditorNumber = $('.text-editor-inner-div').length;
+
+            textEditorNumber++;
+            
+            let currentTextEditorNumber = textEditorNumber;
+
+            $('#text-editor-div').append(`
+                <div class="text-editor-inner-div">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label>TItle of Text Editor ${currentTextEditorNumber} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="TItle of Text Editor ${currentTextEditorNumber}" name="text_editor_title" required>
+                        </div>    
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label >Content of Text Editor ${currentTextEditorNumber} <span class="text-danger">*</span></label>
+                            <textarea class="form-control" placeholder="Summary of Text Editor ${currentTextEditorNumber}" name="text_editor_content" id="text-editor-content-${currentTextEditorNumber}" required></textarea>
+                        </div>            
+                    </div>                                                    
+                    <br>                    
+                </div>
+            `);
+
+            CKEDITOR.replace(`text-editor-content-${currentTextEditorNumber}`);
+            
+        });
+
+        // Remove Text Editor
+        $(document).on('click', '#remove-text-editor-btn', function () {
+            const textEditorCount = $('.text-editor-inner-div').length;
+            
+            if (textEditorCount > 1) {
+                const tab = $('.text-editor-inner-div').last();
+                tab.remove();
+            }
+        });
+        
+        // Visibility of text editor's remove texteditor btn
+        $(document).on('click', '#add-text-editor-btn, #remove-text-editor-btn', function () {
+            const textEditorCount = $('.text-editor-inner-div').length;
+
+            if (textEditorCount > 1) {
+                $('#remove-text-editor-btn').show();                
+            } else {
+                $('#remove-text-editor-btn').hide();
+            }
+
+            CKEDITOR.replace('text-editor-content');
+        });
+
+        CKEDITOR.replace('text-editor-content');
+
+        setTimeout(function () {
+            if (CKEDITOR.instances['id_content']) {
+                CKEDITOR.instances['id_content'].destroy(true);
+            }
+            CKEDITOR.replace('id_content');            
+        }, 0);
+        
+    });
+</script>
+{% endblock scripts %}

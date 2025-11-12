@@ -1,0 +1,314 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block company_content %}
+	<!-- Content Starts -->
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">									
+					<h5 class="card-title">Sub Size</h5>
+				</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Size</th>
+									<th>Category</th>
+									<th>Standard</th>
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for size in sizes %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>									
+									<td>{{size.name}}</td>
+									<td>{{size.category.name}}</td>
+									<td>{{size.standard}}</td>
+									<td class="text-end">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_product_size" data-name="{{size.name}}" data-category="{{size.category.slug}}" data-standard="{{size.standard}}" data-slug="{{size.slug}}" data-company-slug="{{size.company.slug}}">Edit This Size</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{size.name}}" data-slug="{{size.slug}}" data-company-slug="{{size.company.slug}}">Remove This Size</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Content End -->
+	
+{% endblock company_content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="post">
+							{% csrf_token %}
+							<h4><span class="text-danger">Removing</span> Product Sub Category. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Product Sub Category:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Product Sub Category Modal (Start) -->
+<div class="modal fade" id="add_product_sub_category" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title text-center">Add Product Sub Category</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="{% url 'superadmin:add_sub_category' current_company.slug %}" class="needs-validation" id="add-product-sub-category-form" novalidate>
+							{% csrf_token %}
+							<h4>Product Sub Category</h4>
+							<div class="form-row">
+								<div class="col-md-12 mb-3">
+									<label for="product-category-dropdown">Category <span class="text-danger">*</span></label>
+									<select class="form-control" id="sub-category-category-dropdown" name="category" required>
+										<option value="" hidden disabled selected>Select Category</option>
+										{% for category in categories %}
+										<option value="{{category.slug}}">{{category.name}}</option>
+										{% endfor %}
+									</select>
+									<div class="invalid-feedback">
+										Please provide a valid category.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>                            										                                                       
+							</div>
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="product-sub-category-name-input" placeholder="Name of Product Sub Category" name="name">
+									<div class="invalid-feedback">
+										Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>
+							</div>									
+							<div class="text-center py-3">
+								<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="sub-category-submit-button">Add</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+<!-- Product Sub Category Modal (End) -->
+
+<!-- Product Sub Category Modal (Start) -->
+<div class="modal fade" id="update_product_size" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title text-center">Update Size</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" id="update-size-form" novalidate>
+							{% csrf_token %}
+							<h4>Size</h4>
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="name-input" placeholder="Name of Size" name="name">
+									<div class="invalid-feedback">
+										Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+									<span><small>Insert the sizes seperated with commas (',') to add multiple sizes at once.</small></span>
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="col-md-12 mb-3">
+									<label for="product-category-dropdown">Category <span class="text-danger">*</span></label>
+									<select class="form-control" id="size-category-dropdown" name="category" required>
+										<option value="" hidden disabled selected>Select Category</option>
+										{% for category in categories %}
+										<option value="{{category.slug}}">{{category.name}}</option>
+										{% endfor %}
+									</select>
+									<div class="invalid-feedback">
+										Please provide a valid category.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>                            										                                                       
+							</div>									
+							<div class="form-row">
+								<div class="col-md-12 mb-3">
+									<label for="standard-dropdown">Standards (optional)</label>
+									<select class="form-control" id="standard-dropdown" name="standard" required>
+										<option value="" selected>Select Standards</option>
+										{% for standard in standards %}
+										<option value="{{standard}}">{{standard}}</option>
+										{% endfor %}
+									</select>
+									<div class="invalid-feedback">
+										Please provide a valid category.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>                            										                                                       
+							</div>
+							<div class="text-center py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="size-update-button">Save</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+<!-- Product Sub Category Modal (End) -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');			
+			const slug = $(this).data('slug');
+			const companySlug = $(this).data('company-slug');
+
+			const actionUrl = `{% url 'superadmin:delete_size' 'dummyCompanySlug' 'dummySlug' %}`
+			.replace('dummyCompanySlug', companySlug).replace('dummySlug', slug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+		$('.edit-toggle-btn').click(function () {
+			const name = $(this).data('name');		
+			const category = $(this).data('category');
+			const standard = $(this).data('standard');			
+			const slug = $(this).data('slug');
+			const companySlug = $(this).data('company-slug');
+
+			$('#name-input').val(name);
+			$('#size-category-dropdown').val(category);
+			$('#standard-dropdown').val(standard);
+			
+			const actionUrl = `{% url 'superadmin:update_size' 'dummyCompanySlug' 'dummySlug' %}`
+			.replace('dummyCompanySlug', companySlug).replace('dummySlug', slug);
+			
+			$('#update-size-form').prop('action', actionUrl);
+		});
+
+		let namePattern = /^[a-zA-Z\s'-]+$/;
+
+		// Scripts of Product Sub Category (Start)
+		function validateUpdateSubCategoryForm() {  
+			let formValid = true       
+
+			const productCategory = $('#name-input').val().trim();            
+
+			if (!productCategory || !namePattern.test(productCategory)) {
+				$('#name-input').addClass('is-invalid');
+				$('#name-input').focus();
+				formValid = false;
+
+			} else {
+				$('#name-input').addClass('is-valid');
+				$('#name-input').blur();
+						
+			}            
+
+			if (formValid == true) {
+				$('#update-sub-category-form').submit()
+			}            
+		}    
+
+		$('#submit-button').click(() => validateUpdateSubCategoryForm());
+		
+		// Inputting
+
+		$('#name-input').on('input', function () {
+			if (!$(this).val()) {
+				$(this).removeClass('is-valid').addClass('is-invalid');
+			} else {
+				if ($(this).prop('id') === "name-input" && !namePattern.test($(this).val())) {
+					$(this).removeClass('is-valid').addClass('is-invalid');
+				} else {
+					$(this).removeClass('is-invalid').addClass('is-valid');
+				}
+			}
+		});
+		// Scripts of Product Sub Category (End)
+	});
+</script>
+{% endblock scripts %}

@@ -1,0 +1,40 @@
+<li class="submenu">
+    <a href="javascript:void(0);" {% if registration_page %}class="active subdrop"{% endif %}><i class="fa fa-laptop"></i> <span> Registrations</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if registration_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:registrations' %}" {% if list_registration_page %}class="active"{% endif %}>All Registrations</a></li>
+        <li><a href="{% url 'customer:add_registrations' %}" {% if add_registration_page %}class="active"{% endif %}>Add Registrations</a></li>									
+    </ul>
+</li>
+<li class="submenu">
+    <a href="#" {% if registration_type_page %}class="active subdrop"{% endif %}><i class="feather-list"></i> <span> Types</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if registration_type_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:registration_types' %}" {% if list_registration_type_page %}class="active"{% endif %}>All Types</a></li>
+        <li><a href="#" data-bs-toggle="modal" data-bs-target="#add_registration_type_modal">Add Type</a></li>									
+    </ul>
+</li>
+<li class="submenu">
+    <a href="#" {% if registration_sub_type_page %}class="active subdrop"{% endif %}><i class="feather-database"></i> <span> Sub Types</span>
+        <span class="menu-arrow"></span>
+    </a>
+    
+    <ul class="sub-menus {% if registration_sub_type_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:registration_sub_types' %}" {% if list_registration_sub_type_page %}class="active"{% endif %}>All Sub Types</a></li>
+        <li><a href="#" data-bs-toggle="modal" data-bs-target="#add_registration_sub_type_modal">Add Sub Type</a></li>									
+    </ul>
+</li>
+<li class="submenu">
+    <a href="#" {% if registration_faq_page %}class="active subdrop"{% endif %}><i class="fa fa-question"></i> <span> FAQs</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if registration_faq_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:registration_faqs' %}" {% if list_registration_faqs %}class="active"{% endif %}>All FAQs</a></li>
+        <li><a {% if add_registration_faq_page %}class="active"{% endif %} href="{% url 'customer:add_registration_faqs' %}" >Add FAQ</a></li>									
+    </ul>
+</li>
+<li>
+    <a href="{% url 'customer:registration_enquiries' %}" {% if registration_enquiry_page %}class="active subdrop"{% endif %}><i class="feather-file"></i> <span> Enquiries</span></a>
+</li>

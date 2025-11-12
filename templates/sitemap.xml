@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/static/sitemaps/sitemap1.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:bz="https://bzindia.in/schemas">
+  {% for url in urlset %}
+  <url>
+    <loc>{{ url.location }}</loc>
+
+    {% if url.image_count is not None %}
+    <bz:imageCount>{{ url.image_count }}</bz:imageCount>
+    {% else %}
+    <bz:imageCount>0</bz:imageCount>
+    {% endif %}
+
+    {% if url.lastmod %}
+    <lastmod>{{ url.lastmod|date:"c" }}</lastmod>
+    {% endif %}
+
+    {% if url.changefreq %}
+    <changefreq>{{ url.changefreq }}</changefreq>
+    {% endif %}
+
+    {% if url.priority %}
+    <priority>{{ url.priority }}</priority>
+    {% endif %}
+  </url>
+  {% endfor %}
+</urlset>

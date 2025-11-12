@@ -1,0 +1,100 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Specializations{% endblock title %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Specializations </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Specializations</li>
+			</ul>
+		</div>
+	</div>
+	<!-- Page Header -->
+	<div class="page-header pt-3 mb-0 ">
+		<div class="row">
+			<div class="col">
+				<div class="dropdown">
+					<a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Recently Viewed</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="#">Recently Viewed</a>
+						<a class="dropdown-item" href="#">Items I'm following</a>
+						<a class="dropdown-item" href="#">All Registrations</a>
+						<a class="dropdown-item" href="#">Registrations added in the last 24 hours</a>
+						<a class="dropdown-item" href="#">Registrations added in the last 7 days</a>						
+					</div>
+				</div>
+			</div>
+			<div class="col text-end">
+				<ul class="list-inline-item ps-0">
+					<li class="nav-item dropdown list-inline-item add-lists">
+						<a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+							<div class="nav-profile-text">
+								<i class="fa fa-th" aria-hidden="true"></i>
+							</div>
+						</a>						
+					</li>					
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Header -->	
+	<div class="row">
+		{% include "message.html" %}
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">									
+					<h5 class="card-title">Specializations</h5>
+				</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Name</th>
+									<th>Program</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for specialization in specializations %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>
+									<td>
+										<a href="#" data-bs-toggle="modal" data-bs-target="#specialization-details">{{specialization.name}}</a>
+									</td>
+									<td>{{specialization.program.name}}</td>									
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /Content End -->
+				
+{% endblock content %}

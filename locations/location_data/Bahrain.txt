@@ -1,0 +1,16 @@
+Bahrain
+
+# top_left = (26.4, 50.3) # fetched till 0.02 precision
+# bottom_right = (25.5, 50.9) # fetched till 0.02 precision
+
+Stage 1
+# top_left = (26.4, 50.3) # fetched till 0.02 precision
+# bottom_right = (26.1, 50.9) # fetched till 0.02 precision
+
+Stage 2
+# top_left = (26.1, 50.3) # fetched till 0.02 precision
+# bottom_right = (25.8, 50.9) # fetched till 0.02 precision
+
+Stage 3
+# top_left = (25.8, 50.3) # fetched till 0.02 precision
+# bottom_right = (25.5, 50.9) # fetched till 0.02 precision

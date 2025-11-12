@@ -1,0 +1,177 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block company_content %}
+					
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">									
+				<h5 class="card-title">List of Registration FAQs</h5>
+			</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Registration</th>
+                                    <th>Question</th>
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for faq in faqs %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>
+									<td>	
+										<a href="#" class="faq-obj" data-bs-toggle="modal" data-bs-target="#faq-detail-modal" data-question="{{faq.question}}" data-answer="{{faq.answer}}" data-registration="{{faq.registration.title}}">{{faq.registration.title}}</a>
+									</td>
+                                    <td>{% if faq.question and faq.question|length > 100 %}{{faq.question|slice:':100'}}...{% else %}{{faq.question}}{% endif %}</td>
+									
+									<td class="text-end">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item" href="{% url 'superadmin:update_registration_faq' current_company.slug faq.slug %}">Edit This FAQ</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{faq.registration_sub_type.name}}" data-slug="{{faq.slug}}">Remove This FAQ</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>							
+		</div>						
+	</div>
+	
+
+<!-- /Page Content -->
+{% endblock company_content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				{% comment %} <h4 class="modal-title text-center">Delete Registration</h4> {% endcomment %}
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="get">
+							<h4><span class="text-danger">Deleting</span> Registration FAQ. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Registration FAQ:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Detail Modal -->
+<div class="modal right fade" id="faq-detail-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title text-center company-name"></h4>
+                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+              </div>
+
+            <div class="modal-body">
+                <div class="row" style="background: #eaeaea;">
+                    <div class="col-md-12">
+                        <h4 style="margin: 8px 0;">FAQ of <span id="registration-name"></span></h4>
+                    </div>
+                </div>
+                <br>                
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 style="margin: 8px 0;">Question: </span></h5>
+                        <p id="question"></p>
+                    </div>                    
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 style="margin: 8px 0;">Answer: </span></h5>
+                        <p id="answer"></p>
+                    </div>                    
+                </div>
+                <br>
+            </div>
+
+        </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+</div>
+<!-- Detail Modal -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const registrationFaqSlug = $(this).data('slug');
+			const companySlug = `{{current_company.slug}}`
+
+			const actionUrl = `{% url 'superadmin:delete_registration_faq' 'dummyCompanySlug' 'dummyServiceFaqSlug' %}`
+			.replace('dummyCompanySlug', companySlug).replace('dummyServiceFaqSlug', registrationFaqSlug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+        $('.faq-obj').click(function () {
+            $('#question, #answer').empty();
+
+            const registration = $(this).data('registration')
+            const question = $(this).data('question')
+            const answer = $(this).data('answer')
+
+            if (registration) {
+                $('#registration-name').html(registration);
+            }
+
+            if (question) {
+                $('#question').html(question);
+            }
+
+            if (answer) {
+                $('#answer').html(answer);
+            }
+        });
+	});
+</script>
+{% endblock scripts %}

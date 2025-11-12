@@ -1,0 +1,701 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block schemas %}
+<script type="application/ld+json">
+  {% for registration_detail in registration_details|slice:":12" %}
+  {
+    "@context": "http://schema.org",
+    "@type": "GovernmentService",
+    "name": "{{registration_detail.sub_type.name}}",
+    "serviceType": "Service Type {{forloop.counter}}",
+    "provider": {
+      "@type": "Organization",
+      "name": "{{registration_detail.company.name}}",
+      "url": "https://{{request.get_host}}/{{registration_detail.company.type.name}}/{{registration_detail.company.slug}}"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "{{registration_detail.price}}",
+      "priceCurrency": "INR",
+      "availability": "http://schema.org/InStock",
+      "url": "https://{{request.get_host}}/registration/{{registration_detail.slug}}"
+    },
+    "description": "{{registration_detail.sub_type.description}}",
+    "image": "https://{{request.get_host}}/{% if registration_detail.image %}{{registration_detail.image.url}}{% else %}#{% endif %}",
+    "areaServed": {
+      "@type": "Place",
+      "name": "Area Served"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.5",
+      "reviewCount": "20"
+    }
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}  
+  </script>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "ItemList",
+    "itemListElement": [
+      {% for product in products|slice:":12" %}
+      {
+        "@type": "Product",
+        "name": "{{product.name}}",
+        "image": "https://{{request.get_host}}/{{product.image.url}}",
+        "description": "{{product.description}}",
+        "sku": "{{product.sku}}",
+        "url": "https://{{request.get_host}}/product/{{product.slug}}",
+        "category": "{{product.category.name}}", // Add the category here
+        "offers": {
+          "@type": "Offer",
+          "price": "{{product.price}}",
+          "priceCurrency": "INR",
+          "availability": "http://schema.org/InStock",
+          "priceValidUntil": "2024-12-31",
+          "hasMerchantReturnPolicy": {
+            "@type": "MerchantReturnPolicy",
+            "name": "Return Policy",
+            "description": "No cancellations & Refunds are entertained. Please visit our return policy page for more details.",
+            "url": "https://{{request.get_host}}/return-policy",
+            "applicableCountry": "IN",
+            "returnPolicyCategory": "https://schema.org/NoRefundsReturnPolicy"
+          },
+          "eligibleRegion": {
+            "@type": "Country",
+            "name": "IN"
+          },
+          "eligibleTransactionVolume": {
+            "@type": "PriceSpecification",
+            "priceCurrency": "INR",
+            "minPrice": "100.00"
+          }
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "{{product.rating}}",
+          "reviewCount": "{{product.rating_count}}"
+        },
+        "review": [
+          {% for review in product.reviews.all|slice:":3" %}
+          {
+            "@type": "Review",
+            "author": {
+              "@type": "Person",
+              "name": "{{review.user.username}}"
+            },
+            "datePublished": "{{review.created.date|date:'Y-m-d'}}",
+            "reviewBody": "{{review.text}}",
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": "{{review.rating}}"
+            }
+          }{% if not forloop.last %},{% endif %}
+          {% endfor %}
+          
+        ]
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}      
+    ]
+  }
+</script>
+ 
+
+<script type="application/ld+json" id="service-schema">
+{
+  "@context": "http://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {% for service in services|slice:":12" %}
+    {
+      "@type": "ListItem",
+      "position": {{forloop.counter}},
+      "item": {
+        "@type": "Service",
+        "provider": {
+          "@type": "Organization",
+          "name": "{{service.company.name}}",
+          "url": "https://{{request.get_host}}/company/{{service.company.slug}}",
+          "logo": "https://{{request.get_host}}{% if service.company.logo %}{{service.company.logo.url}}{% else %}#{% endif %},
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Business Bay",
+            "addressLocality": "Dubai",
+            "addressRegion": "Dubai",
+            "postalCode": "12345",
+            "addressCountry": "IN"
+          },
+          "location": {
+            "@type": "Place",
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": "25.197197",
+              "longitude": "55.274376"
+            }
+          }
+        },
+        "name": "{{service.name}}",
+        "description": "{{service.description}}",
+        "image": "https://{{request.get_host}}/{% if service.image %}{{service.image.url}}{% else %}#{% endif %}",
+        "url": "https://{{request.get_host}}/service/{{service.slug}}"
+      }
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    // Add more products and services provided by companies as needed
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Training Courses",
+  "description": "A list of available training courses",
+  "itemListElement": [
+    {% for course in courses|slice:":12" %}
+    {
+      "@type": "Course",
+      "name": "{{course.name}}",
+      "description": "{{course.description}}",
+      "provider": {
+        "@type": "Organization",
+        "name": "{{course.company.name}}"
+      },
+      "image": "https://{{request.get_host}}{% if course.image %}{{course.image.url}}{% else %}/#{% endif %}",
+      "hasCourseInstance": {
+        "@type": "CourseInstance",
+        "courseMode": ["{{course.mode}}"],
+        "endDate": "2019-03-21",
+        "startDate": "2019-02-15",
+        "courseWorkload": "PT3H"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "{{course.price}}",
+        "priceCurrency": "INR",
+        "availability": "http://schema.org/InStock",
+        "category": "{{course.program.name}}"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "{{course.rating}}",
+        "bestRating": "5",
+        "ratingCount": "{{course.rating_count}}"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "12.9716",
+        "longitude": "77.5946"
+      }
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}    
+  ]
+}
+</script>
+ 
+
+
+<script type="application/ld+json">
+	{
+	  "@context": "http://schema.org",
+	  "@type": "WebSite",
+	  "url": "https://www.bzindia.in/",
+	  "potentialAction": {
+		"@type": "SearchAction",
+		"target": "https://www.bzindia.in/?state=&district=&block=&pincode=&from=googlesl",
+		"query-input": "required name=search_term_string"
+	  }
+	}
+	</script>
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Your Company Name",
+    "description": "Description of your company",
+    "logo": "URL to your company logo",
+    "url": "URL of your company website",
+    "memberOf": [
+      {
+        "@type": "Organization",
+        "name": "Category or Group 1"
+      },
+      {
+        "@type": "Organization",
+        "name": "Category or Group 2"
+      }
+    ],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Clients",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "item": {
+            "@type": "Organization",
+            "name": "Client 1 Name",
+            "url": "URL to Client 1",
+            "logo": "URL to Client 1 Logo"
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "item": {
+            "@type": "Organization",
+            "name": "Client 2 Name",
+            "url": "URL to Client 2",
+            "logo": "URL to Client 2 Logo"
+          }
+        }
+        // Add more clients as needed
+      ]
+    }
+  }
+  </script>
+  
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "ItemList",
+    "itemListElement": [
+      {% for company in companies|slice:":12" %}
+      {
+        "@type": "ListItem",
+        "position": {{forloop.counter}},
+        "item": {
+          "@type": "Organization",
+          "name": "{{company.name}}",
+          "url": "https://{{request.get_host}}/company/{{company.slug}}",
+          "logo": "https://{{request.get_host}}/{% if company.logo %}{{company.logo.url}}{% else %}#{% endif %}",
+          "description": "{{company.description|safe}}"
+        }
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}      
+      // Add more companies as needed
+    ]
+  }
+  </script>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "BZindia",
+    "url": "https://www.bzindia.in/"
+  }
+  </script> 
+
+
+{% endblock schemas %}
+
+{% block content %}
+<!--banner-slider start -->
+<section class="bg-half" style="background-image: url(/static/images/city-4667143_1920.jpg);" data-aos="fade-in">
+
+  <!-- banner-serch-bar-section-start -->
+
+  <div class="banner-sech-bar">
+    <div class="banner-serch-bar-cntnt">
+      <h2>SEARCH YOUR NEEDS</h2>
+      <p style="width:80%; margin:0 auto; padding:0px 0px 20px 0px;">Find the best companies in India for your service or product needs. Explore our curated business directory, focusing on one trusted company that delivers top-notch services and products nationwide.</p>
+      <form class="search_bx mt-5" role="search">
+        <input class="form-control " type="search" placeholder="Search " aria-label="Search">
+        <button class="srch-btn" type="submit"><i class="fas fa-search"></i></button>
+      </form>
+    </div>
+  </div>
+  <div class="bg-overlay"></div>
+  <!-- banner-serch-bar-section-end -->
+</section>
+ 
+  <!-- home -banner section-end -->
+
+  <!--join venture-slider-section start  -->
+
+  <section>
+    <div class="container">
+    <div class="hm-pge-join-vntr-slider">
+      <div class="join-vntr-sldr-bx" data-aos="fade-down">
+        <h2>OUR JOIN VENTURES
+        </h2>
+
+        <!-- venture slider -->
+
+        <div class="teams_slide">
+          {% for company in companies %}
+          {% if company.logo %}
+          <div class="team_slider_padd">
+            <div>
+              <a href="#">
+                <img src="{{company.logo.url}}" alt="">
+              </a>
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}          
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!--join venture-slider-section end  -->
+
+
+
+  
+  <section class="content_area001" style="padding: 0px 0px 40px 0px; margin-bottom: 0px; border-bottom: 1px solid #ddd;">
+    <div class="container">
+ 
+
+      <h3>BZindia Group of Joint Ventures</h3>
+        <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+
+      <div class="row">
+        
+        <div class="col-md-12 col-sm-12 col-xs-12">
+        <div id="verticalTab">
+          <ul class="resp-tabs-list">
+            {% for company in companies|slice:":3" %}
+          <li>{{company.name}}</li>
+          {% endfor %}
+          <!-- <li>IPCS Automation</li>
+          <li>Leads Constructions</li> -->
+
+           </ul>
+          <div class="resp-tabs-container">
+          
+          {% for company in companies|slice:":3" %}
+          <div>
+            <h4 style="padding-bottom: 10px;">{{company.name}}</h4>
+          <p class="row">
+        <span class="col-md-2 home_company_list"><img style="width: 100%;" src="{% if company.logo %}{{company.logo.url}}{% else %}#{% endif %}" alt=""></span>    
+         <span class="col-md-10">
+          {{company.description}}
+         </span>   
+        </p>
+ 
+        <ul class="row list-default" style="padding:10px 0 20px 0;">
+          {% for category in company.categories %}
+          <li class="col col-md-6 col-12"><a href="#">{{category.name}}</a></li>
+          {% endfor %}          
+          </ul>
+
+            <a href="#" class="primary_button">Read More</a>
+          </div>
+          {% endfor %}          
+          
+
+        <div style="clear: both;"></div>
+     
+          </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+  
+  <section style="padding-top:50px;">
+  
+  
+  
+    <div class="container">
+   <div class="offerd-service-section" style="margin-bottom: 0px;">
+        <h3>ONLINE REGISTRATION IN <span class="district-name text-uppercase">INDIA</span></h3>
+        <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+        <div class="offerd-service">
+          {% for registration_detail in registration_details|slice:":12" %}
+          <div class="offerd-service_padd">
+            <div>
+              <a href="#">
+                <div class="offerd-service-section-clm-cntnt">
+                  <div>
+                    <div class="offerd-srvs-clm-icon">
+                      <img src="{% static 'images/Company-Registration-India.svg' %}" alt="">
+                    </div>
+                    <div class="offerd-srvs-clm-text">
+                       <h5>{{registration_detail.sub_type.name}} In <span class="district-name" style="font-size: inherit; color: inherit;">India</span></h5>
+                      <span>{{registration_detail.sub_type.type__name}}</span>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+          {% endfor %}          
+  
+        </div>
+      </div>
+   </div>
+  
+  
+ 
+    <div class="container">
+<div class="offerd-service-section" style="padding-top:40px;">
+        <h3>OUR COURSES</h3>
+        <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+        <div class="offerd-service">
+          {% for course in courses|slice:":12" %}
+          <div class="offerd-service_padd">
+            <div>
+              <a href="#">
+                <div class="offerd-service-section-clm-cntnt">
+                  <div>
+                    <div class="offerd-srvs-clm-icon">
+                      <img src="{% if course.image %}{{course.image.url}}{% else %}{% static 'images/Company-Registration-India.svg' %}{% endif %}" alt="">
+                    </div>
+                    <div class="offerd-srvs-clm-text">
+                      <h5>{{course.name}} In <span class="district-name" style="font-size: inherit; color: inherit;">India</span></h5>
+                      <span>{{course.program.name}}</span>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+          
+        </div>
+      </div>
+   </div>
+ 
+  
+    <div class="container">
+      <div class="offerd-service-section" style="padding-top:0px;">
+   <h3>ONLINE SERVICES IN <span class="district-name text-uppercase">INDIA</span></h3>
+    <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+   
+        <div class="offerd-service" style="padding-bottom: 30px;">
+
+          {% for service in services|slice:":12" %}
+          <div style="padding: 5px;">
+            <div class="position_relative img-scale max_size">
+              <figure class="picher_doc">
+                <img src="{% if service.image %}{{service.image.url}}{% else %}{% static 'images/Automation-Training-Institute-in-India.webp' %}{% endif %}" alt="" height="360.5">
+                <div class="opacity-medium bg-extra-black"></div>
+                {% if service.duration %}
+                <div class="date_top">
+                  <span><a href="#" tabindex="0">Duration: {{service.duration.days}} days</a></span>
+                </div>
+                {% endif %}
+                <div class="inner_text">
+                  <h3 class="show_tital">{{service.name}} In <span class="district-name">India</span></h3>
+
+                  <p class="display_block">
+                    {{service.category.name}}
+                  </p>
+                
+                  <a href="#" class="btn btn-text">Read More <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+              </figure>
+            </div>
+          </div>
+          {% endfor %}
+
+        </div>
+        <a href="#" class="primary_button" style="margin: 0 auto;">View More</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- what-we-do section end -->
+
+  <!-- offered-service section start -->
+
+
+  <section style="background: #f1f1f1; margin-bottom: 20px; padding: 0px 0px 50px 0px;">
+    <div class="container">
+      <div class="row">
+        
+<div class="row" style="padding: 40px 0 0px 0;text-align: center;">
+  <div class="offerd-service-section" style="margin: 0; ">
+      <h3>TOP PRODUCTS</h3>
+      <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+      <div class="offerd-service">
+        
+        {% for product in products|slice:":12" %}
+        <div style="padding: 5px;">
+          <div class="product-grid">
+              <div class="product-image" style="height: 263px;">
+                  <a href="#" class="image">
+                      <img class="pic-1" src="{% if product.image %}{{product.image.url}}{% else %}{% static 'images/img-3.jpg' %}{% endif %}" alt="">
+                      <img class="pic-2" src="{% if product.image %}{{product.image.url}}{% else %}{% static 'images/img-4.jpg' %}{% endif %}" alt="">
+                  </a>
+                  <span class="product-sale-label">sale!</span>
+                  <ul class="social">
+                      <li><a href="#" data-tip="Quick View"><i class="fa fa-eye"></i></a></li>
+                      <li><a href="#" data-tip="Add to wishlist"><i class="fa fa-heart"></i></a></li>
+                  </ul>
+                  <div class="product-rating">
+                    <ul class="client_review">
+                      <span class="fa fa-star checked" aria-hidden="true"></span>
+                      <span class="fa fa-star checked" aria-hidden="true"></span>
+                      <span class="fa fa-star checked" aria-hidden="true"></span>
+                      <span class="fa fa-star" aria-hidden="true"></span>
+                      <span class="fa fa-star" aria-hidden="true"></span>
+                    
+                </ul>
+                      <a class="add-to-cart" href="#"> BUY NOW </a>
+                  </div>
+              </div>
+              <div class="product-content">
+                  <h3 class="title"><a href="#" title="{{product.name}}">{{product.name|slice:"50"}}{% if product.name|length > 50 %}...{% endif %}</a></h3>
+                  <div class="price">&#8377;{{product.price}}</div>
+              </div>
+          </div>
+        </div>
+        {% endfor %}
+
+
+
+</div>
+    </div>
+    <a href="#" class="primary_button" style="margin: 0 auto;">Buy More</a>
+</div>   
+
+      </div>
+      
+    </div>
+  </section>
+
+
+  
+  <!-- what-we-do section start -->
+  <section class="content_area001">
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <h3>Documents For GST Registration</h3>
+            <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+    
+        <p>
+          Goods and Services Tax or GST is a simplified tax payment system that emerged on July 1, 2017. It is levied on everyone who is dealing with the supply of goods and services all over in India. It has been emerged to bring uniformity in the indirect tax structure by replacing all taxes which is existed before the introduction of GST such as service tax, excise duty, etc. In the shot, GST has the concept "One Nation One Tax."
+
+For every goods and product, everyone has to pay the tax and the main fundamental one is the goods and services tax (GST), this is the process of collecting the tax on behalf of the government. GST was established as one nation – one tax by the government. GST Registration will provide as the main fundamental branch for every variety of the tax line such as Central Excise, service tax, and luxury tax, etc… Only after registering under GST anyone can claim for the credit of the tax paid. GST reduces the number of indirect taxes which has to be paid. For registered retailers, there will be no hidden tax to be paid other than the GST. It is levied on every goods and service sold for domestic consumptions. Even though GST is paid by the consumers it is given to the government by the business of selling goods and services. GST reduces the complications in the tax payment and the tax administrators also make a unique tax payment system for every business domain in our nation. Since GST is a unique tax system competition among the states for the tax and revenue will be reduced at a high rate. GST mainly aims to make a simplified and single tax system. The establishment of the GST increases the efficiency in the business and reduces every unnecessary tax. GST not only simplifying the tax system but also increases the revenue and reduces the tax outflow from the competing stream of the consumers and the exporters. GST increases the growth of our nation and replaces every indirect tax on goods and services which is provided by the state and the central.
+        </p>
+      </div>
+      </div>
+
+  
+
+
+  
+
+  <h3>Tags Cloud</h3>
+  <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+  <div class="tags_cloud">
+    {% for tag in tags %}
+    <a href="#" title="{{tag.name}}">{{tag.name}}</a>
+    {% endfor %}
+</div>
+</div>
+</div>
+
+</div>
+
+
+ 
+
+
+ 
+
+  </section>
+
+
+
+  <section>
+    <div class="container">
+<div class="row" style="margin:50px 0 50px 0;" >
+      <div class="offerd-service-section" style="margin-bottom:0;">
+        <h3>FIND NEARBY</h3>
+         <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+        <div class="nearby_govt_off">
+        
+          <div class="services-block-two">
+			<div class="inner-box">
+<div class="nearby_img">
+				<img src="{% static 'images/Nearby-Police-Stations.jpeg' %}" alt="Find Nearby Police Station">
+					</div>
+<h3 class="nearby_head"><a href="DDDDDD">Nearby Police Station</a>
+<a href="DDDDDD" class="simple_menu_stle" title="Find Nearby Police Station"><i class="fa fa-crosshairs" aria-hidden="true"></i> Find Nearby</a></h3>
+					</div>
+					</div>
+                    
+                    
+           <div class="services-block-two">
+			<div class="inner-box">
+<div class="nearby_img">
+				<img src="{% static 'images/nearby-post-office.jpeg' %}" alt="Find Nearby Post Office">
+					</div>
+<h3 class="nearby_head"><a href="DDDDDD">Nearby Post Office & Pincode</a>
+<a href="DDDDDD" class="simple_menu_stle" title="Find Nearby Post Office"><i class="fa fa-crosshairs" aria-hidden="true"></i> Find Nearby</a></h3>
+					</div>
+					</div>
+                    
+                    
+           <div class="services-block-two">
+			<div class="inner-box">
+ <div class="nearby_img">
+				<img src="{% static 'images/Nearby-Courts.jpeg' %}" alt="Find Nearby Judicial Courts">
+					</div>
+<h3 class="nearby_head"><a href="DDDDDD">Nearby Judicial Courts</a>
+<a href="DDDDDD" class="simple_menu_stle" title="Find Nearby Judicial Courts"><i class="fa fa-crosshairs" aria-hidden="true"></i> Find Nearby</a></h3>
+					</div>
+					</div>
+                    
+                    
+           <div class="services-block-two">
+			<div class="inner-box">
+			  <div class="nearby_img">
+				<img src="{% static 'images/Nearby-CSC-Centers.jpeg' %}" alt="Find Nearby CSC Centers">
+					</div>
+<h3 class="nearby_head"><a href="DDDDDD">Nearby CSC Centers</a>
+<a href="DDDDDD" class="simple_menu_stle" title="Find Nearby CSC Centers"><i class="fa fa-crosshairs" aria-hidden="true"></i> Find Nearby</a></h3>
+					</div>
+					</div>
+                    
+                    
+            <div class="services-block-two">
+			<div class="inner-box">
+			<div class="nearby_img">
+				<img src="{% static 'images/Nearby-Bank-and-ifsc.jpeg' %}" alt="Find Nearby Police Station">
+					</div>
+  <h3 class="nearby_head"><a href="DDDDDD">Nearby Bank &amp; IFSC</a>
+<a href="DDDDDD" class="simple_menu_stle" title="Find Nearby Police Station"><i class="fa fa-crosshairs" aria-hidden="true"></i> Find Nearby</a></h3>
+					</div>
+					</div>
+                    
+                    
+                    
+           
+        </div>
+      </div>
+      
+      <a href="#" class="primary_button" style="margin: 0 auto;">FIND MORE</a>
+          </div>
+    </div>
+    
+  </section>
+
+
+  {% include "destination_slider.html" %}
+
+
+  {% include "blog_slider.html" %}
+
+
+  {% endblock content %}

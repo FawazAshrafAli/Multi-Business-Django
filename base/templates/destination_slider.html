@@ -1,0 +1,44 @@
+{% load static %}
+
+<section class="destination_main">
+    <div class="destination_sub_bx">
+  
+  
+      <div class="container">
+       <h2 style="text-align:center;">FIND NEARBY DESTINATION</h2>
+           <p class="flip"><span class="deg1"></span><span class="deg2"></span><span class="deg3"></span></p>
+            <div class="row">
+  
+  
+        <div class="nearby-destinations" style="padding-bottom: 30px;">
+         
+          {% for attraction in attractions|slice:":10" %}
+          <div style="padding: 5px;">
+            <div class="position_relative img-scale max_size">
+              <figure class="picher_doc">
+                <img src="{% static 'images/Automation-Training-Institute-in-India.webp' %}" alt="">
+                <div class="opacity-medium bg-extra-black"></div>
+                <div class="date_top">
+                  <span><a href="#" tabindex="0">{{attraction.attraction_type}}</a></span>
+                </div>
+                <div class="inner_text">
+                  <h3 class="show_tital">{{attraction.name}}</h3>
+                  
+                  <p class="display_block">
+                    A Rich Heritage &amp; Brand History
+                  </p>
+                
+                  <a href="#" class="btn btn-text">Read More <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+              </figure>
+            </div>
+          </div>
+          {% endfor %}
+  
+   
+          </div>
+          <a href="#" class="primary_button" style="margin: 0 auto;">VIEW MORE</a>
+            </div>
+      </div>
+    </div>
+  </section>

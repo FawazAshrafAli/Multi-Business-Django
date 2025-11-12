@@ -1,0 +1,268 @@
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Brands{% endblock title %}
+
+{% block content %}
+			
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Brands </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Brands</li>
+			</ul>
+		</div>
+	</div>
+	
+	<!-- Page Header -->
+	<div class="page-header pt-3 mb-0 ">
+		<div class="row">
+			<div class="col">
+				<div class="dropdown">
+					<a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Recently Viewed</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="#">Recently Viewed</a>
+						<a class="dropdown-item" href="#">Items I'm following</a>
+						<a class="dropdown-item" href="#">All Brands</a>
+						<a class="dropdown-item" href="#">Brands added in the last 24 hours</a>
+						<a class="dropdown-item" href="#">Brands added in the last 7 days</a>
+						<a class="dropdown-item" href="#">Brands with no notes in the last month</a>
+						<a class="dropdown-item" href="#">Brands with no notes in the last 7 days</a>
+					</div>
+				</div>
+			</div>
+			<div class="col text-end">
+				<ul class="list-inline-item ps-0">
+					<li class="nav-item dropdown list-inline-item add-lists">
+						<a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+							<div class="nav-profile-text">
+								<i class="fa fa-th" aria-hidden="true"></i>
+							</div>
+						</a>
+						<div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+							<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-new-list">Add New List View</a>
+						</div>
+					</li>
+					<li class="list-inline-item">
+						<a href="#" class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-brand" data-bs-toggle="modal" data-bs-target="#add_product_brand">New Brand</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Header -->
+
+
+	<!-- Content Starts -->
+	<div class="row">
+		{% if messages %}
+			<ul class="messages">
+				{% for message in messages %}
+					<li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+		<div class="col-md-12">
+			<div class="card mb-0">
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Brand</th>									
+									<th class="text-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for brand in brands %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>									
+									<td>{{brand.name}}</td>									
+									<td class="text-end">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_brand_modal" data-name="{{brand.name}}" data-slug="{{brand.slug}}">Edit This Brand</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_brand_modal" data-name="{{brand.name}}" data-slug="{{brand.slug}}">Remove This Brand</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_brand_modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="get">
+							<h4><span class="text-danger">Removing</span> Brand. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Brand:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Brand Modal (Start) -->
+<div class="modal fade" id="update_brand_modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title text-center">Update Brand</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" class="needs-validation" id="update-brand-form" novalidate>
+							{% csrf_token %}
+							<h4>Brand</h4>
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="name-input" placeholder="Name of Brand" name="name">
+									<div class="invalid-feedback">
+										Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
+									</div>
+									<div class="valid-feedback">
+										Looks good!
+									</div>
+								</div>
+							</div>									
+							<div class="text-center py-3">
+								<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="brand-submit-button">Save</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+<!-- Brand Modal (End) -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const slug = $(this).data('slug');
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', `/customer/delete_brand/${slug}`);
+		});
+
+		$('.edit-toggle-btn').click(function () {
+			const name = $(this).data('name');					
+			const slug = $(this).data('slug');
+
+			$('#name-input').val(name);	
+			$('#update-brand-form').prop('action', `/customer/update_brand/${slug}`);
+		});
+
+		let namePattern = /^[a-zA-Z\s'-]+$/;
+
+		// Scripts of Product Brand (Start)
+		function validateUpdateBrandForm() {  
+			const data = {}   
+			let formValid = true       
+
+			const productBrand = $('#name-input').val().trim();            
+
+			if (!productBrand || !namePattern.test(productBrand)) {
+				$('#name-input').addClass('is-invalid');
+				$('#name-input').focus();
+				formValid = false;
+
+			} else {
+				$('#name-input').addClass('is-valid');
+				$('#name-input').blur();
+						
+			}            
+
+
+			if (formValid == true) {
+				$('#update-brand-form').submit()
+			}            
+		}    
+
+		$('#brand-submit-button').click(() => validateUpdateBrandForm());
+
+		// Inputting
+
+		$('#name-input').on('input', function () {
+			if (!$(this).val()) {
+				$(this).addClass('is-invalid');
+				$(this).removeClass('is-valid');
+			} else {
+				$(this).addClass('is-valid');
+				$(this).removeClass('is-invalid');
+			}
+		});			
+		// Scripts of Product Brand (End)
+	});
+</script>
+{% endblock scripts %}

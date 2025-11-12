@@ -1,0 +1,250 @@
+{% extends "admin_base/base.html" %}
+{% load static %}
+
+{% block title %}Meta Tags{% endblock title %}
+
+{% block content %}
+			
+				<!-- Page Content -->
+                <div class="content container-fluid">
+
+                	<div class="crms-title row bg-white">
+                		<div class="col  p-0">
+                			<h3 class="page-title m-0">
+			                <span class="page-title-icon bg-gradient-primary text-white me-2">
+			                  <i class="fa fa-edit" aria-hidden="true"></i>
+			                </span> Meta Tags </h3>
+                		</div>
+                		<div class="col p-0 text-end">
+                			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+								<li class="breadcrumb-item"><a href="{% url 'superadmin:home' %}">Dashboard</a></li>
+								{% if current_company_type %}
+								<li class="breadcrumb-item"><a href="{% url 'superadmin:meta_tags' %}">Meta Tags</a></li>
+								<li class="breadcrumb-item active">{{current_company_type.name}} Meta Tags</li>
+								{% else %}
+								<li class="breadcrumb-item active">Meta Tags</li>
+								{% endif %}
+
+							</ul>
+                		</div>
+                	</div>
+					
+					<div class="row">
+						<div class="col-md-12">
+							{% include "message.html" %}
+							<div class="card">							
+							</div>
+							<div class="card-body">
+								<div class="table-responsive">
+									<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+										<thead>
+											<tr>
+												<th class="checkBox">										
+													<label class="container-checkbox">
+														<input type="checkbox">
+														<span class="checkmark"></span>
+													</label>
+												</th>
+												<th>Name</th>												
+												<th class="text-center">Actions</th>
+											</tr>
+										</thead>
+										<tbody>
+											{% for meta_tag in meta_tags %}
+											<tr>
+												 <td class="checkBox">
+													<label class="container-checkbox">
+														<input type="checkbox">
+														<span class="checkmark"></span>
+													</label>
+												</td>												
+												<td>
+													<a href="#" class="meta-tag-obj" data-bs-toggle="modal" data-bs-target="#meta-tag-detail-modal" data-name="{{meta_tag.name}}" data-description="{{meta_tag.description}}" data-meta-title="{{meta_tag.meta_title}}" data-meta-description="{{meta_tag.meta_description}}">{{meta_tag.name}}</a>
+												</td>
+												<td class="text-center">
+													<div class="dropdown dropdown-action">
+														<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+														<div class="dropdown-menu dropdown-menu-right">															
+															<a class="dropdown-item edit-meta-tag-btn" href="{% url 'superadmin:update_meta_tag' meta_tag.slug %}">Edit This Meta Tag</a>
+															<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete-meta_tag-modal" data-name="{{meta_tag.name}}" data-slug="{{meta_tag.slug}}" >Remove This Meta Tag</a>
+														</div>
+													</div>
+												</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>						
+					</div>
+					
+                </div>
+				<!-- /Page Content -->
+{% endblock content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete-meta_tag-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="post">
+							<h4><span class="text-danger">Deleting</span> Meta Tag. . .</h4>
+							{% csrf_token %}
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Meta Tag:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Meta Tag Modal (Start) -->
+<div class="modal fade" id="update_meta_tag_modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title text-center">Update Meta Tag</h4>
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form method="post" action="#" id="meta-tag-updation-form">
+							{% csrf_token %}
+							<div class="form-group row">
+								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
+								<div class="col-md-12">
+									<input class="form-control" type="text" id="name-input" placeholder="Name of Meta Tag" name="name">											
+								</div>
+							</div>									
+							<div class="text-center py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Update</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+<!-- Meta Tag Modal (End) -->
+
+<!-- Detail Modal Start -->
+<div class="modal right fade" id="meta-tag-detail-modal" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div class="row w-100">
+                    <div class="col-md-7 account d-flex">
+                        <div class="company_img">
+                        </div>
+                    </div>                    
+                  </div>
+                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+              </div>
+
+            <div class="modal-body">
+                <div class="row" style="background: #eaeaea;">
+                    <div class="col-md-12">
+                        <h4 style="margin: 8px 0;">Meta Tag: <span id="name"></span></h4>
+                    </div>
+                </div>
+                <br>      
+                <table class="table">
+                    <tbody>
+						<tr>
+							<td class="border-0">Description</td>
+							<td class="border-0" id="description"></td>
+						</tr>						
+						<tr>
+							<td class="border-0">Meta Title</td>
+							<td class="border-0" id="meta-title"></td>
+						</tr>			
+						<tr>
+							<td class="border-0">Meta Description</td>
+							<td class="border-0" id="meta-description"></td>
+						</tr>
+                    </tbody>
+                  </table>
+                <hr>
+            </div>
+
+        </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+</div>
+<!-- Detail Modal End -->
+
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+        // Deletion
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const metaTagSlug = $(this).data('slug');
+
+			const actionUrl = `{% url 'superadmin:delete_meta_tag' 'dummyMetaTagSlug' %}`
+			.replace('dummyMetaTagSlug', metaTagSlug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});   
+
+		// Updation
+		$('.edit-meta-tag-btn').click( function () {
+			const name = $(this).data('name');
+			const metaTagSlug = $(this).data('slug');
+
+			const actionUrl = `{% url 'superadmin:update_meta_tag' 'dummyMetaTagSlug' %}`
+			.replace('dummyMetaTagSlug', metaTagSlug);
+
+			$('#name-input').val(name);
+			$('#meta-tag-updation-form').prop('action', actionUrl);
+		});
+
+		$(document).on('click', '.meta-tag-obj', function () {
+			const name = $(this).data("name");
+			const description = $(this).data("description");
+			const metaTitle = $(this).data("meta-title");
+			const metaDescription = $(this).data("meta-description");
+
+			$("#name, #desciption, #meta-title, #meta-desciption").empty();
+
+			$('#name').html(name);
+			$('#description').html(description);
+			$('#meta-title').html(metaTitle);
+			$('#meta-description').html(metaDescription);
+		});
+	});
+</script>
+{% endblock scripts %}

@@ -1,0 +1,351 @@
+
+{% extends "customer_base/base.html" %}
+{% load static %}
+
+{% block title %}Update Course{% endblock title %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+	<div class="crms-title row bg-white">
+		<div class="col">
+			<h3 class="page-title m-0">
+			<span class="page-title-icon bg-gradient-primary text-white me-2">
+				<i class="feather-database"></i>
+			</span> Services </h3>
+		</div>
+		<div class="col text-end">
+			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+				<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+				<li class="breadcrumb-item active">Services</li>
+			</ul>
+		</div>
+	</div>
+
+    <br>
+    <div class="row">
+        {% include "message.html" %}
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'customer:update_course' course.slug %}" class="needs-validation" enctype="multipart/form-data" id="edit-course-form" novalidate>
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" >Course Name</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name-input" >Course Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name-input" placeholder="Course Name" name="name" value="{{course.name}}" required>
+                                <div class="invalid-feedback">
+                                    Please enter a name for the course.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="name-input" >Image <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="image-input" name="image" required>
+                                {% if course.image %}
+                                <small><span id="current-image">Current Image: <a href="{{course.image.url}}" target="_blank">{{course.get_image_name}}</a></span></small>
+                                {% endif %}
+                                <div class="invalid-feedback">
+                                    Image is required.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category-dropdown">Program <span class="text-danger">*</span></label>
+                                <select class="form-control" id="program-dropdown" name="program" required>
+                                    <option value="" hidden disabled selected>Select Degree Level</option>
+                                    {% for program in programs %}
+                                    <option value="{{program.slug}}" {% if program.slug == course.program.slug %}selected{% endif %}>{{program.name}}</option>
+                                    {% endfor %}                                    
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the program.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sub-category-dropdown">Specialization <span class="text-danger">*</span></label>
+                                <select class="form-control" id="specialization-dropdown" name="specialization" required>
+                                    <option value="" hidden disabled selected>Select Specialization</option>
+                                    {% for specialization in specializations %}
+                                    <option value="{{specialization.slug}}"  {% if specialization.slug == course.specialization.slug %}selected{% endif %}>{{specialization.name}}</option>
+                                    {% endfor %}                                                               
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the specialization.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-4 mb-3">
+                                <label for="brand-dropdown">Course Mode <span class="text-danger">*</span></label>
+                                <select class="form-control" id="mode-dropdown" name="mode" required>
+                                    <option value="" hidden disabled selected>Select Course Mode</option>
+                                    {% for mode in modes %}                                
+                                    <option value="{{mode}}" {% if mode == course.mode %}selected{% endif %}>{{mode}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide the mode of the course.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="sku-input">Course Duration</label>
+                                <input type="number" class="form-control" id="duration-input" name="duration" value="{% if course.duration %}{{course.duration}}{% endif %}" placeholder="Course Duration (in months)">
+                                <div class="invalid-feedback">
+                                    Please enter a valid course dutaion.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>                            
+                            <div class="col-md-4 mb-3">
+                                <label for="price-input">Price <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="price-input" name="price" value="{% if course.price %}{{course.price}}{% endif %}" placeholder="Price" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid price.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>                
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+        </div>       
+	
+    </div>
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        
+        let durationPattern = /^[1-9]\d*$/;
+        let pricePattern = /^(?!0(\.0{1,2})?$)(\$?)([1-9][0-9]*(\.[0-9]{1,2})?)$/;
+
+        function validateForm() {  
+            const formValid = true       
+
+            let name = $('#name-input').val();
+            if (name) {
+                name = name.trim();
+            }
+
+            const programDropdown = $('#program-dropdown').val();
+            const specializationDropdown = $('#specialization-dropdown').val();
+
+            const modeDropdown = $('#mode-dropdown').val();                                  
+            
+            let duration = $('#duration-input').val();
+            if (duration) {
+                duration = duration.trim();
+            }
+
+            let price = $('#price-input').val();
+            if (price) {
+                price = price.trim();
+            }            
+
+            if (!name) {
+                $('#name-input').removeClass('is-valid').addClass('is-invalid');
+                $('#name-input').focus();
+                formValid = false;
+
+            } else {
+                $('#name-input').removeClass('is-invalid').addClass('is-valid');
+                $('#name-input').blur();
+                
+            }            
+
+            if (!programDropdown) {
+                $('#program-dropdown').addClass('is-invalid');
+                $('#program-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#program-dropdown').addClass('is-valid');
+                $('#program-dropdown').blur();
+                
+            }
+
+            if (!specializationDropdown) {
+                $('#specialization-dropdown').addClass('is-invalid');
+                $('#specialization-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#specialization-dropdown').addClass('is-valid');
+                $('#specialization-dropdown').blur();
+                
+            }
+
+            if (!modeDropdown) {
+                $('#mode-dropdown').addClass('is-invalid');
+                $('#mode-dropdown').focus();
+                formValid = false;
+            } else {
+                $('#mode-dropdown').addClass('is-valid');
+                $('#mode-dropdown').blur();
+                
+            }            
+            
+            if (duration && !durationPattern.test(duration)) {
+                $('#duration-input').removeClass('is-valid').addClass('is-invalid');
+                $('#duration-input').focus();
+                formValid = false;
+
+            } else {
+                $('#duration-input').removeClass('is-invalid').remove('is-valid');
+                $('#duration-input').blur();
+                
+            }
+
+            if (!price || !pricePattern.test(price)) {
+                $('#price-input').removeClass('is-valid').addClass('is-invalid');
+                $('#price-input').focus();
+                formValid = false;
+
+            } else {
+                $('#price-input').removeClass('is-invalid').addClass('is-valid');
+                $('#price-input').blur();
+                
+            }
+            
+            if (formValid == true) {
+                $('#edit-course-form').submit()
+            }
+
+        }
+
+        $('#submit-button').click(validateForm);
+
+        // Inputting
+
+        $('#name-input, #duration-input, #price-input').on('input', function () {
+            let thisValue = $(this).val();
+            if (thisValue) {
+                thisValue = thisValue.trim();
+            }
+
+            if (!thisValue) {
+                if ($(this).prop('id') == "name-input") {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-valid').addClass('is-invalid');                
+                }
+            } else {
+                 if ($(this).prop('id') == "price-input" && !pricePattern.test(thisValue)) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+
+            if (thisValue) {
+                if (thisValue < 0) {
+                    $(this).val(0);
+                }
+
+                if ($(this).prop('id') == "duration-input") {
+                    if (durationPattern.test(thisValue)) {
+                        $(this).removeClass('is-invalid').addClass('is-valid');                    
+                    } else {
+                        $(this).removeClass('is-valid').addClass('is-invalid');
+                    }
+                }
+                            
+            }
+            
+        });
+
+        // changing
+
+        $('#program-dropdown, #specialization-dropdown, #mode-dropdown, #unit-dropdown, #image-input').on('change', function () {
+            if (($(this).prop('id') == 'program-dropdown' || $(this).prop('id') == 'sub-category-dropdown' || $(this).prop('id') == 'brand-dropdown') && !$(this).val()) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+
+            if ($(this).prop('id') == 'image-input' || $(this).prop('id') == 'logo-input') {
+                let imageInput = $('#image-input')[0];
+                let image = imageInput.files[0];                
+                if (!image) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            }
+                        
+        })        
+        
+
+        // Get Specialization
+        function getSpecializations(program) {
+            const company = `{{current_company.slug}}`
+            
+            $.ajax({
+                type: 'GET',
+                url: '/education/get_specializations/',
+                dataType: 'json',
+                data: {
+                    "program": program,
+                    "company": company
+                },
+                success: response => {
+                    let specializations = response.specializations;
+
+                    $('#specialization-dropdown').html(`<option value="" hidden disabled selected>Select Specialization</option>`);
+                    if (specializations && specializations.length) {
+                        specializations.forEach(specialization => {
+                            if (specialization.standard) {
+                                $('#specialization-dropdown').append(`<option value="${specialization.slug}">${specialization.name}&nbsp;&nbsp;&nbsp; ${specialization.standard}</option>`)
+                            } else {
+                                $('#specialization-dropdown').append(`<option value="${specialization.slug}">${specialization.name}</option>`)
+                            }
+                        })
+                    } else {
+                        $('#specialization-dropdown').html(`<option value="" disabled selected>No specialization for the selected program</option>`);
+                    }                    
+                },
+                error: error => console.error("Error: ", error),
+            })
+        }
+
+        $('#program-dropdown').on('change', function () {
+            const program = $(this).val();
+
+            getSpecializations(program);
+        });        
+    })
+</script>
+{% endblock scripts %}

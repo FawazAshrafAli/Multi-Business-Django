@@ -1,0 +1,390 @@
+{% extends "admin_base/base.html" %}
+{% load static %}
+
+{% block title %}Directories{% endblock title %}
+
+{% block content %}
+			
+				<!-- Page Content -->
+                <div class="content container-fluid">
+
+                	<div class="crms-title row bg-white">
+                		<div class="col  p-0">
+                			<h3 class="page-title m-0">
+			                <span class="page-title-icon bg-gradient-primary text-white me-2">
+			                  <i class="fa fa-building" aria-hidden="true"></i>
+			                </span> Directories </h3>
+                		</div>
+                		<div class="col p-0 text-end">
+                			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+								<li class="breadcrumb-item"><a href="{% url 'superadmin:home' %}">Dashboard</a></li>
+								{% if current_company_type %}
+								<li class="breadcrumb-item"><a href="{% url 'superadmin:companies' %}">Directories</a></li>
+								<li class="breadcrumb-item active">{{current_company_type.name}} Directories</li>
+								{% else %}
+								<li class="breadcrumb-item active">Directories</li>
+								{% endif %}
+
+							</ul>
+                		</div>
+                	</div>
+
+					<div class="settings-menu-links">
+						<ul class="nav nav-tabs menu-tabs">							
+							<li class="nav-item {% if current_directory == "Bank" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:banks' %}">Banks</a>
+							</li>
+                            <li class="nav-item {% if current_directory == "Court" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:courts' %}">Courts</a>
+							</li>
+                            <li class="nav-item {% if current_directory == "Destination" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:destinations' %}">Destinations</a>
+							</li>
+                            <li class="nav-item {% if current_directory == "Police Station" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:police_stations' %}">Police Stations</a>
+							</li>
+                            <li class="nav-item {% if current_directory == "Post Office" %}active{% endif %}">
+								<a class="nav-link" href="{% url 'superadmin:post_offices' %}">Post Offices</a>
+							</li>
+						</ul>
+					</div>
+					
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-header">
+									{% if not current_directory %}
+									<h5 class="card-title text-center">Kindly select a directory type to display the relevant list</h5>
+									{% else %}
+									<h5 class="card-title">{{current_directory}}s</h5>
+									{% endif %}
+								</div>								
+							</div>
+							{% if current_directory == "Bank" %}
+							<div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Bank Name</th>
+                                                <th>IFSC</th>
+                                                <th>Branch</th>
+                                                <th>Center</th>
+                                                <th>City</th>
+                                                <th>District Type</th>
+                                                <th>State</th>
+                                                <th>Contact</th>
+                                                <th>Address</th>
+            
+                                                <th>iso3166</th>
+                                                <th>MICR</th>
+                                                <th>SWIFT</th>
+                                                
+                                                <th>IMPS</th>
+                                                <th>RTGS</th>
+                                                <th>NEFT</th>
+                                                <th>UPI</th>
+            
+                                                <th>Latitude</th>	
+                                                <th>Longitude</th>					
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for bank in banks %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>									
+                                                <td>{{bank.name}}</td>
+                                                <td>{{bank.ifsc}}</td>
+                                                <td>{{bank.branch}}</td>
+                                                <td>{{bank.center}}</td>
+                                                <td>{{bank.city}}</td>
+                                                <td>{{bank.district}}</td>
+                                                <td>{{bank.state}}</td>
+                                                <td>{{bank.contact}}</td>
+                                                <td>{{bank.address}}</td>
+            
+                                                <td>{{bank.iso3166}}</td>
+                                                <td>{{bank.micr}}</td>
+                                                <td>{{bank.swift}}</td>
+            
+                                                <td>{{bank.imps}}</td>
+                                                <td>{{bank.rtgs}}</td>
+                                                <td>{{bank.neft}}</td>
+                                                <td>{{bank.upi}}</td>
+            
+                                                <td>{{bank.latitude}}</td>
+                                                <td>{{bank.longitude}}</td>
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_category" data-name="{{category.name}}" data-slug="{{category.slug}}">Edit This Category</a>
+                                                            <a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{category.name}}" data-slug="{{category.slug}}" >Remove This Product Category</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_directory == "Court" %}
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Name</th>
+                                                <th>Old Name</th>
+            
+                                                <th>Designation</th>
+            
+                                                <th>Street</th>
+                                                <th>City</th>                                                                                                
+                                                <th>Pincode</th>                                                                                                
+                                                <th>Pincode</th>
+            
+                                                <th>Phone</th>
+                                                <th>Website</th>
+            
+                                                <th>Opening Hours</th>
+            
+                                                <th>Latitude</th>
+                                                <th>Longitude</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for courts in courts %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>									
+                                                <td>{{courts.name}}</td>
+                                                <td>{{courts.old_name}}</td>
+                                                <td>{{courts.designation}}</td>								
+            
+                                                <td>{{courts.street}}</td>
+                                                <td>{{courts.city}}</td>
+                                                <td>{{courts.district}}</td>                                    
+                                                <td>{{courts.state}}</td>
+                                                <td>{{courts.pincode}}</td>
+                                                
+                                                <td>{{courts.phone}}</td>
+                                                <td>{{courts.website}}</td>
+            
+                                                <td>{{courts.opening_hours}}</td>
+            
+                                                <td>{{courts.latitude}}</td>
+                                                <td>{{courts.longitude}}</td>
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_category" data-name="{{category.name}}" data-slug="{{category.slug}}">Edit This Category</a>
+                                                            <a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{category.name}}" data-slug="{{category.slug}}" >Remove This Product Category</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_directory == "Destination" %}
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Name</th>
+                                                <th>City</th>
+                                                <th>District</th>
+                                                <th>State</th>
+                                                <th>Pincode</th>		
+                                                <th>Latitude</th>
+                                                <th>Longitude</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for destination in destinations %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>									
+                                                <td>{{destination.name}}</td>
+                                                <td>{{destination.city}}</td>
+                                                <td>{{destination.district}}</td>
+                                                <td>{{destination.state}}</td>
+                                                <td>{{destination.pincode}}</td>
+                                                <td>{{destination.latitude}}</td>
+                                                <td>{{destination.longitude}}</td>
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_category" data-name="{{category.name}}" data-slug="{{category.slug}}">Edit This Category</a>
+                                                            <a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{category.name}}" data-slug="{{category.slug}}" >Remove This Product Category</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_directory == "Police Station" %}
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Name</th>
+                                                <th>City</th>
+                                                <th>District</th>
+                                                <th>State</th>
+                                                <th>Pincode</th>		
+                                                <th>Latitude</th>
+                                                <th>Longitude</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for police_station in police_stations %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>									
+                                                <td>{{police_station.name}}</td>
+                                                <td>{{police_station.city}}</td>
+                                                <td>{{police_station.district}}</td>
+                                                <td>{{police_station.state}}</td>
+                                                <td>{{police_station.pincode}}</td>
+                                                <td>{{police_station.latitude}}</td>
+                                                <td>{{police_station.longitude}}</td>
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_category" data-name="{{category.name}}" data-slug="{{category.slug}}">Edit This Category</a>
+                                                            <a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{category.name}}" data-slug="{{category.slug}}" >Remove This Product Category</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% elif current_directory == "Post Office" %}
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                        <thead>
+                                            <tr>
+                                                <th class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Circle Name</th>
+                                                <th>Region Name</th>
+                                                <th>Division Name</th>
+                                                <th>Office Name</th>
+                                                <th>Pincode</th>
+                                                <th>Office Type</th>
+                                                <th>Delivery</th>
+                                                <th>District</th>
+                                                <th>State</th>
+                                                <th>Latitude</th>
+                                                <th>Longitude</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for post_office in post_offices %}
+                                            <tr>
+                                                <td class="checkBox">
+                                                    <label class="container-checkbox">
+                                                        <input type="checkbox">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </td>									
+                                                <td>{{post_office.circle_name}}</td>
+                                                <td>{{post_office.region_name}}</td>
+                                                <td>{{post_office.division_name}}</td>
+                                                <td>{{post_office.office_name}}</td>
+                                                <td>{{post_office.pincode}}</td>
+                                                <td>{{post_office.office_type}}</td>
+                                                <td>{% if post_office.delivery %} Yes {% else %} No {% endif %}</td>
+                                                <td>{{post_office.district}}</td>
+                                                <td>{{post_office.state_name}}</td>
+                                                <td>{{post_office.latitude}}</td>
+                                                <td>{{post_office.longitude}}</td>
+                                                <td class="text-end">
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item edit-toggle-btn" href="#" data-bs-toggle="modal" data-bs-target="#update_category" data-name="{{category.name}}" data-slug="{{category.slug}}">Edit This Category</a>
+                                                            <a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{category.name}}" data-slug="{{category.slug}}" >Remove This Product Category</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+							{% endif %}
+						</div>						
+					</div>
+					
+                </div>
+				<!-- /Page Content -->
+{% endblock content %}

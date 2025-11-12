@@ -1,0 +1,153 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block company_content %}
+					
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">									
+				<h5 class="card-title">List of Product Multipages</h5>
+			</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+							<thead>
+								<tr>
+									<th class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</th>
+									<th>Title</th>	
+									<th class="text-center">Footer City Menu</th>								
+									<th class="text-center">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for multipage in multipages %}
+								<tr>
+									<td class="checkBox">
+										<label class="container-checkbox">
+											<input type="checkbox">
+											<span class="checkmark"></span>
+										</label>
+									</td>
+									<td>										
+										<a href="{% url 'superadmin:product_multipage' current_company.slug multipage.slug %}" >{{multipage.title|slice:100}}{% if multipage.title|length > 100 %}...{% endif %}</a>
+									</td>
+									<td class="text-center">
+										{% if multipage.product_region == "all" %}									
+										<input type="checkbox" class="multipage-checkbox" name="multipage_checkbox" {% if multipage.home_footer_visibility %}checked{% endif %}  value="{{multipage.slug}}">
+										{% endif %}
+									</td>										
+									
+									<td class="text-center">
+										<div class="dropdown dropdown-action">
+											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+											<div class="dropdown-menu dropdown-menu-right">
+												<a class="dropdown-item" href="{% url 'superadmin:update_product_multipage' current_company.slug multipage.slug %}">Edit This Multi Page</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{multipage.product.name}}" data-slug="{{multipage.slug}}">Remove This Multi Page</a>
+											</div>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>							
+		</div>						
+	</div>
+	
+
+<!-- /Page Content -->
+{% endblock company_content %}
+
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">
+	<div class="modal-dialog" role="document">
+		<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+		<div class="modal-content">
+
+			<div class="modal-header">
+				{% comment %} <h4 class="modal-title text-center">Delete Product</h4> {% endcomment %}
+				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+			  </div>
+
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<form id="deletion-form" method="post">
+							{% csrf_token %}
+							<h4><span class="text-danger">Deleting</span> Multi Page. . .</h4>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<label class="col-form-label">Are you sure?</label> <br>
+									<p><i>Multi Page of:</i> <span id="deleting-object"></span></p>
+								</div>
+							</div>							
+														
+							<div class="text-center d-flex justify-content-between py-3">
+								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Delete</button>&nbsp;&nbsp;
+								<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div><!-- modal -->
+{% endblock modal %}
+
+{% block scripts %}
+<script>
+	$(document).ready(() => {
+		$('.delete-btn').click( function () {
+			const name = $(this).data('name');
+			const multiPageSlug = $(this).data('slug');
+			const companySlug = `{{current_company.slug}}`;
+
+			const actionUrl = `{% url 'superadmin:delete_product_multipage' 'dummyCompanySlug' 'dummyMultiPageSlug' %}`
+			.replace('dummyCompanySlug', companySlug).replace('dummyMultiPageSlug', multiPageSlug);
+
+			$('#deleting-object').html(name);
+			$('#deletion-form').prop('action', actionUrl);
+		});
+
+		const updateCheckedProductMultipage = (multipageSlug) => {
+			
+			$.ajax({
+				type: "POST",
+				dataType: "json",
+				url: `{% url 'superadmin:update_checked_product_multipage' %}`,
+				data: {
+					"multipage_slug": multipageSlug,
+					"csrfmiddlewaretoken": `{{ csrf_token }}`,
+				},
+				success: response => {
+					if (response.success) console.log("Updated!");
+					if (response.error) console.error(error);
+				},
+				error: (xhr, status, error) => console.error("AJAX error:", error),
+
+			})
+		};
+
+		$('.multipage-checkbox').on('click', function () {
+			$('.multipage-checkbox').prop('checked', false);
+			$(this).prop('checked', true);
+
+			const multipageSlug = $(this).val();
+			
+			updateCheckedProductMultipage(multipageSlug);
+		});
+	});
+</script>
+{% endblock scripts %}

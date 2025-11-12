@@ -1,0 +1,50 @@
+<li class="submenu">
+    <a href="javascript:void(0);" {% if service_page %}class="active subdrop"{% endif %}><i class="fa fa-laptop"></i> <span> Services</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if service_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:services' %}" {% if list_service_page %}class="active"{% endif %}>All Services</a></li>
+        <li><a href="{% url 'customer:add_services' %}" {% if add_service_page %}class="active"{% endif %}>Add Services</a></li>									
+    </ul>
+</li>
+<li class="submenu">
+    <a href="#" {% if service_category_page %}class="active subdrop"{% endif %}><i class="feather-list"></i> <span> Categories</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if service_category_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:service_categories' %}" {% if list_service_category_page %}class="active"{% endif %}>All Categories</a></li>
+        <li><a href="#" data-bs-toggle="modal" data-bs-target="#add_service_category_modal">Add Category</a></li>									
+    </ul>
+</li>
+<li class="submenu">
+    <a href="#" {% if service_sub_category_page %}class="active subdrop"{% endif %}><i class="feather-database"></i> <span> Sub Categories</span>
+        <span class="menu-arrow"></span>
+    </a>
+    
+    <ul class="sub-menus {% if service_sub_category_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:service_sub_categories' %}" {% if list_service_sub_category_page %}class="active"{% endif %}>All Sub Categories</a></li>
+        <li><a href="#" data-bs-toggle="modal" data-bs-target="#add_service_sub_category_modal">Add Sub Category</a></li>									
+    </ul>
+</li>
+<li class="submenu">
+    <a href="#" {% if service_faq_page %}class="active subdrop"{% endif %}><i class="fa fa-question"></i> <span> FAQs</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if service_faq_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:service_faqs' %}" {% if list_service_faqs %}class="active"{% endif %}>All FAQs</a></li>
+        <li><a href="{% url 'customer:add_service_faqs' %}">Add FAQ</a></li>									
+    </ul>
+</li>
+<li>
+    <a href="{% url 'customer:service_enquiries' %}" {% if service_enquiry_page %}class="active subdrop"{% endif %}><i class="feather-file"></i> <span> Enquiries</span></a>
+</li>
+
+<li class="submenu">
+    <a href="#" {% if testimonial_page %}class="active subdrop"{% endif %}><i class="fa fa-quote-left"></i> <span> Testimonials</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul class="sub-menus {% if testimonial_page %}d-block{% endif %}">
+        <li><a href="{% url 'customer:testimonials' %}" {% if list_testimonials %}class="active"{% endif %}>All Testimonials</a></li>
+        <li><a href="{% url 'customer:add_testimonials' %}" {% if add_testimonial_page %}class="active"{% endif %} >Add Testimonial</a></li>									
+    </ul>
+</li>

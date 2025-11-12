@@ -1,0 +1,20 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+
+{% block company_content %}
+					
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-header">
+									{% if not current_tab %}
+									<h5 class="card-title text-center">Kindly select a tab to display the relevant list</h5>									
+									{% endif %}
+								</div>
+							</div>							
+						</div>						
+					</div>
+					
+                
+				<!-- /Page Content -->
+    {% endblock company_content %}
