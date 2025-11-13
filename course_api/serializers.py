@@ -354,6 +354,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
     mode = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
     company_name = serializers.CharField(source="company.name", read_only=True)
+    faqs = serializers.SerializerMethodField()
 
     class Meta:
         model = Specialization
@@ -362,10 +363,19 @@ class SpecializationSerializer(serializers.ModelSerializer):
             "updated", "image_url", "updated",
             "program_name", "program_slug",
             "url", "price", "company_name",
-            "mode", "duration"
+            "mode", "duration", "faqs",
+            "first_title", "second_title", "content"
             ]
 
     read_only_fields = "__all__"
+
+    def get_faqs(self, obj):
+        if hasattr(obj, "faqs"):
+            faqs = list(obj.faqs.values("question", "answer"))
+
+            return faqs
+        
+        return None
 
     def get_price(self, obj):
         if hasattr(obj, "courses"):
