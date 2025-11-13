@@ -50,11 +50,56 @@ class Program(models.Model):
         return Course.objects.filter(program = self)    
 
 
+class SpecializationFaq(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="specialization_faqs")
+    specialization_slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
+
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+
+    slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(f"{self.specialization_slug}")
+            slug = base_slug
+
+            count = 1
+            while SpecializationFaq.objects.filter(slug = slug).exists():
+                slug = f"{base_slug}{count}"
+                count += 1
+
+            self.slug = slug
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.specialization_slug}-{self.company.name}"
+    
+    class Meta:
+        db_table = "specialization_faqs"
+        ordering = ["created"]
+
+
 class Specialization(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="specializations")
 
     name = models.CharField(max_length=255)
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    description = models.TextField(null=True, blank=True)
+
+    starting_title = models.CharField(max_length=255, null=True, blank=True)
+    ending_title = models.CharField(max_length=255, null=True, blank=True)
+
+    location_slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
+
+    content = models.TextField(blank=True, null=True)
+
+    faqs = models.ManyToManyField(SpecializationFaq)
+    hide_faqs = models.BooleanField(default=False)
 
     slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -92,7 +137,7 @@ class Course(models.Model):
     image = models.ImageField(upload_to="course/", null=True, blank=True)
     name = models.CharField(max_length=255)
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name = "courses")
-    specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE)
+    specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE, related_name="courses")
     mode = models.CharField(max_length=150)
     duration = models.CharField(blank=True, null=True, max_length=20)
     price = models.CharField(blank=True, null=True, max_length=20)
