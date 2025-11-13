@@ -404,7 +404,7 @@
 									{% elif course_page %}
 									<li><a {% if add_course_page %}class="active"{% endif %} href="{% url 'superadmin:add_course' current_company.slug %}">Add Course</a></li>
 									{% elif course_specialization_page %}
-									<li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add_course_specialization_modal">Add Course Specialization</a></li>
+									<li><a href="{% url 'superadmin:add_course_specialization' current_company.slug %}">Add Course Specialization</a></li>
 									{% elif course_detail_page %}
 									<li><a {% if course_detail_page %}class="active"{% endif %} href="{% url 'superadmin:add_course_details' current_company.slug %}">Add Course Detail</a></li>
 									

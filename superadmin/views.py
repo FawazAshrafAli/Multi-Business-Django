@@ -57,6 +57,8 @@ from educational.models import (
     MultiPageHorizontalBullet as CourseMultiPageHorizontalBullet, MultiPageTableData as CourseMultiPageTableData, 
     MultiPageTable as CourseMultiPageTable, MultiPageBulletPoints as CourseMultiPageBulletPoint, 
     MultiPageTimeline as CourseMultiPageTimeline, MultiPageFaq as CourseMultiPageFaq,
+
+     SpecializationFaq as CourseSpecializationFaq,
     )
 
 from directory.models import PostOffice, PoliceStation, Bank, Court, Destination
@@ -1322,7 +1324,7 @@ class ListProductSubCategoryView(BaseProductSubCategory, ListView):
 
 
 class AddProductSubCategoryView(BaseProductSubCategory, CreateView):
-    fields = ["name", "category"]    
+    fields = ["name", "category"]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -4641,41 +4643,114 @@ class CourseSpecializationListView(BaseEducationCompanyView, ListView):
 
 class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
     model = Specialization
-    fields = ["company", "name", "program"]
+    fields = ["name", "program", "starting_title", "slug", "ending_title", "content", "faqs", "description"]
     success_url = redirect_url = reverse_lazy("superadmin:home")
+    template_name = "education_company/specializations/add.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            current_company = self.get_current_company()
+            context["course_specialization_page"] = True
+            context["programs"] = Program.objects.filter(company = current_company).order_by("-updated")
+        except Exception as e:
+            logger.exception(f"Error in getting context data of UpdateCourseSpecializationView of superadmin app: {e}")
+        
+        return context
 
     def get_success_url(self):        
         return reverse_lazy("superadmin:course_specializations", kwargs = {"slug": self.kwargs.get("slug")})
     
     def get_redirect_url(self):
-        return self.get_success_url()    
+        return self.get_success_url()   
+
+    def handle_faqs(self, request, company, specialization_slug):
+        try:
+            question_list = [question.strip() for question in request.POST.getlist("faq_question")]
+            answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
+
+            if len(question_list) != len(answer_list):
+                raise ValueError("The number of questions does not match the number of summaries.")
+
+            with transaction.atomic():
+                CourseSpecializationFaq.objects.filter(company = company, specialization_slug = specialization_slug).delete()
+                
+                if question_list and answer_list:
+                    creating_faqs = [CourseSpecializationFaq(
+                        company = company, specialization_slug = specialization_slug,
+                        question = question, answer = answer
+                        ) for question, answer in zip(question_list, answer_list) if question and answer]
+
+                    CourseSpecializationFaq.objects.bulk_create(creating_faqs)
+
+                    specialization_faqs = CourseSpecializationFaq.objects.filter(company = company, specialization_slug = specialization_slug)                
+                                            
+                    return specialization_faqs
+        except Exception as e:
+            logger.exception(f"Error in handle_faqs function of AddCourseSpecializationView: {e}")
+
+        return []  
 
     def post(self, request, *args, **kwargs):
         try:
-            current_company = get_object_or_404(Company, slug = self.kwargs.get('slug'))
-            name = request.POST.get("name")
-            name = name.strip() if name else None
+            current_company = self.get_current_company()
 
-            program_slug = request.POST.get("program")
+            name = clean_string(request.POST.get("name", ""))
+            program_slug = clean_string(request.POST.get("program", ""))
+            description = clean_string(request.POST.get("description", ""))
+            starting_title = clean_string(request.POST.get("starting_title", ""))
+            slug = clean_string(request.POST.get("slug", ""))
+            ending_title = clean_string(request.POST.get("ending_title", ""))
+            content = request.POST.get("content")
+            hide_faqs = request.POST.get("hide_faqs")
 
-            if not program_slug or not name:
-                error_msg = "Name of course specialization is required."
-                if not program_slug:
-                    error_msg = "Course program is required."
+            required_fields = {
+                "Name": name,
+                "Course Program": program_slug
+            }
 
-                messages.error(request, f"Failed! {error_msg}")
-                return redirect(self.get_redirect_url())
-            
-            program = get_object_or_404(Program, slug = program_slug)
-            
-            specialization, created = self.model.objects.get_or_create(company = current_company, name = name, program = program)
+            for field_name, field_value in required_fields.items():
+                if not field_value:
+                    messages.error(request, f"Failed! {field_name} is required")
+                    return redirect(self.get_redirect_url())
 
-            if created:
+            slug_list = [starting_title, slug, ending_title]
+
+            full_slug = slugify("-".join(filter(None, slug_list)))
+
+            with transaction.atomic():            
+                program = get_object_or_404(Program, slug = program_slug)
+
+                if self.model.objects.filter(slug = slug).exists():
+                    messages.error(request, "Failed! Similar slug already exists for another course specialization.")
+                    return redirect(self.get_redirect_url())
+
+                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
+                        messages.error(request, "Failed! Similar location slug already exists for another course specialization.")
+                        return redirect(self.get_redirect_url())
+                
+                specialization, created = self.model.objects.get_or_create(
+                    company = current_company, name = name, 
+                    program = program, 
+                    defaults={
+                        "description": description,
+                        "starting_title": starting_title,
+                        "ending_title": ending_title,
+                        "hide_faqs": True if hide_faqs else False,
+                        "content": content,
+                        "slug": slug if slug else None,
+                        "location_slug": full_slug if full_slug else None,
+                    })
+
+                if not created:
+                    messages.warning(request, "Course specialization already exists.")
+                    return redirect(self.get_redirect_url())
+
+                specialization_faq_objs = self.handle_faqs(request, specialization.company, specialization.slug)
+                specialization.faqs.set(specialization_faq_objs)
+
                 messages.success(request, "Success! Course specialization created.")
-                return redirect(self.get_success_url())
-
-            else:
-                messages.warning(request, "Course specialization already exists.")
+                return redirect(self.get_success_url())                
 
         except Http404:
             messages.error(request, "Invalid course program")                                    
@@ -4689,8 +4764,10 @@ class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
 
 class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
     model = Specialization
-    fields = ["name", "program"]
+    fields = ["name", "program", "starting_title", "slug", "ending_title", "content", "faqs", "description"]
     success_url = redirect_url = reverse_lazy("superadmin:home")
+    template_name = "education_company/specializations/edit.html"
+    context_object_name = "specialization"
 
     def get_success_url(self):
         try:
@@ -4710,6 +4787,7 @@ class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
         context = super().get_context_data(**kwargs)
         try:
             current_company = self.get_current_company()
+            context["course_specialization_page"] = True
             context["programs"] = Program.objects.filter(company = current_company).order_by("-updated")
         except Exception as e:
             logger.exception(f"Error in getting context data of UpdateCourseSpecializationView of superadmin app: {e}")
@@ -4723,38 +4801,104 @@ class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
             messages.error(self.request, "Invalid course specialization")
             return redirect(self.get_redirect_url())
 
+    def handle_faqs(self, request, company, specialization_slug):
+        try:
+            question_list = [question.strip() for question in request.POST.getlist("faq_question")]
+            answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
+
+            if len(question_list) != len(answer_list):
+                raise ValueError("The number of questions does not match the number of summaries.")
+
+            with transaction.atomic():
+                CourseSpecializationFaq.objects.filter(company = company, specialization_slug = specialization_slug).delete()
+                
+                if question_list and answer_list:
+                    creating_faqs = [CourseSpecializationFaq(
+                        company = company, specialization_slug = specialization_slug,
+                        question = question, answer = answer
+                        ) for question, answer in zip(question_list, answer_list) if question and answer]
+
+                    CourseSpecializationFaq.objects.bulk_create(creating_faqs)
+
+                    product_faqs = CourseSpecializationFaq.objects.filter(company = company, specialization_slug = specialization_slug)                
+                                            
+                    return product_faqs
+        except Exception as e:
+            logger.exception(f"Error in handle_faqs function of UpdateCourseSpecializationView: {e}")
+
+        return []
+
+
     def post(self, request, *args, **kwargs):
         try:
-            name = request.POST.get("name")
-            name = name.strip() if name else None
-
-            program_slug = request.POST.get("program")
-
-            if not program_slug or not name:
-                error_msg = "Name of course specialization is required."
-                if not program_slug:
-                    error_msg = "Course program is required."
-
-                messages.error(request, f"Failed! {error_msg}")
-                return redirect(self.get_redirect_url())
-            
-            program = get_object_or_404(Program, slug = program_slug)
-
             specialization = self.get_object()
-            
-            similar_specialization = self.model.objects.filter(
-                company = specialization.company, name = name, program = program
-                )
-            
-            if similar_specialization.exists() and similar_specialization.first() != specialization:
-                messages.warning(request, "Similar cours specialization already exists")
-                return redirect(self.get_redirect_url())
+            object_slug = specialization.slug or ""
 
-            specialization.name = name
-            specialization.program = program
-            specialization.save()
-            messages.success(request, "Success! Course specialization updated.")
-            return redirect(self.get_success_url())
+            name = clean_string(request.POST.get("name", ""))
+            program_slug = clean_string(request.POST.get("program", ""))
+            description = clean_string(request.POST.get("description", ""))
+            starting_title = clean_string(request.POST.get("starting_title", ""))
+            slug = clean_string(request.POST.get("slug", object_slug))
+            ending_title = clean_string(request.POST.get("ending_title", ""))
+            content = request.POST.get("content")            
+            hide_faqs = request.POST.get("hide_faqs")
+
+            required_fields = {
+                "Name": name,                
+                "Course Program": program_slug
+            }
+
+            for field_name, field_value in required_fields.items():
+                if not field_value:
+                    messages.error(request, f"Failed! {field_name} is required")
+                    return redirect(self.get_redirect_url())
+                
+            slug_list = [starting_title, slug, ending_title]
+
+            full_slug = slugify("-".join(filter(None, slug_list)))
+            
+            with transaction.atomic():
+                program = get_object_or_404(Program, slug = program_slug)
+
+                if self.model.objects.filter(
+                    company = specialization.company, name = name, program = program
+                    ).exclude(pk = specialization.pk).exists():
+
+                    messages.warning(request, "Failed! Similar course specialization already exists")
+                    return redirect(self.get_redirect_url())
+
+                slug = slugify(slug)
+
+                if slug != specialization.slug:
+                    
+                    if self.model.objects.filter(slug = slug).exclude(pk = specialization.pk).exists():
+                        messages.error(request, "Failed! Similar slug already exists for another course specialization.")
+                        return redirect(self.get_redirect_url())
+                    
+                    specialization.slug = slug
+
+                if full_slug != specialization.location_slug:                    
+                    if self.model.objects.filter(location_slug = full_slug).exclude(pk = specialization.pk).exists():
+                        messages.error(request, "Failed! Similar location slug already exists for another course specialization.")
+                        return redirect(self.get_redirect_url())
+
+                    specialization.location_slug = full_slug
+
+                specialization.name = name
+                specialization.program = program
+                specialization.description = description
+                specialization.starting_title = starting_title
+                specialization.ending_title = ending_title
+                specialization.hide_faqs = True if hide_faqs else False        
+                specialization.content = content
+
+                specialization.save()
+                
+                specialization_faq_objs = self.handle_faqs(request, specialization.company, specialization.slug)
+                specialization.faqs.set(specialization_faq_objs)
+
+                messages.success(request, "Success! Course specialization updated.")
+                return redirect(self.get_success_url())
 
         except Http404:
             messages.error(request, "Invalid course program")                                    
@@ -10283,7 +10427,6 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
             full_slug = slugify("-".join(filter(None, slug_list)))
             
             with transaction.atomic():
-
                 main_type = get_object_or_404(RegistrationType, slug = type_slug)
 
                 slug = slugify(slug)

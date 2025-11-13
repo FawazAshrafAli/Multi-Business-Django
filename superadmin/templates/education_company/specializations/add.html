@@ -1,0 +1,218 @@
+{% extends "admin_company/base/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block styles %}
+<style>
+    .add-button {
+        color: green;
+        background: #fff;
+        border: none;
+        box-shadow: 0 0 3px silver;
+        width: 50px;
+    }
+
+    .add-button:hover {
+        color: #fff;
+        background: linear-gradient(to bottom, lime, green, darkgreen);
+    }
+
+    .add-button:active {
+        background: darkgreen;
+    }
+
+    .remove-button {
+        color: red;
+        background: #fff;
+        border: none;
+        box-shadow: 0 0 3px silver;
+        width: 50px;
+    }
+
+    .remove-button:hover {
+        color: #fff;
+        background: linear-gradient(to bottom, darkred, red, darkred);
+    }
+
+    .cke_notifications_area {
+        display: none;
+    }
+
+    <link rel="stylesheet" href="{% static 'w3/css/chosen-style.css' %}">
+    <link rel="stylesheet" href="{% static 'w3/css/main-color.css' %}" id="colors">    
+</style>
+{% endblock styles %}
+    
+{% block company_content %}
+
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'superadmin:add_course_specialization' current_company.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-specialization-form" novalidate>
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0" > Add Course Specialization</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="name-input" >Name <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="name-input" placeholder="Name of Course Specializations" name="name" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="starting-title-input" >Starting Title (optional)</label>
+                                <input class="form-control" type="text" id="starting-title-input" placeholder="Starting Title (optional)" name="starting_title" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="ending-title-input" >Ending Title (optional)</label>
+                                <input class="form-control" type="text" id="ending-title-input" placeholder="Ending Title (optional)" name="ending_title" required>
+                            </div>  
+                            <div class="col-md-6 mb-3">
+                                <label for="product-program-dropdown">Course Program <span class="text-danger">*</span></label>
+                                <select class="form-control" id="program-dropdown" name="program" required>
+                                    <option value="" hidden disabled selected>Select Programs</option>
+                                    {% for program in programs %}
+                                    <option value="{{program.slug}}">{{program.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide a valid program.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>    
+                            <div class="col-md-6 mb-3">
+                                <label for="slug-input" >Slug (optional)</label>
+                                <input class="form-control" type="text" id="slug-input" placeholder="Slug (optional)" name="slug" required>
+                            </div>                         
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label class="col-form-label" for="product-type-dropdown">Description </label>
+                                <textarea class="form-control" name="description" id="description-input" placeholder="Description"></textarea>
+                            </div
+                        </div>      
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="content-input">Content <span class="text-danger">*</span></label>
+                                <textarea class="form-control" name="content" id="content-input" placeholder="Content"></textarea>
+                            </div>
+                        </div>            
+
+                        <div class="row">
+                            <div class="tasks__item crms-task-item active">
+                                <div class="accordion-header js-accordion-header">FAQs</div> 
+                                    <div class="accordion-body js-accordion-body">
+                                    <div class="accordion-body__contents" id="faq-main-div">
+                                        <div class="row">
+                                            <div class="col-md-12 mb-3 d-flex align-items-start justify-content-end">
+                                                <label for="hide-faqs">
+                                                    <input type="checkbox" class="form-control-checkbox" id="hide-faqs" name="hide_faqs" {% if specialization.hide_faqs %}checked{% endif %}>&nbsp;Hide FAQs
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="faq-div" id="faq-div">                                            
+                                            <div class="faq-inner-div">
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-3">
+                                                        <label>Question of FAQ 1 <span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" placeholder="Question of FAQ 1" name="faq_question" required>
+                                                    </div>    
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-3">
+                                                        <label >Answer of FAQ 1 <span class="text-danger">*</span></label>
+                                                        <textarea class="form-control" placeholder="Answer of FAQ 1" name="faq_answer" required></textarea>
+                                                    </div>            
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center" id="faq-btn-div">
+                                            <button class="add-button" id="add-faq-btn" type="button" style="width: fit-content;">Add Another Timeline</button>
+                                            <button class="remove-button" id="remove-faq-btn" type="button" style="width: fit-content;">Remove Timeline</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>                
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                </div>
+            </form>
+                
+		
+	<!-- /Content End -->
+	
+</div>
+<!-- /Page Content -->
+				
+{% endblock company_content %}
+
+{% block scripts %}
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+
+<script>
+    $(document).ready(function () {
+        CKEDITOR.replace('content-input'); 
+        setTimeout(function () {
+            if (CKEDITOR.instances['id_content']) {
+                CKEDITOR.instances['id_content'].destroy(true);
+            }
+            CKEDITOR.replace('id_content');            
+        }, 0);
+    })
+
+    // Add New FAQ
+    $('#add-faq-btn').click(function () {
+        let faqCount = $('.faq-inner-div').length;
+
+        faqCount++;
+        
+        $('#faq-div').append(`
+            <div class="faq-inner-div">
+                <hr>
+                <br>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label>Question of FAQ ${faqCount} <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" placeholder="Question of FAQ ${faqCount}" name="faq_question" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label >Answer of FAQ ${faqCount} <span class="text-danger">*</span></label>
+                        <textarea class="form-control" placeholder="Answer of FAQ ${faqCount}" name="faq_answer" required></textarea>
+                    </div>            
+                </div>
+            </div>
+        `);            
+    });
+
+    // Remove FAQ
+    $(document).on('click', '#remove-faq-btn', function () {
+        const faqCount = $('.faq-inner-div').length;
+        
+        if (faqCount > 1) {
+            const faq = $('.faq-inner-div').last();
+            faq.remove();
+        }
+    });
+    
+    // Visibility of faq's remove faq btn
+    $(document).on('click', '#add-faq-btn, #remove-faq-btn', function () {
+        const faqCount = $('.faq-inner-div').length;
+
+        if (faqCount > 1) {
+            $('#remove-faq-btn').show();                
+        } else {
+            $('#remove-faq-btn').hide();
+        }
+    });
+
+</script>
+{% endblock scripts %}
