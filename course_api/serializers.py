@@ -350,6 +350,10 @@ class SpecializationSerializer(serializers.ModelSerializer):
     program_slug = serializers.CharField(source="program.slug", read_only=True)
     image_url = serializers.SerializerMethodField()
     url = serializers.CharField(source="computed_url", read_only=True)
+    price = serializers.SerializerMethodField()
+    mode = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
+    company_name = serializers.CharField(source="company.name", read_only=True)
 
     class Meta:
         model = Specialization
@@ -357,10 +361,38 @@ class SpecializationSerializer(serializers.ModelSerializer):
             "id","name", "slug", "program", 
             "updated", "image_url", "updated",
             "program_name", "program_slug",
-            "url"
+            "url", "price", "company_name",
+            "mode", "duration"
             ]
 
     read_only_fields = "__all__"
+
+    def get_price(self, obj):
+        if hasattr(obj, "courses"):
+            course_obj = obj.courses.filter(price__isnull = False).first()
+
+            if course_obj and course_obj.price:
+                return course_obj.price
+
+        return None
+    
+    def get_mode(self, obj):
+        if hasattr(obj, "courses"):
+            course_obj = obj.courses.filter(mode__isnull = False).first()
+
+            if course_obj and course_obj.mode:
+                return course_obj.mode
+
+        return None
+    
+    def get_duration(self, obj):
+        if hasattr(obj, "courses"):
+            course_obj = obj.courses.filter(duration__isnull = False).first()
+
+            if course_obj and course_obj.duration:
+                return course_obj.duration
+
+        return None
 
     def get_image_url(self, obj):
         request = self.context.get('request')

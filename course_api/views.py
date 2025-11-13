@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 # Django Libraries
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.db.models import Count
 import logging
 
 # Model Imports
@@ -86,7 +87,9 @@ class SpecializationViewset(viewsets.ModelViewSet):
             if program_slug:
                 filters["program__slug"] = program_slug
 
-            return Specialization.objects.filter(
+            return Specialization.objects.annotate(count = Count("courses")).filter(
+                count__gt = 0
+            ).filter(
                 **filters
                 ).select_related(
                     "company", "program"
