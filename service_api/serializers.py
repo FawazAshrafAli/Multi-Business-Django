@@ -70,7 +70,8 @@ class ServiceListSerializer(serializers.ModelSerializer):
         model = Service
         fields = ["id",
             "name", "image_url", "category_name", 
-            "price", "slug", "sub_category_name",            
+            "price", "slug", "sub_category_name",
+            "duration"        
             ]
 
         read_only_fields = fields
@@ -349,12 +350,13 @@ class MiniDetailSerializer(serializers.ModelSerializer):
 
 class DetailListSerializer(serializers.ModelSerializer):
     company_slug = serializers.CharField(source="company.slug", read_only=True)
+    company_name = serializers.CharField(source="company.name", read_only=True)
     url = serializers.CharField(source="computed_url", read_only=True)
     service = ServiceListSerializer()
 
     class Meta:
         model = ServiceDetail
-        fields = ["id", "company_slug",
+        fields = ["id", "company_slug", "company_name",
             "meta_title", "meta_description",
             "summary", "service", "slug",
             "url",

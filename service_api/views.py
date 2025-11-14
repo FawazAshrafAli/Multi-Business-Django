@@ -70,6 +70,7 @@ class SubCategoryViewset(viewsets.ModelViewSet):
     def get_queryset(self):
         slug = self.kwargs.get("company_slug")
         category_slug = self.request.query_params.get("category")
+        location_slug = self.request.query_params.get("location_slug")
 
         if slug:
             filters = {}
@@ -78,7 +79,10 @@ class SubCategoryViewset(viewsets.ModelViewSet):
                 filters = {"company__slug": slug}
 
             if category_slug:
-                filters["category__slug"] = category_slug            
+                filters["category__slug"] = category_slug
+
+            if location_slug:
+                filters["location_slug"] = location_slug       
 
             return SubCategory.objects.annotate(count = Count("services")).filter(
                 **filters
