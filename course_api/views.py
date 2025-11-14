@@ -77,6 +77,7 @@ class SpecializationViewset(viewsets.ModelViewSet):
     def get_queryset(self):
         company_slug = self.kwargs.get("company_slug")
         program_slug = self.request.query_params.get("program")
+        location_slug = self.request.query_params.get("location_slug")
     
         if company_slug:
             filters = {}
@@ -87,12 +88,15 @@ class SpecializationViewset(viewsets.ModelViewSet):
             if program_slug:
                 filters["program__slug"] = program_slug
 
+            if location_slug:
+                filters["location_slug"] = location_slug
+
             return Specialization.objects.annotate(count = Count("courses")).filter(
-                count__gt = 0
-            ).filter(
                 **filters
+                ).filter(
+                    count__gt = 0
                 ).select_related(
-                    "company", "program"
+                        "company", "program"
                 ).order_by("?")
         
         return Specialization.objects.none()
@@ -279,8 +283,9 @@ class DetailListViewSet(viewsets.ReadOnlyModelViewSet):
             if slug != "all":
                 filters["company__slug"] = slug
 
-            queryset = queryset.filter(**filters)
 
+            queryset = queryset.filter(**filters)
+        
         return queryset.select_related(
                 "company", "course"
             )

@@ -180,13 +180,14 @@ class MiniCourseDetailSerializer(serializers.ModelSerializer):
 
 class DetailListSerializer(serializers.ModelSerializer):
     company_slug = serializers.CharField(source="company.slug", read_only = True)
+    company_name = serializers.CharField(source="company.name", read_only = True)
     course = CourseSerializer()
     url = serializers.CharField(read_only=True, source = "computed_url")
 
     class Meta:
         model = CourseDetail
         fields = ["id",
-            "meta_title", "meta_description", "company_slug",
+            "meta_title", "meta_description", "company_slug", "company_name",
             "summary", "course", "slug",
             "published", "url",             
             ]    
@@ -354,6 +355,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
     mode = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
     company_name = serializers.CharField(source="company.name", read_only=True)
+    company_slug = serializers.CharField(source="company.slug", read_only=True)
     faqs = serializers.SerializerMethodField()
 
     class Meta:
@@ -362,7 +364,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
             "id","name", "slug", "program", 
             "updated", "image_url", "updated",
             "program_name", "program_slug",
-            "url", "price", "company_name",
+            "url", "price", "company_name", "company_slug",
             "mode", "duration", "faqs",
             "starting_title", "ending_title", "content",
             "location_slug", "hide_faqs"
