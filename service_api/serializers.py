@@ -183,15 +183,29 @@ class SubCategorySerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.name", read_only=True)
     category_slug = serializers.CharField(source="category.slug", read_only=True)
     url = serializers.CharField(source="computed_url", read_only=True)
+    company_name = serializers.CharField(source="company.name", read_only=True)
+    price = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
+    faqs = serializers.SerializerMethodField()
 
     class Meta:
         model = SubCategory
         fields = ["id",
             "name", "slug", "updated", "image_url", "category_name", 
-            "category_slug", "url"
+            "category_slug", "url", "company_name", "price",
+            "duration", "starting_title", "ending_title", "content",
+            "faqs", "location_slug"
             ]
 
-    read_only_fields = "__all__"    
+    read_only_fields = "__all__"  
+
+    def get_faqs(self, obj):
+        if obj.faqs:
+            faqs = list(obj.faqs.values_list("question", "answer"))  
+            
+            return faqs
+        
+        return None
 
     def get_image_url(self, obj):
         request = self.context.get('request')
@@ -203,6 +217,24 @@ class SubCategorySerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(service.image.url)
             return f"{settings.SITE_URL}{service.image.url}"
         
+        return None
+
+    def get_price(self, obj):
+        if hasattr(obj, "services"):
+            service_obj = obj.services.filter(price__isnull = False).first()
+
+            if service_obj and service_obj.price:
+                return service_obj.price
+
+        return None
+    
+    def get_duration(self, obj):
+        if hasattr(obj, "services"):
+            service_obj = obj.services.filter(duration__isnull = False).first()
+
+            if service_obj and service_obj.duration:
+                return service_obj.duration
+
         return None
     
     

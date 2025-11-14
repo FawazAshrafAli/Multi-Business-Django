@@ -3,6 +3,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from django.http import Http404
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 
 from .serializers import (
@@ -79,8 +80,10 @@ class SubCategoryViewset(viewsets.ModelViewSet):
             if category_slug:
                 filters["category__slug"] = category_slug            
 
-            return SubCategory.objects.filter(
+            return SubCategory.objects.annotate(count = Count("services")).filter(
                 **filters
+                ).filter(
+                    count__gt = 0
                 ).select_related(
                     "company", "category"
                 ).order_by("-updated")
