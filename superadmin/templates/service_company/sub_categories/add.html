@@ -46,17 +46,17 @@
 {% block company_content %}
 
         <div class="col-lg-12">
-            <form method="post" action="{% url 'superadmin:add_registration_sub_types' current_company.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-sub-type-form" novalidate>
+            <form method="post" action="{% url 'superadmin:add_service_sub_category' current_company.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-sub-category-form" novalidate>
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title mb-0" > Add Registration Sub Type</h4>
+                        <h4 class="card-title mb-0" > Add Service Sub Category</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="name-input" >Name <span class="text-danger">*</span></label>
-                                <input class="form-control" type="text" id="name-input" placeholder="Name of Registration Sub Types" name="name" required>
+                                <input class="form-control" type="text" id="name-input" placeholder="Name of Service Sub Category" name="name" required>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="starting-title-input" >Starting Title (optional)</label>
@@ -67,15 +67,15 @@
                                 <input class="form-control" type="text" id="ending-title-input" placeholder="Ending Title (optional)" name="ending_title" required>
                             </div>  
                             <div class="col-md-6 mb-3">
-                                <label for="product-type-dropdown">Registration Type <span class="text-danger">*</span></label>
-                                <select class="form-control" id="type-dropdown" name="type" required>
-                                    <option value="" hidden disabled selected>Select Types</option>
-                                    {% for type in types %}
-                                    <option value="{{type.slug}}">{{type.name}}</option>
+                                <label for="product-category-dropdown">Service Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="type-dropdown" name="category" required>
+                                    <option value="" hidden disabled selected>Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.slug}}">{{category.name}}</option>
                                     {% endfor %}
                                 </select>
                                 <div class="invalid-feedback">
-                                    Please provide a valid type.
+                                    Please provide a valid category.
                                 </div>
                                 <div class="valid-feedback">
                                     Looks good!
@@ -89,7 +89,7 @@
 
                         <div class="form-group row">
                             <div class="col-md-12">
-                                <label class="col-form-label" for="product-type-dropdown">Description </label>
+                                <label class="col-form-label" for="product-category-dropdown">Description </label>
                                 <textarea class="form-control" name="description" id="description-input" placeholder="Description"></textarea>
                             </div
                         </div>      

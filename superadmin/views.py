@@ -68,7 +68,7 @@ from service.models import (
     Faq as ServiceFaq, ServiceDetail, Feature as ServiceFeature,
     VerticalTab as ServiceVerticalTab, VerticalBullet as ServiceVerticalBullet, HorizontalTab as ServiceHorizontalTab,
     HorizontalBullet as ServiceHorizontalBullet, TableData as ServiceTableData, Table as ServiceTable,
-    BulletPoints as ServiceBulletPoint, Timeline as ServiceTimeline,
+    BulletPoints as ServiceBulletPoint, Timeline as ServiceTimeline, SubCategoryFaq as ServiceSubCategoryFaq,
 
     TextEditor as ServiceTextEditor,
 
@@ -7668,7 +7668,7 @@ class ListServiceSubCategoryView(BaseServiceCompanyView, ListView):
 
     def get_queryset(self):
         try:
-            return self.model.objects.filter(company__slug = self.kwargs.get('slug'))
+            return self.model.objects.filter(company__slug = self.kwargs.get('slug')).order_by("-updated")
         except Exception as e:
             logger.exception(f"Error in fetching queryset of list service sub category view of superadmin: {e}")
             return self.queryset
@@ -7698,7 +7698,7 @@ class ListServiceEnquiryView(BaseServiceCompanyView, ListView):
 
     def get_queryset(self):
         try:
-            return self.model.objects.filter(company__slug = self.kwargs.get('slug'))
+            return self.model.objects.filter(company__slug = self.kwargs.get('slug')).order_by("-updated")
         except Exception as e:
             logger.exception(f"Error in fetching queryset of ListServiceEnquiryView of superadmin: {e}")
             return self.queryset
@@ -7720,8 +7720,12 @@ class ListServiceEnquiryView(BaseServiceCompanyView, ListView):
 
 class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
     model = ServiceSubCategory
-    fields = ["name", "category"]
+    fields = [
+        "name", "category", "description", "starting_title", "ending_title",
+        "location_slug", "slug", "content", "hide_faqs"
+        ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
+    template_name = "service_company/sub_categories/add.html"
 
     def get_success_url(self):        
         return reverse_lazy("superadmin:service_sub_categories", kwargs = {"slug": self.kwargs.get("slug")})
@@ -7729,32 +7733,105 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
     def get_redirect_url(self):
         return self.get_success_url()    
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        current_company = self.get_current_company()
+
+        context["service_sub_category_page"] = True
+        context["categories"] = ServiceCategory.objects.filter(company = current_company).order_by("name")
+
+        return context
+
+    def handle_faqs(self, request, company, sub_category_slug):
+        try:
+            question_list = [question.strip() for question in request.POST.getlist("faq_question")]
+            answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
+
+            if len(question_list) != len(answer_list):
+                raise ValueError("The number of questions does not match the number of summaries.")
+
+            with transaction.atomic():
+                ServiceSubCategoryFaq.objects.filter(company = company, sub_category_slug = sub_category_slug).delete()
+                
+                if question_list and answer_list:
+                    creating_faqs = [ServiceSubCategoryFaq(
+                        company = company, sub_category_slug = sub_category_slug,
+                        question = question, answer = answer
+                        ) for question, answer in zip(question_list, answer_list) if question and answer]
+
+                    ServiceSubCategoryFaq.objects.bulk_create(creating_faqs)
+
+                    service_faqs = ServiceSubCategoryFaq.objects.filter(company = company, sub_category_slug = sub_category_slug)                
+                                            
+                    return service_faqs
+        except Exception as e:
+            logger.exception(f"Error in handle_faqs function of BaseServiceSubCategoryView: {e}")
+
+        return [] 
+
     def post(self, request, *args, **kwargs):
         try:
-            current_company = get_object_or_404(Company, slug = self.kwargs.get('slug'))
-            name = request.POST.get("name")
-            name = name.strip() if name else None
-
-            category_slug = request.POST.get("category")
-
-            if not category_slug or not name:
-                error_msg = "Name of service sub category is required."
-                if not category_slug:
-                    error_msg = "Service category is required."
-
-                messages.error(request, f"Failed! {error_msg}")
-                return redirect(self.get_redirect_url())
+            current_company = self.get_current_company()
             
-            category = get_object_or_404(ServiceCategory, slug = category_slug)
-            
-            sub_category, created = self.model.objects.get_or_create(company = current_company, name = name, category = category)
+            name = clean_string(request.POST.get("name", ""))
+            category_slug = clean_string(request.POST.get("category", ""))
+            description = clean_string(request.POST.get("description", ""))
+            starting_title = clean_string(request.POST.get("starting_title", ""))
+            slug = clean_string(request.POST.get("slug", ""))
+            ending_title = clean_string(request.POST.get("ending_title", ""))
+            content = request.POST.get("content")
+            hide_faqs = request.POST.get("hide_faqs")
 
-            if created:
+            required_fields = {
+                "Name": name,
+                "Registration Category": category_slug
+            }
+
+            for field_name, field_value in required_fields.items():
+                if not field_value:
+                    messages.error(request, f"Failed! {field_name} is required")
+                    return redirect(self.get_redirect_url())
+
+            slug_list = [starting_title, slug, ending_title]
+
+            full_slug = slugify("-".join(filter(None, slug_list)))
+            
+            with transaction.atomic():
+                category = get_object_or_404(ServiceCategory, slug = category_slug)
+
+                slug = slugify(slug)
+
+                if self.model.objects.filter(slug = slug).exists():
+                    messages.error(request, "Failed! Similar slug already exists for another service sub category.")
+                    return redirect(self.get_redirect_url())
+
+                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
+                        messages.error(request, "Failed! Similar location slug already exists for another service sub category.")
+                        return redirect(self.get_redirect_url())
+                
+                sub_category, created = self.model.objects.get_or_create(
+                    company = current_company, name = name, 
+                    category = category, 
+                    defaults={
+                        "description": description,
+                        "starting_title": starting_title,
+                        "ending_title": ending_title,
+                        "hide_faqs": True if hide_faqs else False,
+                        "content": content,
+                        "slug": slug if slug else None,
+                        "location_slug": full_slug if full_slug else None,
+                    })
+
+                if not created:
+                    messages.warning(request, "Service sub category already exists.")
+                    return redirect(self.get_redirect_url())
+                
+                sub_category_faq_objs = self.handle_faqs(request, sub_category.company, sub_category.slug)
+                sub_category.faqs.set(sub_category_faq_objs)
+
                 messages.success(request, "Success! Service sub category created.")
                 return redirect(self.get_success_url())
-
-            else:
-                messages.warning(request, "Service sub category already exists.")
 
         except Http404:
             messages.error(request, "Invalid service category")                                    
@@ -7768,8 +7845,50 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
 
 class UpdateServiceSubCategoryView(BaseServiceCompanyView, UpdateView):
     model = ServiceSubCategory
-    fields = ["name", "category"]
+    fields = [
+        "name", "category", "description", "starting_title", "ending_title",
+        "location_slug", "slug", "content", "hide_faqs"
+        ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
+    template_name = "service_company/sub_categories/edit.html"
+    context_object_name = "sub_category"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        current_company = self.get_current_company()
+
+        context["service_sub_category_page"] = True
+        context["categories"] = ServiceCategory.objects.filter(company = current_company).order_by("name")
+
+        return context
+
+    def handle_faqs(self, request, company, sub_category_slug):
+        try:
+            question_list = [question.strip() for question in request.POST.getlist("faq_question")]
+            answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
+
+            if len(question_list) != len(answer_list):
+                raise ValueError("The number of questions does not match the number of summaries.")
+
+            with transaction.atomic():
+                ServiceSubCategoryFaq.objects.filter(company = company, sub_category_slug = sub_category_slug).delete()
+                
+                if question_list and answer_list:
+                    creating_faqs = [ServiceSubCategoryFaq(
+                        company = company, sub_category_slug = sub_category_slug,
+                        question = question, answer = answer
+                        ) for question, answer in zip(question_list, answer_list) if question and answer]
+
+                    ServiceSubCategoryFaq.objects.bulk_create(creating_faqs)
+
+                    service_faqs = ServiceSubCategoryFaq.objects.filter(company = company, sub_category_slug = sub_category_slug)                
+                                            
+                    return service_faqs
+        except Exception as e:
+            logger.exception(f"Error in handle_faqs function of UpdateServiceSubCategoryView: {e}")
+
+        return []
 
     def get_success_url(self):
         try:  
@@ -7796,36 +7915,74 @@ class UpdateServiceSubCategoryView(BaseServiceCompanyView, UpdateView):
 
     def post(self, request, *args, **kwargs):
         try:
-            name = request.POST.get("name")
-            name = name.strip() if name else None
-
-            category_slug = request.POST.get("category")
-
-            if not category_slug or not name:
-                error_msg = "Name of service sub category is required."
-                if not category_slug:
-                    error_msg = "Service category is required."
-
-                messages.error(request, f"Failed! {error_msg}")
-                return redirect(self.get_redirect_url())
-            
-            category = get_object_or_404(ServiceCategory, slug = category_slug)
-            
             sub_category = self.get_object()
+            object_slug = sub_category.slug or ""
+        
+            name = clean_string(request.POST.get("name", ""))
+            category_slug = clean_string(request.POST.get("category", ""))
+            description = clean_string(request.POST.get("description", ""))
+            starting_title = clean_string(request.POST.get("starting_title", ""))
+            slug = clean_string(request.POST.get("slug", object_slug))
+            ending_title = clean_string(request.POST.get("ending_title", ""))
+            content = request.POST.get("content")            
+            hide_faqs = request.POST.get("hide_faqs")
 
-            updating_name = name if name else sub_category.name
-            updating_category = category if category else sub_category.category
-            
-            if self.model.objects.filter(company = sub_category.company, name = updating_name, category = updating_category).exists():
-                messages.warning(request, "Sub category with the given data already exists")
-                return redirect(self.get_redirect_url())
-            
-            sub_category.name = updating_name
-            sub_category.category = updating_category
-            sub_category.save()
+            required_fields = {
+                "Name": name,                
+                "Product Category": category_slug
+            }
 
-            messages.success(request, "Success! Service sub category updated.")
-            return redirect(self.get_success_url())                                                       
+            for field_name, field_value in required_fields.items():
+                if not field_value:
+                    messages.error(request, f"Failed! {field_name} is required")
+                    return redirect(self.get_redirect_url())
+            
+            slug_list = [starting_title, slug, ending_title]
+
+            full_slug = slugify("-".join(filter(None, slug_list)))
+            
+            with transaction.atomic():
+                category = get_object_or_404(ServiceCategory, slug = category_slug)                
+                
+                if self.model.objects.filter(
+                    company = sub_category.company, name = name, category = category
+                    ).exclude(pk = sub_category.pk).exists():
+                    
+                    messages.error(request, "Failed! Similar sub category already exists.")
+                    return redirect(self.get_redirect_url())
+                
+                slug = slugify(slug)
+
+                if slug != sub_category.slug:
+                    
+                    if self.model.objects.filter(slug = slug).exclude(pk = sub_category.pk).exists():
+                        messages.error(request, "Failed! Similar slug already exists for another service sub category.")
+                        return redirect(self.get_redirect_url())
+                    
+                    sub_category.slug = slug
+
+                if full_slug != sub_category.location_slug:                    
+                    if self.model.objects.filter(location_slug = full_slug).exclude(pk = sub_category.pk).exists():
+                        messages.error(request, "Failed! Similar location slug already exists for another service sub category.")
+                        return redirect(self.get_redirect_url())
+
+                    sub_category.location_slug = full_slug
+                
+                sub_category.name = name
+                sub_category.category = category
+                sub_category.description = description
+                sub_category.starting_title = starting_title
+                sub_category.ending_title = ending_title
+                sub_category.hide_faqs = True if hide_faqs else False        
+                sub_category.content = content
+
+                sub_category.save()
+
+                sub_category_faq_objs = self.handle_faqs(request, sub_category.company, sub_category.slug)
+                sub_category.faqs.set(sub_category_faq_objs)
+
+                messages.success(request, "Success! Service sub category updated.")
+                return redirect(self.get_success_url())
         
         except Exception as e:
             logger.exception(f"Error in updating service sub category by superadmin: {e}")

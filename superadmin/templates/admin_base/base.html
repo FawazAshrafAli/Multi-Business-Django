@@ -386,7 +386,7 @@
 									{% elif service_category_page %}
 									<li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add_service_category_modal">Add Service Category</a></li>
 									{% elif service_sub_category_page %}
-									<li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add_service_sub_category_modal">Add Service Sub Category</a></li>
+									<li><a href="{% url 'superadmin:add_service_sub_category' current_company.slug %}">Add Service Sub Category</a></li>
 									{% elif service_detail_page %}
 									<li><a {% if add_service_detail_page %}class="active"{% endif %} href="{% url 'superadmin:add_service_details' current_company.slug %}">Add Service Detail</a></li>
 									{% elif product_detail_page %}
