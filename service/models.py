@@ -47,12 +47,59 @@ class Category(models.Model):
     @property
     def detail_pages(self):
         return ServiceDetail.objects.filter(service__category = self).values("service__name", "slug")
+    
+
+class SubCategoryFaq(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    sub_category_slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
+
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+
+    slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(f"{self.sub_category_slug}")
+            slug = base_slug
+
+            count = 1
+            while SubCategoryFaq.objects.filter(slug = slug).exists():
+                slug = f"{base_slug}{count}"
+                count += 1
+
+            self.slug = slug
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.sub_category_slug}-{self.company.name}"
+    
+    class Meta:
+        db_table = "service_sub_faqs"
+        ordering = ["created"]
+
 
 class SubCategory(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="service_sub_categories")
 
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    description = models.TextField(null=True, blank=True)
+
+    starting_title = models.CharField(max_length=255, null=True, blank=True)
+    ending_title = models.CharField(max_length=255, null=True, blank=True)
+
+    location_slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
+
+    content = models.TextField(blank=True, null=True)
+
+    faqs = models.ManyToManyField(SubCategoryFaq)
+    hide_faqs = models.BooleanField(default=False)
+
     slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
 
     created = models.DateTimeField(auto_now_add=True)
