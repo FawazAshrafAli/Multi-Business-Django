@@ -117,12 +117,14 @@ class MiniProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
     rating = serializers.SerializerMethodField()
     rating_count = serializers.SerializerMethodField()
+    company_name = serializers.CharField(source = "company.name", read_only = True)
 
     class Meta:
         model = Product
         fields = ["id",
             "name", "image_url", "price", "category_name", "rating", 
-            "rating_count", "reviews", "sku", "brand_name", "description"
+            "rating_count", "reviews", "sku", "brand_name", "description",
+            "company_name", "stock"
             ]        
 
     def get_rating(self, obj):
@@ -421,6 +423,7 @@ class MultiPageSerializer(serializers.ModelSerializer):
     rating_count = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
     published = serializers.SerializerMethodField()
+    company_slug = serializers.CharField(source = "company.slug", read_only=True)
 
     class Meta:
         model = MultiPage
@@ -431,7 +434,7 @@ class MultiPageSerializer(serializers.ModelSerializer):
             "toc", "timeline_title", "hide_support_languages",
             "faqs", "rating", "rating_count", "reviews",
             "meta_title", "created", "updated", "published", "url_type",
-            "sub_title", 
+            "sub_title", "company_slug"
             ]
         
         
