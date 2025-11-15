@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Avg
 from django.conf import settings
 
 from utility.text import clean_string
@@ -65,16 +66,26 @@ class ServiceListSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.name", read_only = True)
     sub_category_name = serializers.CharField(source="sub_category.name", read_only = True)
     image_url = serializers.SerializerMethodField()
+    testimonials = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Service
         fields = ["id",
             "name", "image_url", "category_name", 
             "price", "slug", "sub_category_name",
-            "duration"        
+            "duration", "testimonials", "rating"    
             ]
 
         read_only_fields = fields
+
+    def get_rating(self, obj):
+        if not obj.company:
+            return 0
+        
+        testimonials = obj.company.testimonials.values_list("rating", flat=True)
+
+        return testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0    
     
     def get_image_url(self, obj):
         request = self.context.get('request')
@@ -85,6 +96,15 @@ class ServiceListSerializer(serializers.ModelSerializer):
         
         return None
     
+    def get_testimonials(self, obj):
+        if not obj:
+            return None
+        
+        testimonials = Testimonial.objects.filter(company = obj.company)
+
+        serializer = TestimonialSerializer(testimonials, many=True)
+
+        return serializer.data 
 
 class ServiceSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
@@ -188,6 +208,8 @@ class SubCategorySerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
     faqs = serializers.SerializerMethodField()
+    company_contact = serializers.CharField(source="company.phone1", read_only=True)  
+    company_logo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = SubCategory
@@ -195,18 +217,31 @@ class SubCategorySerializer(serializers.ModelSerializer):
             "name", "slug", "updated", "image_url", "category_name", 
             "category_slug", "url", "company_name", "price",
             "duration", "starting_title", "ending_title", "content",
-            "faqs", "location_slug"
+            "faqs", "location_slug", "description", "company_contact",
+            "company_logo_url"
             ]
 
     read_only_fields = "__all__"  
 
     def get_faqs(self, obj):
         if obj.faqs:
-            faqs = list(obj.faqs.values_list("question", "answer"))  
-            
+            faqs = list(obj.faqs.values("question", "answer"))
+
             return faqs
         
         return None
+    
+    def get_company_logo_url(self, obj):
+        if not hasattr(obj, "company"):
+            return None
+        
+        company = obj.company
+
+        request = self.context.get('request')
+        if hasattr(company.logo, 'url'):
+            if request is not None:
+                return request.build_absolute_uri(company.logo.url)
+            return f"{settings.SITE_URL}{company.logo.url}"
 
     def get_image_url(self, obj):
         request = self.context.get('request')
@@ -353,14 +388,25 @@ class DetailListSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source="company.name", read_only=True)
     url = serializers.CharField(source="computed_url", read_only=True)
     service = ServiceListSerializer()
+    company_contact = serializers.CharField(source="company.phone1", read_only=True)  
+    company_logo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ServiceDetail
         fields = ["id", "company_slug", "company_name",
             "meta_title", "meta_description",
             "summary", "service", "slug",
-            "url",
+            "url", "company_contact", "company_logo_url"
         ]
+
+    def get_company_logo_url(self, obj):
+        request = self.context.get('request')
+        if obj.company and hasattr(obj.company, 'logo') and hasattr(obj.company.logo, 'url'):
+            if request is not None:
+                return request.build_absolute_uri(obj.company.logo.url)
+            return f"{settings.SITE_URL}{obj.company.logo.url}"
+        
+        return None 
 
 class DetailSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source="service.name", read_only=True)
