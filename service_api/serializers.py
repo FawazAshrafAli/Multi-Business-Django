@@ -16,7 +16,7 @@ from service.models import (
 from locations.models import UniqueState
 from company.models import Testimonial
 
-from company_api.serializers import CompanySerializer, TestimonialSerializer
+from company_api.serializers import TestimonialSerializer
 from meta_api.serializers import MetaTagSerializer
 
 class FaqSerializer(serializers.ModelSerializer):
@@ -629,6 +629,8 @@ class MultipageSerializer(serializers.ModelSerializer):
     price = serializers.CharField(source = "service.price", read_only=True)    
 
     slider_services = MiniDetailSerializer(many=True)
+    duration = serializers.CharField(source = "service.duration", read_only=True)
+    category_name = serializers.CharField(source = "service.category.name", read_only=True)
 
     class Meta:
         model = MultiPage
@@ -643,7 +645,8 @@ class MultipageSerializer(serializers.ModelSerializer):
             "faqs", "meta_tags", "published",
             "modified", "meta_description", "company_slug", "url_type",
             "rating", "rating_count", "company_name",
-            "sub_title", "meta_title", "text_editors"
+            "sub_title", "meta_title", "text_editors", "duration",
+            "category_name"
             ]
         
         read_only = fields        
