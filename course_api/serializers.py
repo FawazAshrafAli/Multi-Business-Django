@@ -511,6 +511,8 @@ class MultiPageSerializer(serializers.ModelSerializer):
     timelines = MultipageTimelineSerializer(many=True, read_only=True)
     text_editors = TextEditorSerializer(many=True, read_only=True)
 
+    company_name = serializers.CharField(source="company.name", read_only=True)
+
     class Meta:
         model = MultiPage
         fields = ["id", "image_url",
@@ -527,7 +529,7 @@ class MultiPageSerializer(serializers.ModelSerializer):
             "hide_vertical_tab", "hide_horizontal_tab", "hide_table",
             "hide_bullets", "hide_timeline", "hide_support_languages",
             "published", "modified", "sub_title", "updated", 
-            "created"
+            "created", "company_name"
             ]
         
     read_only_fields = "__all___"
