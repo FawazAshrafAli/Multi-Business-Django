@@ -243,7 +243,7 @@ class RegistrationListSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     sub_type  = SubTypeSerializer()
     image_url = serializers.SerializerMethodField()
-    rating = serializers.SerializerMethodField()  
+    rating = serializers.SerializerMethodField() 
 
     class Meta:
         model = Registration
