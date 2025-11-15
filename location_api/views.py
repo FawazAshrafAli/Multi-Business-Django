@@ -314,7 +314,8 @@ class StateCourseMultiPageViewSet(ReadOnlyModelViewSet):
 
         place_slug = self.request.query_params.get("place_slug")
         state_slug = self.request.query_params.get("state_slug")
-        district_slug = self.request.query_params.get("district_slug")        
+        district_slug = self.request.query_params.get("district_slug")
+        specialization_slug = self.request.query_params.get("specialization")
 
         if not slug:
             from rest_framework.exceptions import ValidationError
@@ -350,14 +351,19 @@ class StateCourseMultiPageViewSet(ReadOnlyModelViewSet):
         else:
             state = get_object_or_404(UniqueState, slug=slug)
 
-        if state_slug and state_slug != state.slug:
+        if state_slug and state_slug != state.slug:            
             return MultiPage.objects.none()
 
         if district_slug and district_slug != district.slug:
             return MultiPage.objects.none()
+        
+        filters = {"available_states": state}
+
+        if specialization_slug:
+            filters["course__specialization__slug"] = specialization_slug
 
         return MultiPage.objects.filter(
-            available_states=state
+            **filters
             ).select_related(
                 "company", "course", "course__program",
                 "course__specialization"
@@ -386,7 +392,7 @@ class StateRegistrationMultiPageViewSet(ReadOnlyModelViewSet):
         place_slug = self.request.query_params.get("place_slug")
         state_slug = self.request.query_params.get("state_slug")
         district_slug = self.request.query_params.get("district_slug")
-        sub_type = self.request.query_params.get("sub_type")
+        sub_type_slug = self.request.query_params.get("sub_type")
 
         if not slug:
             from rest_framework.exceptions import ValidationError
@@ -432,8 +438,8 @@ class StateRegistrationMultiPageViewSet(ReadOnlyModelViewSet):
             "available_states": state
         }
 
-        if sub_type:
-            filters["registration__sub_type__slug"] = sub_type
+        if sub_type_slug:
+            filters["registration__sub_type__slug"] = sub_type_slug
 
         return RegistrationMultiPage.objects.filter(
             **filters
@@ -464,7 +470,8 @@ class StateProductMultiPageViewSet(ReadOnlyModelViewSet):
         
         place_slug = self.request.query_params.get("place_slug")
         state_slug = self.request.query_params.get("state_slug")
-        district_slug = self.request.query_params.get("district_slug")        
+        district_slug = self.request.query_params.get("district_slug")
+        sub_category_slug = self.request.query_params.get("sub_category")
 
         if not slug:
             from rest_framework.exceptions import ValidationError
@@ -501,8 +508,15 @@ class StateProductMultiPageViewSet(ReadOnlyModelViewSet):
 
         if district_slug and district_slug != district.slug:
             return ProductMultiPage.objects.none()
+        
+        filters = {"available_states": state}
 
-        return ProductMultiPage.objects.filter(available_states=state).select_related(
+        if sub_category_slug:
+            filters["products__sub_category__slug"] = sub_category_slug
+
+        return ProductMultiPage.objects.filter(
+            **filters
+        ).select_related(
             "company"
         ).prefetch_related(
             "products",
@@ -623,6 +637,8 @@ class StateServiceMultiPageViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         slug = self.kwargs.get("state_slug")
 
+        sub_category_slug = self.request.query_params.get("sub_category")
+
         if not slug:
             from rest_framework.exceptions import ValidationError
             raise ValidationError({"detail": "Slug was not provided"})
@@ -646,8 +662,13 @@ class StateServiceMultiPageViewSet(ReadOnlyModelViewSet):
 
         state = get_object_or_404(UniqueState, slug=slug)
 
+        filters = {"available_states": state}
+
+        if sub_category_slug:
+            filters["service__sub_category__slug"] = sub_category_slug
+
         return ServiceMultiPage.objects.filter(
-            available_states=state
+            **filters
             ).select_related(
                 "company", "service", "service__category",
                 "service__sub_category"
