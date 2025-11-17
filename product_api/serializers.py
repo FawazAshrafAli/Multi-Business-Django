@@ -511,7 +511,7 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
             "category_slug", "testimonials", "url", "company_name",
             "price", "stock", "description", "starting_title",
             "ending_title", "location_slug", "content",
-            "rating", "company_slug"
+            "rating", "company_slug", "meta_description"
             ]
         
     read_only_fields = "__all__"
@@ -609,14 +609,6 @@ class HomeProductCategorySerializer(serializers.ModelSerializer):
         serializer = DetailListSerializer(details, many=True)
 
         return serializer.data
-    
-    # def get_sub_categories(self, obj):
-    #     if not obj:
-    #         return None
-        
-    #     sub_categories = SubCategory.objects.filter(category = obj)
-
-    #     return ProductSubCategorySerializer(sub_categories, many=True).data
     
     def get_testimonials(self, obj):
 

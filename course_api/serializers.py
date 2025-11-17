@@ -383,7 +383,8 @@ class SpecializationSerializer(serializers.ModelSerializer):
             "url", "price", "company_name", "company_slug",
             "mode", "duration", "faqs", "rating",
             "starting_title", "ending_title", "content",
-            "location_slug", "hide_faqs", "description"
+            "location_slug", "hide_faqs", "description", 
+            "meta_description"
             ]
 
     read_only_fields = "__all__"

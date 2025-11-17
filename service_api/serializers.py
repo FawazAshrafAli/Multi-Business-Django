@@ -220,7 +220,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
             "category_slug", "url", "company_name", "price",
             "duration", "starting_title", "ending_title", "content",
             "faqs", "location_slug", "description", "company_contact",
-            "company_logo_url", "company_slug", "rating"
+            "company_logo_url", "company_slug", "rating", "meta_description"
             ]
 
     read_only_fields = "__all__"  

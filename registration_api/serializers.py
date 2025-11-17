@@ -63,7 +63,7 @@ class SubTypeSerializer(serializers.ModelSerializer):
             "rating", "updated", "image_url", "url", "location_slug",
             "full_title", "starting_title", "ending_title", "faqs",
             "content", "hide_faqs", "testimonials", "company_contact",
-            "company_logo_url"
+            "company_logo_url", "meta_description"
             ]
         
         read_only_fields = fields    
