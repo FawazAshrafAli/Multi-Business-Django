@@ -131,6 +131,12 @@ class SubCategory(models.Model):
     @property
     def computed_url(self):
         return f"{self.company.slug}/{self.category.slug}/{self.slug}"
+    
+    @property
+    def get_full_title(self):
+        title_list = [self.starting_title, self.name, self.ending_title]
+
+        return " ".join(filter(None, title_list))    
 
 
 class Service(models.Model):
