@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.conf import settings
+from django.db.models import Avg
+from math import floor
 
 from utility.text import clean_string
 
@@ -183,14 +185,27 @@ class DetailListSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source="company.name", read_only = True)
     course = CourseSerializer()
     url = serializers.CharField(read_only=True, source = "computed_url")
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = CourseDetail
         fields = ["id",
             "meta_title", "meta_description", "company_slug", "company_name",
-            "summary", "course", "slug",
+            "summary", "course", "slug", "rating",
             "published", "url",             
             ]    
+        
+    def get_rating(self, obj):
+        if not hasattr(obj, "course"):
+            return 0
+        
+        testimonials = Testimonial.objects.filter(course = obj.course).values_list("rating", flat=True)
+
+        rating = testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0    
+
+        rounded_rating = floor(rating * 2) / 2
+
+        return rounded_rating
         
 
 class DetailSerializer(serializers.ModelSerializer):
@@ -357,6 +372,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source="company.name", read_only=True)
     company_slug = serializers.CharField(source="company.slug", read_only=True)
     faqs = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Specialization
@@ -365,12 +381,24 @@ class SpecializationSerializer(serializers.ModelSerializer):
             "updated", "image_url", "updated",
             "program_name", "program_slug",
             "url", "price", "company_name", "company_slug",
-            "mode", "duration", "faqs",
+            "mode", "duration", "faqs", "rating",
             "starting_title", "ending_title", "content",
             "location_slug", "hide_faqs", "description"
             ]
 
     read_only_fields = "__all__"
+
+    def get_rating(self, obj):
+        if not hasattr(obj, "courses"):
+            return 0
+        
+        testimonials = Testimonial.objects.filter(course__specialization = obj).values_list("rating", flat=True)
+
+        rating = testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0    
+
+        rounded_rating = floor(rating * 2) / 2
+
+        return rounded_rating
 
     def get_faqs(self, obj):
         if hasattr(obj, "faqs"):
@@ -499,7 +527,7 @@ class MultiPageSerializer(serializers.ModelSerializer):
     duration = serializers.CharField(source="course.duration", read_only = True)
     price = serializers.CharField(source="course.price", read_only = True)
     program_name = serializers.CharField(source="course.program.name", read_only=True)
-    rating = serializers.CharField(source="get_rating", read_only = True)
+    rating = serializers.SerializerMethodField()
     rating_count = serializers.CharField(source="course.rating_count", read_only = True)
 
     slider_courses = MiniCourseDetailSerializer(many=True)
@@ -533,6 +561,18 @@ class MultiPageSerializer(serializers.ModelSerializer):
             ]
         
     read_only_fields = "__all___"
+
+    def get_rating(self, obj):
+        if not hasattr(obj, "course"):
+            return 0
+        
+        testimonials = Testimonial.objects.filter(course = obj.course).values_list("rating", flat=True)
+
+        rating = testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0    
+
+        rounded_rating = floor(rating * 2) / 2
+
+        return rounded_rating
         
     def get_meta_tags(self, obj):
         if not obj.meta_tags:
