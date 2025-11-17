@@ -13,6 +13,7 @@ from product.models import (
 from locations.models import UniqueState
 from meta_api.serializers import MetaTagSerializer, MiniMetaTagSerializer
 from django.db.models import Avg
+from math import floor
 
 class FaqSerializer(serializers.ModelSerializer):
     class Meta:
@@ -494,7 +495,8 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     category_name = serializers.CharField(source="category.name", read_only=True)
     category_slug = serializers.CharField(source="category.slug", read_only=True)
-    company_name = serializers.CharField(source="company.name", read_only=True)    
+    company_name = serializers.CharField(source="company.name", read_only=True)
+    company_slug = serializers.CharField(source="company.slug", read_only=True)
     testimonials = serializers.SerializerMethodField()
     url = serializers.CharField(source="computed_url")
     price = serializers.SerializerMethodField()
@@ -509,7 +511,7 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
             "category_slug", "testimonials", "url", "company_name",
             "price", "stock", "description", "starting_title",
             "ending_title", "location_slug", "content",
-            "rating"
+            "rating", "company_slug"
             ]
         
     read_only_fields = "__all__"
@@ -531,11 +533,14 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
         reviews = Review.objects.filter(company = obj.company, product__sub_category = obj)            
 
         if reviews:
-            return reviews.aggregate(avg_rating=Avg("rating"))["avg_rating"] or 0
+            rating = reviews.aggregate(avg_rating=Avg("rating"))["avg_rating"] or 0
         
-        return 0
+            rounded_rating = floor(rating * 2) / 2
 
-        return None
+            return rounded_rating
+        
+        return 0        
+
     
     def get_stock(self, obj):
         if hasattr(obj, "products"):
