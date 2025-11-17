@@ -205,11 +205,13 @@ class SubCategorySerializer(serializers.ModelSerializer):
     category_slug = serializers.CharField(source="category.slug", read_only=True)
     url = serializers.CharField(source="computed_url", read_only=True)
     company_name = serializers.CharField(source="company.name", read_only=True)
+    company_slug = serializers.CharField(source="company.slug", read_only=True)
     price = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
     faqs = serializers.SerializerMethodField()
     company_contact = serializers.CharField(source="company.phone1", read_only=True)  
     company_logo_url = serializers.SerializerMethodField()
+    rating = serializers.CharField(source="company.get_rating", read_only=True)
 
     class Meta:
         model = SubCategory
@@ -218,7 +220,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
             "category_slug", "url", "company_name", "price",
             "duration", "starting_title", "ending_title", "content",
             "faqs", "location_slug", "description", "company_contact",
-            "company_logo_url"
+            "company_logo_url", "company_slug", "rating"
             ]
 
     read_only_fields = "__all__"  
