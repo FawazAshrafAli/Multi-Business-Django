@@ -2,6 +2,7 @@ from rest_framework import serializers
 from utility.text import clean_string
 from django.conf import settings
 from django.db.models import Avg
+from math import floor
 
 from registration.models import (
     RegistrationSubType, RegistrationDetailPage, Feature, VerticalBullet, 
@@ -15,7 +16,7 @@ from registration.models import (
     )
 from locations.models import UniqueState
 
-from company_api.serializers import CompanySerializer, TestimonialSerializer
+from company_api.serializers import TestimonialSerializer
 from meta_api.serializers import MetaTagSerializer, MiniMetaTagSerializer
 
 class FaqSerializer(serializers.ModelSerializer):
@@ -73,7 +74,11 @@ class SubTypeSerializer(serializers.ModelSerializer):
         
         testimonials = obj.company.testimonials.values_list("rating", flat=True)
 
-        return testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0    
+        rating = testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0    
+
+        rounded_rating = floor(rating * 2) / 2
+
+        return rounded_rating
 
     def get_price(self, obj):
         if hasattr(obj, "registrations"):
