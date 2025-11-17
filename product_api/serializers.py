@@ -503,6 +503,7 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
     stock = serializers.SerializerMethodField()
     faqs = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
+    full_title = serializers.CharField(source="get_full_title", read_only=True)
 
     class Meta:
         model = SubCategory
@@ -510,7 +511,7 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
             "name", "slug", "updated", "image_url", "category_name", 
             "category_slug", "testimonials", "url", "company_name",
             "price", "stock", "description", "starting_title",
-            "ending_title", "location_slug", "content",
+            "ending_title", "location_slug", "content", "full_title",
             "rating", "company_slug", "meta_description"
             ]
         
