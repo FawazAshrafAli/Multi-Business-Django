@@ -212,6 +212,8 @@ class SubCategorySerializer(serializers.ModelSerializer):
     company_contact = serializers.CharField(source="company.phone1", read_only=True)  
     company_logo_url = serializers.SerializerMethodField()
     rating = serializers.CharField(source="company.get_rating", read_only=True)
+    full_title = serializers.CharField(source="get_full_title", read_only=True)
+    testimonials = serializers.SerializerMethodField()
 
     class Meta:
         model = SubCategory
@@ -220,10 +222,21 @@ class SubCategorySerializer(serializers.ModelSerializer):
             "category_slug", "url", "company_name", "price",
             "duration", "starting_title", "ending_title", "content",
             "faqs", "location_slug", "description", "company_contact",
-            "company_logo_url", "company_slug", "rating", "meta_description"
+            "company_logo_url", "company_slug", "rating", "meta_description",
+            "full_title", "testimonials"
             ]
 
     read_only_fields = "__all__"  
+
+    def get_testimonials(self, obj):
+        if hasattr(obj, "company"):
+            testimonials = obj.company.testimonials.all()
+
+            serializer = TestimonialSerializer(testimonials, many=True)
+
+            return serializer.data
+        
+        return []
 
     def get_faqs(self, obj):
         if obj.faqs:
