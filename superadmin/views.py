@@ -1324,34 +1324,114 @@ class ListProductSubCategoryView(BaseProductSubCategory, ListView):
 
 
 class AddProductSubCategoryView(BaseProductSubCategory, CreateView):
-    fields = ["name", "category"]
+    fields = [
+        "name", "category", "description", "starting_title", "ending_title",
+        "location_slug", "slug", "content", "hide_faqs", "meta_description"
+        ]
+    template_name = "product_company/sub_category/add.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        current_company = self.get_current_company()
+        context["product_sub_categories_page"] = True
+        context["add_product_sub_categories_page"] = True
+
+        context["categories"] = ProductCategory.objects.filter(company = current_company).order_by("name")
+
+        return context
+
+    def handle_faqs(self, request, company, sub_category_slug):
+        try:
+            question_list = [question.strip() for question in request.POST.getlist("faq_question")]
+            answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
+
+            if len(question_list) != len(answer_list):
+                raise ValueError("The number of questions does not match the number of answers.")
+
+            with transaction.atomic():
+                ProductSubCategoryFaq.objects.filter(company = company, sub_category_slug = sub_category_slug).delete()
+                
+                if question_list and answer_list:
+                    creating_faqs = [ProductSubCategoryFaq(
+                        company = company, sub_category_slug = sub_category_slug,
+                        question = question, answer = answer
+                        ) for question, answer in zip(question_list, answer_list) if question and answer]
+
+                    ProductSubCategoryFaq.objects.bulk_create(creating_faqs)
+
+                    product_faqs = ProductSubCategoryFaq.objects.filter(company = company, sub_category_slug = sub_category_slug)                
+                                            
+                    return product_faqs
+        except Exception as e:
+            logger.exception(f"Error in handle_faqs function of AddProductSubCategoryView: {e}")
+
+        return [] 
 
     def post(self, request, *args, **kwargs):
         try:
-            product_company = get_object_or_404(Company, slug = self.kwargs.get('slug'))
-            name = request.POST.get("name")
-            name = name.strip() if name else None
-
-            category_slug = request.POST.get("category")
-
-            if not category_slug or not name:
-                error_msg = "Name of sub category is required."
-                if not category_slug:
-                    error_msg = "Category is required."
-
-                messages.error(request, f"Failed! {error_msg}")
-                return redirect(self.get_redirect_url())
+            current_company = self.get_current_company()
             
-            category = get_object_or_404(ProductCategory, slug = category_slug)
-            
-            sub_category, created = self.model.objects.get_or_create(company = product_company, name = name, category = category)
+            name = clean_string(request.POST.get("name", ""))
+            category_slug = clean_string(request.POST.get("category", ""))
+            description = clean_string(request.POST.get("description", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))
+            starting_title = clean_string(request.POST.get("starting_title", ""))
+            slug = clean_string(request.POST.get("slug", ""))
+            ending_title = clean_string(request.POST.get("ending_title", ""))
+            content = request.POST.get("content")
+            hide_faqs = request.POST.get("hide_faqs")
 
-            if created:
+            required_fields = {
+                "Name": name,
+                "Product Category": category_slug
+            }
+
+            for field_name, field_value in required_fields.items():
+                if not field_value:
+                    messages.error(request, f"Failed! {field_name} is required")
+                    return redirect(self.get_redirect_url())
+
+            slug_list = [starting_title, slug, ending_title]
+
+            full_slug = slugify("-".join(filter(None, slug_list)))
+            
+            with transaction.atomic():
+                category = get_object_or_404(ProductCategory, slug = category_slug)
+
+                slug = slugify(slug)
+
+                if self.model.objects.filter(slug = slug).exists():
+                    messages.error(request, "Failed! Similar slug already exists for another product sub category.")
+                    return redirect(self.get_redirect_url())
+
+                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
+                        messages.error(request, "Failed! Similar location slug already exists for another product sub category.")
+                        return redirect(self.get_redirect_url())
+                
+                sub_category, created = self.model.objects.get_or_create(
+                    company = current_company, name = name, 
+                    category = category, 
+                    defaults={
+                        "description": description,
+                        "meta_description": meta_description,
+                        "starting_title": starting_title,
+                        "ending_title": ending_title,
+                        "hide_faqs": True if hide_faqs else False,
+                        "content": content,
+                        "slug": slug if slug else None,
+                        "location_slug": full_slug if full_slug else None,
+                    })
+
+                if not created:
+                    messages.warning(request, "Product sub category already exists.")
+                    return redirect(self.get_redirect_url())
+
+                sub_category_faq_objs = self.handle_faqs(request, sub_category.company, sub_category.slug)
+                sub_category.faqs.set(sub_category_faq_objs)
+
                 messages.success(request, "Success! Product sub category created.")
-                return redirect(self.get_success_url())
-
-            else:
-                messages.warning(request, "Sub Category already exists.")
+                return redirect(self.get_success_url())            
 
         except Http404:
             messages.error(request, "Invalid category")                                    
@@ -1364,7 +1444,10 @@ class AddProductSubCategoryView(BaseProductSubCategory, CreateView):
 
 
 class UpdateProductSubCategoryView(BaseProductSubCategory, UpdateView):
-    fields = ["name", "category"]    
+    fields = [
+        "name", "category", "description", "starting_title", "ending_title",
+        "location_slug", "slug", "content", "hide_faqs", "meta_description"
+        ]
     slug_url_kwarg = "sub_category_slug"
     template_name = "product_company/sub_category/edit.html"
     context_object_name = "sub_category"
@@ -1373,6 +1456,7 @@ class UpdateProductSubCategoryView(BaseProductSubCategory, UpdateView):
         context = super().get_context_data(**kwargs)
 
         current_company = self.get_current_company()
+        context["product_sub_categories_page"] = True
 
         context["categories"] = ProductCategory.objects.filter(company = current_company).order_by("name")
 
@@ -1384,7 +1468,7 @@ class UpdateProductSubCategoryView(BaseProductSubCategory, UpdateView):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 ProductSubCategoryFaq.objects.filter(company = company, sub_category_slug = sub_category_slug).delete()
@@ -1413,6 +1497,7 @@ class UpdateProductSubCategoryView(BaseProductSubCategory, UpdateView):
             name = clean_string(request.POST.get("name", ""))
             category_slug = clean_string(request.POST.get("category", ""))
             description = clean_string(request.POST.get("description", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))
             starting_title = clean_string(request.POST.get("starting_title", ""))
             slug = clean_string(request.POST.get("slug", object_slug))
             ending_title = clean_string(request.POST.get("ending_title", ""))
@@ -1463,6 +1548,7 @@ class UpdateProductSubCategoryView(BaseProductSubCategory, UpdateView):
                 self.object.name = name
                 self.object.category = category
                 self.object.description = description
+                self.object.meta_description = meta_description
                 self.object.starting_title = starting_title
                 self.object.ending_title = ending_title
                 self.object.hide_faqs = True if hide_faqs else False        
@@ -3403,7 +3489,7 @@ class BaseProductMultiPageView(BaseProductCompanyView, View):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]                        
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 ProductMultiPageFaq.objects.filter(company = company, title = title).delete()
@@ -4643,7 +4729,9 @@ class CourseSpecializationListView(BaseEducationCompanyView, ListView):
 
 class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
     model = Specialization
-    fields = ["name", "program", "starting_title", "slug", "ending_title", "content", "faqs", "description"]
+    fields = [
+        "name", "program", "starting_title", "slug", "ending_title", "content", "faqs", 
+        "description", "meta_description"]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "education_company/specializations/add.html"
 
@@ -4654,7 +4742,7 @@ class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
             context["course_specialization_page"] = True
             context["programs"] = Program.objects.filter(company = current_company).order_by("-updated")
         except Exception as e:
-            logger.exception(f"Error in getting context data of UpdateCourseSpecializationView of superadmin app: {e}")
+            logger.exception(f"Error in getting context data of AddCourseSpecializationView of superadmin app: {e}")
         
         return context
 
@@ -4670,7 +4758,7 @@ class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 CourseSpecializationFaq.objects.filter(company = company, specialization_slug = specialization_slug).delete()
@@ -4698,6 +4786,7 @@ class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
             name = clean_string(request.POST.get("name", ""))
             program_slug = clean_string(request.POST.get("program", ""))
             description = clean_string(request.POST.get("description", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))
             starting_title = clean_string(request.POST.get("starting_title", ""))
             slug = clean_string(request.POST.get("slug", ""))
             ending_title = clean_string(request.POST.get("ending_title", ""))
@@ -4734,6 +4823,7 @@ class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
                     program = program, 
                     defaults={
                         "description": description,
+                        "meta_description": meta_description,
                         "starting_title": starting_title,
                         "ending_title": ending_title,
                         "hide_faqs": True if hide_faqs else False,
@@ -4764,7 +4854,9 @@ class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
 
 class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
     model = Specialization
-    fields = ["name", "program", "starting_title", "slug", "ending_title", "content", "faqs", "description"]
+    fields = [
+        "name", "program", "starting_title", "slug", "ending_title", "content", "faqs", 
+        "description", "meta_description"]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "education_company/specializations/edit.html"
     context_object_name = "specialization"
@@ -4807,7 +4899,7 @@ class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 CourseSpecializationFaq.objects.filter(company = company, specialization_slug = specialization_slug).delete()
@@ -4837,6 +4929,7 @@ class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
             name = clean_string(request.POST.get("name", ""))
             program_slug = clean_string(request.POST.get("program", ""))
             description = clean_string(request.POST.get("description", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))
             starting_title = clean_string(request.POST.get("starting_title", ""))
             slug = clean_string(request.POST.get("slug", object_slug))
             ending_title = clean_string(request.POST.get("ending_title", ""))
@@ -4887,6 +4980,7 @@ class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
                 specialization.name = name
                 specialization.program = program
                 specialization.description = description
+                specialization.meta_description = meta_description
                 specialization.starting_title = starting_title
                 specialization.ending_title = ending_title
                 specialization.hide_faqs = True if hide_faqs else False        
@@ -6497,7 +6591,7 @@ class BaseCourseMultiPageView(BaseEducationCompanyView, View):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]                        
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 CourseMultiPageFaq.objects.filter(company = company, title = title).delete()
@@ -7722,7 +7816,7 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
     model = ServiceSubCategory
     fields = [
         "name", "category", "description", "starting_title", "ending_title",
-        "location_slug", "slug", "content", "hide_faqs"
+        "location_slug", "slug", "content", "hide_faqs", "meta_description"
         ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "service_company/sub_categories/add.html"
@@ -7749,7 +7843,7 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 ServiceSubCategoryFaq.objects.filter(company = company, sub_category_slug = sub_category_slug).delete()
@@ -7766,7 +7860,7 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
                                             
                     return service_faqs
         except Exception as e:
-            logger.exception(f"Error in handle_faqs function of BaseServiceSubCategoryView: {e}")
+            logger.exception(f"Error in handle_faqs function of AddServiceSubCategoryView: {e}")
 
         return [] 
 
@@ -7777,6 +7871,7 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
             name = clean_string(request.POST.get("name", ""))
             category_slug = clean_string(request.POST.get("category", ""))
             description = clean_string(request.POST.get("description", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))
             starting_title = clean_string(request.POST.get("starting_title", ""))
             slug = clean_string(request.POST.get("slug", ""))
             ending_title = clean_string(request.POST.get("ending_title", ""))
@@ -7815,6 +7910,7 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
                     category = category, 
                     defaults={
                         "description": description,
+                        "meta_description": meta_description,
                         "starting_title": starting_title,
                         "ending_title": ending_title,
                         "hide_faqs": True if hide_faqs else False,
@@ -7847,7 +7943,7 @@ class UpdateServiceSubCategoryView(BaseServiceCompanyView, UpdateView):
     model = ServiceSubCategory
     fields = [
         "name", "category", "description", "starting_title", "ending_title",
-        "location_slug", "slug", "content", "hide_faqs"
+        "location_slug", "slug", "content", "hide_faqs", "meta_description"
         ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "service_company/sub_categories/edit.html"
@@ -7869,7 +7965,7 @@ class UpdateServiceSubCategoryView(BaseServiceCompanyView, UpdateView):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 ServiceSubCategoryFaq.objects.filter(company = company, sub_category_slug = sub_category_slug).delete()
@@ -7921,6 +8017,7 @@ class UpdateServiceSubCategoryView(BaseServiceCompanyView, UpdateView):
             name = clean_string(request.POST.get("name", ""))
             category_slug = clean_string(request.POST.get("category", ""))
             description = clean_string(request.POST.get("description", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))
             starting_title = clean_string(request.POST.get("starting_title", ""))
             slug = clean_string(request.POST.get("slug", object_slug))
             ending_title = clean_string(request.POST.get("ending_title", ""))
@@ -7971,6 +8068,7 @@ class UpdateServiceSubCategoryView(BaseServiceCompanyView, UpdateView):
                 sub_category.name = name
                 sub_category.category = category
                 sub_category.description = description
+                sub_category.meta_description = meta_description
                 sub_category.starting_title = starting_title
                 sub_category.ending_title = ending_title
                 sub_category.hide_faqs = True if hide_faqs else False        
@@ -9299,7 +9397,7 @@ class BaseServiceMultiPageView(BaseServiceCompanyView, View):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]                        
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 ServiceMultiPageFaq.objects.filter(company = company, title = title).delete()
@@ -10509,7 +10607,10 @@ class ListRegistrationSubTypeView(BaseRegistrationCompanyView, ListView):
     
 class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
     model = RegistrationSubType
-    fields = ["name", "type", "starting_title", "slug", "ending_title", "content", "faqs", "description"]
+    fields = [
+        "name", "type", "starting_title", "slug", "ending_title", "content", "faqs", 
+        "description", "meta_description"
+        ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "registration_company/sub_types/add.html"
 
@@ -10523,6 +10624,7 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
         context = super().get_context_data(**kwargs)
         try:
             current_company = self.get_current_company()
+            context["registration_sub_type_page"] = True
             context["types"] = RegistrationType.objects.filter(company = current_company).order_by("name")
         except Exception as e:
             logger.exception(f"Error in getting context data of AddRegistrationSubTypeView of superadmin app: {e}")
@@ -10535,7 +10637,7 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 SubTypeFaq.objects.filter(company = company, sub_type_slug = sub_type_slug).delete()
@@ -10563,6 +10665,7 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
             name = clean_string(request.POST.get("name", ""))
             type_slug = clean_string(request.POST.get("type", ""))
             description = clean_string(request.POST.get("description", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))
             starting_title = clean_string(request.POST.get("starting_title", ""))
             slug = clean_string(request.POST.get("slug", ""))
             ending_title = clean_string(request.POST.get("ending_title", ""))
@@ -10601,6 +10704,7 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
                     type = main_type, 
                     defaults={
                         "description": description,
+                        "meta_description": meta_description,
                         "starting_title": starting_title,
                         "ending_title": ending_title,
                         "hide_faqs": True if hide_faqs else False,
@@ -10631,7 +10735,7 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
 
 class UpdateRegistrationSubTypeView(BaseRegistrationCompanyView, UpdateView):
     model = RegistrationSubType
-    fields = ["name", "type", "starting_title", "slug", "ending_title", "content", "faqs", "description"]
+    fields = ["name", "type", "starting_title", "slug", "ending_title", "content", "faqs", "description", "meta_description"]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "registration_company/sub_types/edit.html"
     context_object_name = "sub_type"
@@ -10661,6 +10765,7 @@ class UpdateRegistrationSubTypeView(BaseRegistrationCompanyView, UpdateView):
         context = super().get_context_data(**kwargs)
         try:
             current_company = self.get_current_company()
+            context["registration_sub_type_page"] = True
             context["types"] = RegistrationType.objects.filter(company = current_company).order_by("name")
         except Exception as e:
             logger.exception(f"Error in getting context data of UpdateRegistrationSubTypeView of superadmin app: {e}")
@@ -10673,7 +10778,7 @@ class UpdateRegistrationSubTypeView(BaseRegistrationCompanyView, UpdateView):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]               
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 SubTypeFaq.objects.filter(company = company, sub_type_slug = sub_type_slug).delete()
@@ -10702,6 +10807,7 @@ class UpdateRegistrationSubTypeView(BaseRegistrationCompanyView, UpdateView):
             name = clean_string(request.POST.get("name", ""))
             type_slug = clean_string(request.POST.get("type", ""))
             description = clean_string(request.POST.get("description", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))
             starting_title = clean_string(request.POST.get("starting_title", ""))
             slug = clean_string(request.POST.get("slug", object_slug))
             ending_title = clean_string(request.POST.get("ending_title", ""))
@@ -10751,6 +10857,7 @@ class UpdateRegistrationSubTypeView(BaseRegistrationCompanyView, UpdateView):
                 registration_sub_type.name = name
                 registration_sub_type.type = type
                 registration_sub_type.description = description
+                registration_sub_type.meta_description = meta_description
                 registration_sub_type.starting_title = starting_title
                 registration_sub_type.ending_title = ending_title
                 registration_sub_type.hide_faqs = True if hide_faqs else False        
@@ -12081,7 +12188,7 @@ class BaseRegistrationMultiPageView(BaseRegistrationCompanyView, View):
             answer_list = [answer.strip() for answer in request.POST.getlist("faq_answer")]                        
 
             if len(question_list) != len(answer_list):
-                raise ValueError("The number of questions does not match the number of summaries.")
+                raise ValueError("The number of questions does not match the number of answers.")
 
             with transaction.atomic():
                 RegistrationMultiPageFaq.objects.filter(company = company, title = title).delete()

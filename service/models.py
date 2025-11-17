@@ -89,6 +89,7 @@ class SubCategory(models.Model):
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     description = models.TextField(null=True, blank=True)
+    meta_description = models.TextField(null=True, blank=True)
 
     starting_title = models.CharField(max_length=255, null=True, blank=True)
     ending_title = models.CharField(max_length=255, null=True, blank=True)

@@ -372,7 +372,7 @@
 									{% elif product_categories_page %}
 									<li><a  href="#" data-bs-toggle="modal" data-bs-target="#add_product_category">Add Category</a></li>
 									{% elif product_sub_categories_page %}
-									<li><a  href="#" data-bs-toggle="modal" data-bs-target="#add_product_sub_category">Add Sub Category</a></li>
+									<li><a  href="{% url 'superadmin:add_sub_category' current_company.slug %}">Add Sub Category</a></li>
 									{% elif product_brand_page %}
 									<li><a  href="#" data-bs-toggle="modal" data-bs-target="#add_product_brand">Add Brand</a></li>
 									{% elif product_color_page %}

@@ -89,10 +89,17 @@
 
                         <div class="form-group row">
                             <div class="col-md-12">
-                                <label class="col-form-label" for="service-type-dropdown">Description </label>
+                                <label class="col-form-label">Description </label>
                                 <textarea class="form-control" name="description" id="description-input" placeholder="Description">{% if sub_category.description %} {{sub_category.description}} {% endif %}</textarea>
                             </div
-                        </div>      
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label class="col-form-label">Meta Description </label>
+                                <textarea class="form-control" name="meta_description" id="meta-description-input" placeholder="Meta Description">{% if sub_category.meta_description %}{{sub_category.meta_description}}{% endif %}</textarea>
+                            </div
+                        </div>
                         
                         <div class="row">
                             <div class="col-md-12">
@@ -150,8 +157,8 @@
                                             {% endif %}
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center" id="faq-btn-div">
-                                            <button class="add-button" id="add-faq-btn" type="button" style="width: fit-content;">Add Another Timeline</button>
-                                            <button class="remove-button" id="remove-faq-btn" type="button" style="width: fit-content;">Remove Timeline</button>
+                                            <button class="add-button" id="add-faq-btn" type="button" style="width: fit-content;">Add Another FAQ</button>
+                                            <button class="remove-button" id="remove-faq-btn" type="button" style="width: fit-content;">Remove FAQ</button>
                                         </div>
                                     </div>
                                 </div>

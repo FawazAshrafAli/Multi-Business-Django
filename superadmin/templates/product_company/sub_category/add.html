@@ -46,36 +46,36 @@
 {% block company_content %}
 
         <div class="col-lg-12">
-            <form method="post" action="{% url 'superadmin:update_registration_sub_type' current_company.slug sub_type.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-registration-form" novalidate>
+            <form method="post" action="{% url 'superadmin:add_sub_category' current_company.slug %}" class="needs-validation" enctype="multipart/form-data" id="add-sub-category-form" novalidate>
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title mb-0" > Edit Registration Sub Type</h4>
+                        <h4 class="card-title mb-0" > Add Product Sub Category</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="name-input" >Name <span class="text-danger">*</span></label>
-                                <input class="form-control" type="text" id="name-input" placeholder="Name of Registration Sub Types" name="name" value="{{sub_type.name}}" required>
+                                <input class="form-control" type="text" id="name-input" placeholder="Name of Product Sub Category" name="name" required>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="starting-title-input" >Starting Title (optional)</label>
-                                <input class="form-control" type="text" id="starting-title-input" placeholder="Starting Title (optional)" name="starting_title" value="{% if sub_type.starting_title %}{{sub_type.starting_title}}{% endif %}" required>
+                                <input class="form-control" type="text" id="starting-title-input" placeholder="Starting Title (optional)" name="starting_title" required>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="ending-title-input" >Ending Title (optional)</label>
-                                <input class="form-control" type="text" id="ending-title-input" placeholder="Ending Title (optional)" name="ending_title" value="{% if sub_type.ending_title %}{{sub_type.ending_title}}{% endif %}" required>
+                                <input class="form-control" type="text" id="ending-title-input" placeholder="Ending Title (optional)" name="ending_title" required>
                             </div>  
                             <div class="col-md-6 mb-3">
-                                <label for="product-type-dropdown">Registration Type <span class="text-danger">*</span></label>
-                                <select class="form-control" id="type-dropdown" name="type" required>
-                                    <option value="" hidden disabled selected>Select Types</option>
-                                    {% for type in types %}
-                                    <option value="{{type.slug}}" {% if type.slug == sub_type.type.slug %} selected {% endif %}>{{type.name}}</option>
+                                <label for="product-category-dropdown">Product Category <span class="text-danger">*</span></label>
+                                <select class="form-control" id="type-dropdown" name="category" required>
+                                    <option value="" hidden disabled selected>Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.slug}}">{{category.name}}</option>
                                     {% endfor %}
                                 </select>
                                 <div class="invalid-feedback">
-                                    Please provide a valid type.
+                                    Please provide a valid category.
                                 </div>
                                 <div class="valid-feedback">
                                     Looks good!
@@ -83,28 +83,28 @@
                             </div>    
                             <div class="col-md-6 mb-3">
                                 <label for="slug-input" >Slug (optional)</label>
-                                <input class="form-control" type="text" id="slug-input" placeholder="Slug (optional)" name="slug" value="{{sub_type.slug}}" required>
+                                <input class="form-control" type="text" id="slug-input" placeholder="Slug (optional)" name="slug" required>
                             </div>                         
                         </div>
 
                         <div class="form-group row">
                             <div class="col-md-12">
                                 <label class="col-form-label">Description </label>
-                                <textarea class="form-control" name="description" id="description-input" placeholder="Description">{% if sub_type.description %}{{sub_type.description}}{% endif %}</textarea>
+                                <textarea class="form-control" name="description" id="description-input" placeholder="Description"></textarea>
                             </div
-                        </div>
-
+                        </div>      
+                        
                         <div class="form-group row">
                             <div class="col-md-12">
                                 <label class="col-form-label">Meta Description </label>
-                                <textarea class="form-control" name="meta_description" id="meta-description-input" placeholder="Meta Description">{% if sub_type.meta_description %}{{sub_type.meta_description}}{% endif %}</textarea>
+                                <textarea class="form-control" name="meta_description" id="meta-description-input" placeholder="Meta Description"></textarea>
                             </div
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-12">
                                 <label for="content-input">Content <span class="text-danger">*</span></label>
-                                <textarea class="form-control" name="content" id="content-input" placeholder="Content">{% if sub_type.content %}{{sub_type.content}}{% endif %}</textarea>
+                                <textarea class="form-control" name="content" id="content-input" placeholder="Content"></textarea>
                             </div>
                         </div>            
 
@@ -120,26 +120,7 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="faq-div" id="faq-div">
-                                            {% if sub_type.faqs.all|length > 0 %}   
-                                            {% for faq in sub_type.faqs.all %}
-                                            {% if forloop.counter > 1 %}<hr><br>{% endif %}
-                                            <div class="faq-inner-div">
-                                                <div class="row">
-                                                    <div class="col-md-12 mb-3">
-                                                        <label>Question of FAQ {{forloop.counter}} <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" placeholder="Question of FAQ {{forloop.counter}}" name="faq_question" required value="{% if faq.question %}{{faq.question}}{% endif %}">
-                                                    </div>    
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-12 mb-3">
-                                                        <label >Answer of FAQ {{forloop.counter}} <span class="text-danger">*</span></label>
-                                                        <textarea class="form-control" placeholder="Answer of FAQ {{forloop.counter}}" name="faq_answer" required>{% if faq.answer %}{{faq.answer}}{% endif %}</textarea>
-                                                    </div>            
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                            {% else %}
+                                        <div class="faq-div" id="faq-div">                                            
                                             <div class="faq-inner-div">
                                                 <div class="row">
                                                     <div class="col-md-12 mb-3">
@@ -154,7 +135,6 @@
                                                     </div>            
                                                 </div>
                                             </div>
-                                            {% endif %}
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center" id="faq-btn-div">
                                             <button class="add-button" id="add-faq-btn" type="button" style="width: fit-content;">Add Another FAQ</button>

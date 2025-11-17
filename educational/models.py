@@ -90,6 +90,7 @@ class Specialization(models.Model):
     name = models.CharField(max_length=255)
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
     description = models.TextField(null=True, blank=True)
+    meta_description = models.TextField(null=True, blank=True)
 
     starting_title = models.CharField(max_length=255, null=True, blank=True)
     ending_title = models.CharField(max_length=255, null=True, blank=True)

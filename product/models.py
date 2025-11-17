@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from ckeditor.fields import RichTextField
 from datetime import datetime
 from django.db.models import Avg
+from math import floor
 
 from company.models import Company
 from locations.models import UniqueState
@@ -85,6 +86,7 @@ class SubCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="sub_categories")
     description = models.TextField(null=True, blank=True)
+    meta_description = models.TextField(null=True, blank=True)
 
     starting_title = models.CharField(max_length=255, null=True, blank=True)
     ending_title = models.CharField(max_length=255, null=True, blank=True)
@@ -317,8 +319,13 @@ class Product(models.Model):
     @property
     def get_rating(self):
         if self.reviews:
-            return self.reviews.aggregate(avg_rating=Avg("rating"))["avg_rating"] or 0
+            rating = self.reviews.aggregate(avg_rating=Avg("rating"))["avg_rating"] or 0
+        
+            rounded_rating = floor(rating * 2) / 2
+
+            return rounded_rating
         return "0"
+
 
     @property
     def get_rating_count(self):
