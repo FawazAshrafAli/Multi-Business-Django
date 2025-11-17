@@ -60,6 +60,7 @@ class CourseSerializer(serializers.ModelSerializer):
     program_slug = serializers.CharField(source='program.slug', read_only=True)
     specialization_slug = serializers.CharField(source='specialization.slug', read_only=True)
     specialization_name = serializers.CharField(source='specialization.name', read_only=True)
+    testimonials = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -68,10 +69,21 @@ class CourseSerializer(serializers.ModelSerializer):
             "description", "company_name", "company_slug", "mode", 
             "starting_date", "ending_date", "duration", "program_slug",
             "price", "rating", "rating_count", "slug", "specialization_slug",
-            "specialization_name"
+            "specialization_name", "testimonials"
             ]
         
         read_only_fields = fields
+    
+    def get_testimonials(self, obj):
+        if hasattr(obj, "course_testimonials"):
+
+            testimonials = obj.course_testimonials.values(
+                "name", "text", "rating", "created"
+            )
+
+            return testimonials
+
+        return []
 
     def get_image_url(self, obj):
         request = self.context.get('request')
@@ -192,7 +204,7 @@ class DetailListSerializer(serializers.ModelSerializer):
         fields = ["id",
             "meta_title", "meta_description", "company_slug", "company_name",
             "summary", "course", "slug", "rating",
-            "published", "url",             
+            "published", "url"     
             ]    
         
     def get_rating(self, obj):
@@ -373,6 +385,8 @@ class SpecializationSerializer(serializers.ModelSerializer):
     company_slug = serializers.CharField(source="company.slug", read_only=True)
     faqs = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
+    testimonials = serializers.SerializerMethodField()
+    full_title = serializers.CharField(source="get_full_title", read_only=True)
 
     class Meta:
         model = Specialization
@@ -384,10 +398,19 @@ class SpecializationSerializer(serializers.ModelSerializer):
             "mode", "duration", "faqs", "rating",
             "starting_title", "ending_title", "content",
             "location_slug", "hide_faqs", "description", 
-            "meta_description"
+            "meta_description", "testimonials",
+            "full_title"
             ]
 
     read_only_fields = "__all__"
+
+    def get_testimonials(self, obj):
+        testimonials = Testimonial.objects.filter(course__specialization = obj).values(
+            "name", "text", "rating", "created"
+        )
+
+        return testimonials or []
+
 
     def get_rating(self, obj):
         if not hasattr(obj, "courses"):
