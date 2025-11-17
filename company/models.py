@@ -7,6 +7,7 @@ from django.db import transaction
 from locations.models import UniquePlace, UniqueState
 from base.models import MetaTag
 from django.db import IntegrityError
+from math import floor
 
 class CompanyType(models.Model):
     name = models.CharField(max_length=255)
@@ -227,7 +228,11 @@ class Company(models.Model):
 
         testimonials = TestimonialModel.objects.filter(company = self).values_list("rating", flat=True)        
         
-        return testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0
+        testimonials = testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0
+
+        rounded_rating = floor(testimonials * 2) / 2
+
+        return rounded_rating
     
     @property
     def get_absolute_url(self):
