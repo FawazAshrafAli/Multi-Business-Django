@@ -385,6 +385,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
     company_slug = serializers.CharField(source="company.slug", read_only=True)
     faqs = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
+    rating_count = serializers.SerializerMethodField()
     testimonials = serializers.SerializerMethodField()
     full_title = serializers.CharField(source="get_full_title", read_only=True)
 
@@ -399,7 +400,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
             "starting_title", "ending_title", "content",
             "location_slug", "hide_faqs", "description", 
             "meta_description", "testimonials",
-            "full_title"
+            "full_title", "rating_count"
             ]
 
     read_only_fields = "__all__"
@@ -410,7 +411,6 @@ class SpecializationSerializer(serializers.ModelSerializer):
         )
 
         return testimonials or []
-
 
     def get_rating(self, obj):
         if not hasattr(obj, "courses"):
@@ -423,6 +423,9 @@ class SpecializationSerializer(serializers.ModelSerializer):
         rounded_rating = floor(rating * 2) / 2
 
         return rounded_rating
+    
+    def get_rating_count(self, obj):    
+        return Testimonial.objects.filter(course__specialization = obj).count()        
 
     def get_faqs(self, obj):
         if hasattr(obj, "faqs"):
