@@ -15,6 +15,7 @@ from educational.models import (
 )
 from custom_pages.models import FAQ
 from blog.models import Blog
+from base.models import MetaTag
 from company.models import Company
 from locations.utils.url import generate_location_url_tails, generate_location_url_slugs
 from django.utils import timezone
@@ -25,7 +26,7 @@ try:
 except Exception:
     SITES_AVAILABLE = False
 
-PAGE_SIZE = 10000 
+PAGE_SIZE = 49990 
 
 # ─────────────────────────────────────────────────────────────
 # Helpers
@@ -386,7 +387,34 @@ class Command(BaseCommand):
             )
 
         chunk_write(sitemap_dir, base, location_urls, "sitemap-india", out_files)
-        self.stdout.write(self.style.SUCCESS(f"✓ locations: {len(location_urls)} urls"))        
+        self.stdout.write(self.style.SUCCESS(f"✓ locations: {len(location_urls)} urls"))                
+
+        # -----------------------------
+        # 🔹 Tags SITEMAPS
+        # -----------------------------
+        tag_urls = [{"loc": "/tag/", "changefreq": "monthly", "priority": 0.8}]
+
+        location_tag_objs = MetaTag.objects.filter(name__icontains = "place_name", slug__icontains = "place_name")
+        location_tag_obj_ids = list(location_tag_objs.values_list("id", flat=True))
+
+        location_tag_slugs = list(location_tag_objs.values_list("slug", flat=True))
+        non_location_tag_slugs = list(MetaTag.objects.exclude(id__in = location_tag_obj_ids).values_list("slug", flat=True))
+
+        for tag_slug in non_location_tag_slugs:
+            tag_urls.append(
+                {"loc": f"/tag/{tag_slug}/", "changefreq": "monthly", "priority": 0.8}
+            )
+
+        place_slugs = [slug for slug in generate_location_url_slugs() if slug]
+
+        for tag_slug in location_tag_slugs:
+            for place_slug in place_slugs:
+                tag_urls.append(
+                    {"loc": f"/tag/{tag_slug.replace('place_name', place_slug)}/", "changefreq": "monthly", "priority": 0.8}
+                )
+
+        chunk_write(sitemap_dir, base, tag_urls, "sitemap-tag", out_files)
+        self.stdout.write(self.style.SUCCESS(f"✓ tags: {len(tag_urls)} urls"))        
 
         # ───────────────── INDEX ─────────────────
         write_index(sitemap_dir, base, out_files)
