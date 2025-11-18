@@ -300,7 +300,7 @@ class InnerPageCompanySerializer(serializers.ModelSerializer):
         model = Company 
         fields = ["id",
             "name", "logo_url", "description", 
-            "slug", "meta_title",
+            "slug", "meta_title", "rating_count",
             "phone1", "phone2", "blogs", "faqs", "whatsapp", 
             "email",  "meta_tags", "meta_description", 
             "favicon_url", "rating", "sub_type", "company_type",

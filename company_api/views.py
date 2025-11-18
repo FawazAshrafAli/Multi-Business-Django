@@ -93,6 +93,26 @@ class InnerPageCompanyApiViewset(viewsets.ReadOnlyModelViewSet):
         context['request'] = self.request
         return context
     
+    def get_queryset(self):
+        company_type = self.request.query_params.get("company_type")
+        companies_limit = self.request.query_params.get("companies_limit")
+
+        queryset = self.queryset
+
+        if company_type:
+            queryset = Company.objects.filter(type__name = company_type).order_by("?")
+
+            if companies_limit:
+                try:
+                    limit = int(companies_limit)
+                    queryset = queryset[:limit]
+                except (TypeError, ValueError):
+                    pass
+
+            return queryset
+        
+        return queryset
+    
 
 class MiniCompanyApiViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = MiniCompanySerializer
