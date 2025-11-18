@@ -216,7 +216,21 @@ class Company(models.Model):
 
         testimonials = TestimonialModel.objects.filter(company = self).values_list("rating", flat=True)        
         
-        return testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0
+        testimonials = testimonials.aggregate(Avg('rating'))['rating__avg'] if testimonials else 0
+
+        rounded_rating = floor(testimonials * 2) / 2
+
+        return rounded_rating
+    
+    @property
+    def rating_count(self):
+        TestimonialModel = Testimonial
+        if self.type == "Education":
+            from educational.models import Testimonial as CourseTestimonial
+
+            TestimonialModel = CourseTestimonial
+
+        return TestimonialModel.objects.filter(company = self).count()
 
     @property
     def get_rating(self):
