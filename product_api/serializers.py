@@ -503,6 +503,7 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
     stock = serializers.SerializerMethodField()
     faqs = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
+    rating_count = serializers.SerializerMethodField()
     full_title = serializers.CharField(source="get_full_title", read_only=True)
 
     class Meta:
@@ -512,7 +513,7 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
             "category_slug", "testimonials", "url", "company_name",
             "price", "stock", "description", "starting_title",
             "ending_title", "location_slug", "content", "full_title",
-            "rating", "company_slug", "meta_description"
+            "rating", "company_slug", "meta_description", "rating_count"
             ]
         
     read_only_fields = "__all__"
@@ -540,8 +541,10 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
 
             return rounded_rating
         
-        return 0        
+        return 0  
 
+    def get_rating_count(self, obj):
+        return Review.objects.filter(company = obj.company, product__sub_category = obj).count()  
     
     def get_stock(self, obj):
         if hasattr(obj, "products"):
