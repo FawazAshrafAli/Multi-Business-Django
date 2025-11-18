@@ -184,6 +184,15 @@ urlpatterns += [
         },
         name='india-sitemap'
     ),
+
+    re_path(
+        r'^(?P<path>sitemap-tag(-\d+)?\.xml)$',
+        serve,
+        {
+            'document_root': os.path.join(settings.BASE_DIR, 'static', 'sitemaps'),
+        },
+        name='tag-sitemap'
+    ),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
