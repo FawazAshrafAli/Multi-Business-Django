@@ -43,3 +43,23 @@ def generate_location_url_slugs(state_ids = None):
 
     for slug in sorted(seen):
         yield slug
+
+
+def generate_state_slugs():
+    states = UniqueState.objects.all()    
+
+    slugs = states.values_list("slug", flat=True).distinct()
+
+    for slug in slugs.order_by("slug").iterator():
+        if slug:
+            yield slug
+
+
+def generate_district_slugs():
+    districts = UniqueDistrict.objects.all()    
+
+    slugs = districts.values_list("slug", flat=True).distinct()
+
+    for slug in slugs.order_by("slug").iterator():
+        if slug:
+            yield slug

@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from random import randint
 
 class State(models.Model):
     name = models.CharField(max_length=150)    
@@ -314,7 +315,7 @@ class UniquePlace(models.Model):
 
     coordinates = models.ManyToManyField(PlaceCoordinate)    
     
-    slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
+    slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True, unique=True)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True)
@@ -325,13 +326,8 @@ class UniquePlace(models.Model):
             slug = base_slug
 
             while UniquePlace.objects.filter(slug=slug).exists():
-                place_district_slug = slugify(f"{base_slug}-{self.district.name}")
-
-                if slug != place_district_slug:
-                    slug = place_district_slug
-                else:
-                    slug = slugify(f"{base_slug}-{self.district.name}-{self.state.name}")
-                    break
+                random_number = randint(500000, 699999)
+                slug = f"{random_number}"
 
             self.slug = slug
 

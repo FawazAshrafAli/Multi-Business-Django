@@ -1,17 +1,13 @@
-from django.http import JsonResponse, HttpResponse, Http404
+from django.http import JsonResponse, HttpResponse
 from django.core.cache import cache
 from django.db import transaction
-from django.shortcuts import get_object_or_404
-from django.views.generic import View
 from django.utils.text import slugify
+from random import randint
 
 import logging
 import requests
 import csv
 import time
-import os
-import pandas
-import sys
 
 
 from .models import (
@@ -1157,21 +1153,36 @@ def run_conversion():
     # print("🏁 Conversion job completed.")
 
 
-def update_place_slug():
-    # Add district name into the creating place slug if another place is found with the same name
-    places = UniquePlace.objects.filter(slug__regex=r"[0-9]$").select_related("district").iterator()
+def update_place_slug():    
+    all_places = list(
+        UniquePlace.objects
+        .select_related('district')
+        .values('id', 'name', 'district__name', 'slug')
+    )
 
-    updating_places = []
+    places_to_update = []
+    existing_slugs = set(UniquePlace.objects.values_list('slug', flat=True))
 
-    for place in places:
-        new_slug = slugify(f"{place.name}-{place.district.name}")
-        if place.slug != new_slug:
-            place.slug = new_slug
-            updating_places.append(place)
+    for place in all_places:
+        slugified_place_name = slugify(place['name'])
+        slugified_district_name = slugify(place['district__name'])
+        current_slug = place['slug']
 
-    if updating_places:
-        UniquePlace.objects.bulk_update(updating_places, ["slug"])
-        print(f"✅ Updated {len(updating_places)} place slugs.")
-    else:
-        print("No slugs required updating.")
+        suffix_part = current_slug.replace(slugified_place_name, "")
+        if suffix_part == f"-{slugified_district_name}":
+            new_slug = slugified_place_name
+            while new_slug in existing_slugs:
+                rand = randint(500000, 699999)
+                new_slug = f"{rand}"
 
+            # Prepare update object
+            places_to_update.append(
+                UniquePlace(id=place['id'], slug=new_slug)
+            )
+            existing_slugs.add(new_slug)
+
+    # Use bulk_update efficiently within a transaction
+    with transaction.atomic():
+        UniquePlace.objects.bulk_update(places_to_update, ['slug'])
+
+    print(f"Updated {len(places_to_update)} slugs.")
