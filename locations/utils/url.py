@@ -63,3 +63,23 @@ def generate_district_slugs():
     for slug in slugs.order_by("slug").iterator():
         if slug:
             yield slug
+
+
+def generate_district_dicts():
+    district_dicts = UniqueDistrict.objects.values("slug", "state__slug", "name", "state__name")
+
+    for item in district_dicts.iterator():
+        yield {"slug": item["slug"], "state_slug": item["state__slug"], "name": item["name"], "state_name": item["state__name"]}
+
+
+def generate_place_dicts():
+    place_dicts = UniquePlace.objects.values("slug", "district__slug")
+
+    for item in place_dicts.iterator():
+        yield {"slug": item["slug"], "district_slug": item["district__slug"]}
+
+def generate_state_dicts():
+    state_dicts = UniqueState.objects.values("slug", "name")
+
+    for item in state_dicts.iterator():
+        yield {"slug": item["slug"], "name": item["name"]}

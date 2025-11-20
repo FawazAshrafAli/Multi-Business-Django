@@ -193,6 +193,70 @@ urlpatterns += [
         },
         name='tag-sitemap'
     ),
+
+    re_path(
+        r'^(?P<path>sitemap-state(-\d+)?\.xml)$',
+        serve,
+        {
+            'document_root': os.path.join(settings.BASE_DIR, 'static', 'sitemaps'),
+        },
+        name='state-sitemap'
+    ),
+
+    re_path(
+        r'^(?P<path>sitemap-district(-\d+)?\.xml)$',
+        serve,
+        {
+            'document_root': os.path.join(settings.BASE_DIR, 'static', 'sitemaps'),
+        },
+        name='district-sitemap'
+    ),
+
+    re_path(
+        r'^(?P<path>sitemap-registration-sub-type(-\d+)?\.xml)$',
+        serve,
+        {
+            'document_root': os.path.join(settings.BASE_DIR, 'static', 'sitemaps'),
+        },
+        name='registration-sub-type-sitemap'
+    ),
+
+    re_path(
+        r'^(?P<path>sitemap-product-sub-category(-\d+)?\.xml)$',
+        serve,
+        {
+            'document_root': os.path.join(settings.BASE_DIR, 'static', 'sitemaps'),
+        },
+        name='product-sub-category-sitemap'
+    ),
+
+    re_path(
+        r'^(?P<path>sitemap-service-sub-category(-\d+)?\.xml)$',
+        serve,
+        {
+            'document_root': os.path.join(settings.BASE_DIR, 'static', 'sitemaps'),
+        },
+        name='service-sub-category-sitemap'
+    ),
+
+    re_path(
+        r'^(?P<path>sitemap-course-specialization(-\d+)?\.xml)$',
+        serve,
+        {
+            'document_root': os.path.join(settings.BASE_DIR, 'static', 'sitemaps'),
+        },
+        name='course-specialization-sitemap'
+    ),
+
+    re_path(
+        r'^(?P<path>sitemap-csc(-\d+)?\.xml)$',
+        serve,
+        {
+            'document_root': os.path.join(settings.BASE_DIR, 'static', 'sitemaps'),
+        },
+        name='csc-sitemap'
+    ),
 ]
+
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
