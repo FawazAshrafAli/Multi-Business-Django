@@ -61,65 +61,6 @@
 {% endblock company_content %}
 
 {% block modal %}
-<!-- Course Specialization Modal (Start) -->
-<div class="modal fade" id="add_course_specialization_modal" tabindex="-1" role="dialog" aria-modal="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-
-			<div class="modal-header">
-				<h4 class="modal-title text-center">Add Course Specialization</h4>
-				<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
-			  </div>
-
-			<div class="modal-body">
-				<div class="row">
-					<div class="col-md-12">
-						<form method="post" action="{% url 'superadmin:add_course_specialization' current_company.slug %}" class="needs-validation" id="add-course-specialization-form" novalidate>
-							{% csrf_token %}
-							<h4>Specialization</h4>
-							<div class="form-group row">
-								<div class="col-md-12"><label class="col-form-label">Name <span class="text-danger">*</span></label></div>
-								<div class="col-md-12">
-									<input class="form-control" type="text" id="name-input" placeholder="Name of Course Specialization" name="name">
-									<div class="invalid-feedback">
-										Please enter a valid name containing only letters, spaces, hyphens, or apostrophes. Numbers and special characters are not allowed.
-									</div>
-									<div class="valid-feedback">
-										Looks good!
-									</div>
-								</div>
-							</div>
-							<div class="form-group row">
-								<div class="col-md-12 mb-3">
-									<label for="program-dropdown">Program <span class="text-danger">*</span></label>
-									<select class="form-control" id="program-dropdown" name="program" required>
-										<option value="" hidden disabled selected>Select Program</option>
-										{% for program in programs %}
-										<option value="{{program.slug}}">{{program.name}}</option>
-										{% endfor %}
-									</select>
-									<div class="invalid-feedback">
-										Please provide a valid category.
-									</div>
-									<div class="valid-feedback">
-										Looks good!
-									</div>
-								</div>                            										                                                       
-							</div>
-							<div class="text-center py-3">
-								<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded" id="submit-button">Save</button>&nbsp;&nbsp;
-								<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal">Cancel</button>
-							</div>
-						</form>
-					</div>
-				</div>
-
-			</div>
-
-		</div><!-- modal-content -->
-	</div><!-- modal-dialog -->
-</div><!-- modal -->
-<!-- Course Specialization Modal (End) -->
 
 <!-- Modal -->
 <div class="modal fade" id="delete_company" tabindex="-1" role="dialog" aria-modal="true">

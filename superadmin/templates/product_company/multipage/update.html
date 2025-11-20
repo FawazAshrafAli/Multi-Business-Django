@@ -353,7 +353,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="faq-div" id="faq-div">
-                                                        {% if multipage.faqs.all|length > 1 %}
+                                                        {% if multipage.faqs.all|length > 0 %}
                                                         {% for faq in multipage.faqs.all %}
                                                         {% if forloop.counter > 1 %}<hr><br>{% endif %}
                                                         <div class="faq-inner-div">
