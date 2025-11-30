@@ -315,7 +315,7 @@ class UniquePlace(models.Model):
 
     coordinates = models.ManyToManyField(PlaceCoordinate)    
     
-    slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True, unique=True)
+    slug = models.SlugField(blank=True, null=True, db_index=True, unique=True)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True)
@@ -325,9 +325,12 @@ class UniquePlace(models.Model):
             base_slug = slugify(self.name)
             slug = base_slug
 
+            if not base_slug:
+                slug = str(randint(500000, 699999))
+
             while UniquePlace.objects.filter(slug=slug).exists():
                 random_number = randint(500000, 699999)
-                slug = f"{random_number}"
+                slug = str(random_number)
 
             self.slug = slug
 
