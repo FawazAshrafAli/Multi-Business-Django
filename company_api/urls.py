@@ -26,7 +26,6 @@ router.register(r'base-companies', BaseCompanyViewset, basename="base-company")
 router.register(r'company_types', CompanyTypeApiViewset, basename="company_type")
 router.register(r'brief-company-types', BriefCompanyTypeApiViewset, basename="brief-company-type")
 router.register(r'navbar-company-types', NavbarCompanyTypeApiViewset, basename="navbar-company-type")
-# router.register(r'footer-company-types', FooterCompanyTypeApiViewset, basename="footer-company-type")
 
 companies_router = NestedDefaultRouter(router, r'companies', lookup="company")
 

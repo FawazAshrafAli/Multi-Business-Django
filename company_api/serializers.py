@@ -253,16 +253,16 @@ class NavbarCompanySerializer(serializers.ModelSerializer):
             return None
         
         if obj.type.name == "Education":
-            return "courses"            
+            return "more-courses"            
         
         elif obj.type.name == "Service":
             return "more-services"
         
         elif obj.type.name == "Product":
-            return "products"
+            return "more-products"
         
         elif obj.type.name == "Registration":
-            return "filings"
+            return "startup-services"
         
         else: return None
 
@@ -305,7 +305,7 @@ class InnerPageCompanySerializer(serializers.ModelSerializer):
             "email",  "meta_tags", "meta_description", 
             "favicon_url", "rating", "sub_type", "company_type",
             "testimonials", "clients", "client_slider_heading",
-            "place_name", "district_name", "state_name", "pincode"
+            "place_name", "district_name", "state_name", "pincode"            
         ]
 
     read_only_fields = "__all__"

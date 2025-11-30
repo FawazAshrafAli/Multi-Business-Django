@@ -116,7 +116,11 @@ class InnerPageCompanyApiViewset(viewsets.ReadOnlyModelViewSet):
 
 class MiniCompanyApiViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = MiniCompanySerializer
-    queryset = Company.objects.all().order_by("?")[:12]
+    queryset = Company.objects.all().select_related(
+        "type"
+        ).prefetch_related(
+            "testimonials"
+            ).order_by("?")[:12]
     lookup_field  = "slug"
 
     def get_serializer_context(self):
@@ -138,7 +142,7 @@ class CompanyTypeApiViewset(viewsets.ModelViewSet):
 
 class NavbarCompanyTypeApiViewset(viewsets.ModelViewSet):
     serializer_class = NavbarCompanyTypeSerializer
-    queryset = CompanyType.objects.all().order_by("?")
+    queryset = CompanyType.objects.all().prefetch_related("companies").order_by("?")
     lookup_field  = "slug"
 
     def get_serializer_context(self):
