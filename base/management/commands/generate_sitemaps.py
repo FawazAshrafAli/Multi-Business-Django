@@ -31,7 +31,7 @@ try:
 except Exception:
     SITES_AVAILABLE = False
 
-PAGE_SIZE = 49990 
+PAGE_SIZE = 49990
 
 # ─────────────────────────────────────────────────────────────
 # Helpers
@@ -141,11 +141,7 @@ class Command(BaseCommand):
             {"loc": "/privacy-policy", "changefreq": "monthly", "priority": 0.8},
             {"loc": "/terms-conditions", "changefreq": "monthly", "priority": 0.8},
             {"loc": "/shipping-delivery-policy", "changefreq": "monthly", "priority": 0.8},
-            {"loc": "/cancellation-refund-policy", "changefreq": "monthly", "priority": 0.8},
-            # {"loc": "/services", "changefreq": "monthly", "priority": 0.8},
-            # {"loc": "/products", "changefreq": "monthly", "priority": 0.8},
-            # {"loc": "/courses", "changefreq": "monthly", "priority": 0.8},
-            # {"loc": "/registrations", "changefreq": "monthly", "priority": 0.8},
+            {"loc": "/cancellation-refund-policy", "changefreq": "monthly", "priority": 0.8},            
         ]
 
         for faq in FAQ.objects.filter(company__isnull = True).values("slug"):
@@ -171,7 +167,7 @@ class Command(BaseCommand):
                 {"loc": f"/{slug}/contact-us", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/faqs", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/learn", "changefreq": "weekly", "priority": 1.0},
-                {"loc": f"/{slug}/products", "changefreq": "weekly", "priority": 1.0},
+                {"loc": f"/{slug}/view-products", "changefreq": "weekly", "priority": 1.0},
             ])
 
             for faq in FAQ.objects.filter(company__slug = slug).values("slug"):
@@ -287,7 +283,7 @@ class Command(BaseCommand):
                 {"loc": f"/{slug}/contact-us", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/faqs", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/learn", "changefreq": "weekly", "priority": 1.0},
-                {"loc": f"/{slug}/courses", "changefreq": "weekly", "priority": 1.0},
+                {"loc": f"/{slug}/view-courses", "changefreq": "weekly", "priority": 1.0},
             ])
 
             for faq in FAQ.objects.filter(company__slug = slug).values("slug"):
@@ -343,7 +339,7 @@ class Command(BaseCommand):
                 {"loc": f"/{slug}/contact-us", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/faqs", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/learn", "changefreq": "weekly", "priority": 1.0},
-                {"loc": f"/{slug}/more-services", "changefreq": "weekly", "priority": 1.0},
+                {"loc": f"/{slug}/view-services", "changefreq": "weekly", "priority": 1.0},
             ])
 
             for faq in FAQ.objects.filter(company__slug = slug).values("slug"):
@@ -462,23 +458,25 @@ class Command(BaseCommand):
         district_slugs = generate_district_slugs()
         district_dicts = generate_district_dicts()
 
-        sub_types = RegistrationSubType.objects.values("slug", "location_slug")
+        sub_types = RegistrationSubType.objects.filter(
+            hide_from_main_listing = False
+        ).values("slug", "location_slug")
 
         for state_slug in state_slugs:
             sub_type_listing_urls.append(
-                {"loc": f"/{state_slug}/filings", "changefreq": "monthly", "priority": 0.8}
+                {"loc": f"/{state_slug}/startup-services", "changefreq": "monthly", "priority": 0.8}
             )
 
             for sub_type in sub_types.iterator():
                 page_slug = sub_type["location_slug"] or sub_type["slug"]
 
                 sub_type_listing_urls.append(
-                    {"loc": f"/{state_slug}/filings/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
+                    {"loc": f"/{state_slug}/startup-services/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
                 )
 
         for district_slug in district_slugs:
             sub_type_listing_urls.append(
-                {"loc": f"/{district_slug}/filings", "changefreq": "monthly", "priority": 0.8}
+                {"loc": f"/{district_slug}/startup-services", "changefreq": "monthly", "priority": 0.8}
             )
 
         for district in district_dicts:
@@ -486,7 +484,7 @@ class Command(BaseCommand):
                 page_slug = sub_type["location_slug"] or sub_type["slug"]
 
                 sub_type_listing_urls.append(
-                    {"loc": f"/{district['state_slug']}/filings/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
+                    {"loc": f"/{district['state_slug']}/startup-services/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
                 )
 
         chunk_write(sitemap_dir, base, sub_type_listing_urls, "sitemap-registration-sub-type", out_files)
@@ -500,23 +498,25 @@ class Command(BaseCommand):
         district_slugs = generate_district_slugs()
         district_dicts = generate_district_dicts()
 
-        sub_categories = ProductSubCategory.objects.values("slug", "location_slug")
+        sub_categories = ProductSubCategory.objects.filter(
+            hide_from_main_listing = False
+        ).values("slug", "location_slug")
 
         for state_slug in state_slugs:
             product_sub_category_listing_urls.append(
-                {"loc": f"/{state_slug}/products", "changefreq": "monthly", "priority": 0.8}
+                {"loc": f"/{state_slug}/more-products", "changefreq": "monthly", "priority": 0.8}
             )
 
             for sub_category in sub_categories.iterator():
                 page_slug = sub_category["location_slug"] or sub_category["slug"]
 
                 product_sub_category_listing_urls.append(
-                    {"loc": f"/{state_slug}/products/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
+                    {"loc": f"/{state_slug}/more-products/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
                 )
 
         for district_slug in district_slugs:
             product_sub_category_listing_urls.append(
-                {"loc": f"/{district_slug}/products", "changefreq": "monthly", "priority": 0.8}
+                {"loc": f"/{district_slug}/more-products", "changefreq": "monthly", "priority": 0.8}
             )
 
         for district in district_dicts:
@@ -524,7 +524,7 @@ class Command(BaseCommand):
                 page_slug = sub_category["location_slug"] or sub_category["slug"]
 
                 product_sub_category_listing_urls.append(
-                    {"loc": f"/{district['state_slug']}/products/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
+                    {"loc": f"/{district['state_slug']}/more-products/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
                 )
 
         chunk_write(sitemap_dir, base, product_sub_category_listing_urls, "sitemap-product-sub-category", out_files)
@@ -538,7 +538,9 @@ class Command(BaseCommand):
         district_slugs = generate_district_slugs()
         district_dicts = generate_district_dicts()
 
-        sub_categories = ServiceSubCategory.objects.values("slug", "location_slug")
+        sub_categories = ServiceSubCategory.objects.filter(
+            hide_from_main_listing = False
+        ).values("slug", "location_slug")
 
         for state_slug in state_slugs:
             service_sub_category_listing_urls.append(
@@ -576,23 +578,25 @@ class Command(BaseCommand):
         district_slugs = generate_district_slugs()
         district_dicts = generate_district_dicts()
 
-        specializations = Specialization.objects.values("slug", "location_slug")
+        specializations = Specialization.objects.filter(
+            hide_from_main_listing = False
+        ).values("slug", "location_slug")
 
         for state_slug in state_slugs:
             specification_listing_urls.append(
-                {"loc": f"/{state_slug}/courses", "changefreq": "monthly", "priority": 0.8}
+                {"loc": f"/{state_slug}/more-courses", "changefreq": "monthly", "priority": 0.8}
             )
 
             for specialization in specializations.iterator():
                 page_slug = specialization["location_slug"] or specialization["slug"]
 
                 specification_listing_urls.append(
-                    {"loc": f"/{state_slug}/courses/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
+                    {"loc": f"/{state_slug}/more-courses/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
                 )
 
         for district_slug in district_slugs:
             specification_listing_urls.append(
-                {"loc": f"/{district_slug}/courses", "changefreq": "monthly", "priority": 0.8}
+                {"loc": f"/{district_slug}/more-courses", "changefreq": "monthly", "priority": 0.8}
             )
 
         for district in district_dicts:
@@ -600,7 +604,7 @@ class Command(BaseCommand):
                 page_slug = specialization["location_slug"] or specialization["slug"]
 
                 specification_listing_urls.append(
-                    {"loc": f"/{district['state_slug']}/courses/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
+                    {"loc": f"/{district['state_slug']}/more-courses/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
                 )
 
         chunk_write(sitemap_dir, base, specification_listing_urls, "sitemap-course-specialization", out_files)
