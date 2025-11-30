@@ -582,7 +582,7 @@ class LocationMatchViewSet(ReadOnlyModelViewSet):
         }
 
         for model_type, get_trie_fn, model, serializer_class in MATCH_ORDER:            
-            if location_type and location_type != "undefined" and model_type != location_type:
+            if location_type and location_type != "any" and model_type != location_type:
                 continue
 
             matched_slug = get_trie_fn().match_suffix(slug)
