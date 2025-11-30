@@ -91,7 +91,17 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
+                                <label for="price-input">Price <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="price-input" name="price" placeholder="Price" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid price.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
                                 <label for="mode-dropdown">Course Mode <span class="text-danger">*</span></label>
                                 <select class="form-control" id="mode-dropdown" name="mode" required>
                                     <option value="" hidden disabled selected>Select Course Mode</option>                                   
@@ -105,7 +115,7 @@
                                     Looks good!
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label for="duration-input">Course Duration</label>
                                 <input type="text" class="form-control" id="duration-input" name="duration" placeholder="Course Duration (in days)">
                                 <div class="invalid-feedback">
@@ -115,15 +125,9 @@
                                     Looks good!
                                 </div>
                             </div>                            
-                            <div class="col-md-4 mb-3">
-                                <label for="price-input">Price <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="price-input" name="price" placeholder="Price" required>
-                                <div class="invalid-feedback">
-                                    Please enter a valid price.
-                                </div>
-                                <div class="valid-feedback">
-                                    Looks good!
-                                </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="duration-type-input" > Duration Type </label>
+                                <input type="text" class="form-control" id="duration-type-input" placeholder="Duration Type" name="duration_type" required>
                             </div>
                         </div>
                         <div class="row">

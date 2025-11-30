@@ -113,11 +113,7 @@ class DetailListViewset(viewsets.ReadOnlyModelViewSet):
         sub_category = self.request.query_params.get("sub_category")
 
         filters = {}
-        queryset = ProductDetailPage.objects.none()
-
-        print("Entered")
-        print(self.kwargs)
-        print(self.request.query_params)
+        queryset = ProductDetailPage.objects.none()        
 
         if category:
             filters["product__category__slug"] = category
@@ -277,6 +273,7 @@ class ProductSubCategoryViewSet(viewsets.ReadOnlyModelViewSet):
         company_slug = self.kwargs.get("company_slug")
         category_slug = self.request.query_params.get("category")
         location_slug = self.request.query_params.get("location_slug")
+        listing_type = self.request.query_params.get("listing_type")
 
         if company_slug:
             filters = {}
@@ -287,16 +284,23 @@ class ProductSubCategoryViewSet(viewsets.ReadOnlyModelViewSet):
             if category_slug:
                 filters["category__slug"] = category_slug
 
+            if listing_type == "location":
+                filters["hide_from_main_listing"] = False
+
+            slug_filters = Q()
+
             if location_slug:
-                filters["location_slug"] = location_slug
+                slug_filters = Q(location_slug=location_slug) | Q(slug=location_slug)
 
             return SubCategory.objects.annotate(count = Count("products")).filter(
                 **filters
                 ).filter(
+                    slug_filters
+                ).filter(
                     count__gt = 0
                 ).select_related(
                     "company", "category"
-                ).order_by("created")
+                ).order_by("-updated")
         
         return SubCategory.objects.none()
     

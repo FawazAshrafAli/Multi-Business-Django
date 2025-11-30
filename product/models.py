@@ -97,6 +97,7 @@ class SubCategory(models.Model):
 
     faqs = models.ManyToManyField(SubCategoryFaq)
     hide_faqs = models.BooleanField(default=False)
+    hide_from_main_listing = models.BooleanField(default=False)
 
     slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
 
@@ -272,8 +273,9 @@ class Product(models.Model):
         if colors and len(colors) > 0:
             color_list = []
             for color in colors:
-                color_list.append(f"<div style='height: 15px; width: 15px; border: 1px solid black; background-color: {color.hexa};'></div>&nbsp;{color.name}")
-            return ',&nbsp;'.join(color_list)
+                # color_list.append(f"<div style='height: 15px; width: 15px; border: 1px solid black; background-color: {color.hexa};'></div>&nbsp;{color.name}")
+                color_list.append({"name": color.name, "hexa": color.hexa, "slug": color.slug})
+            return color_list
         return None
     
     @property

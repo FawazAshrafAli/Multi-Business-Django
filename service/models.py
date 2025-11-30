@@ -100,6 +100,7 @@ class SubCategory(models.Model):
 
     faqs = models.ManyToManyField(SubCategoryFaq)
     hide_faqs = models.BooleanField(default=False)
+    hide_from_main_listing = models.BooleanField(default=False)
 
     slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
 
@@ -136,7 +137,9 @@ class SubCategory(models.Model):
     def get_full_title(self):
         title_list = [self.starting_title, self.name, self.ending_title]
 
-        return " ".join(filter(None, title_list))    
+        full_title = " ".join(filter(None, title_list))
+        
+        return full_title
 
 
 class Service(models.Model):
@@ -152,6 +155,7 @@ class Service(models.Model):
 
     price = models.CharField(max_length=100, blank=True, null=True)
     duration = models.CharField(max_length=100, blank=True, null=True)
+    duration_type = models.CharField(max_length=100, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -187,6 +191,18 @@ class Service(models.Model):
             return self.image.name.replace('services/', '')
         
         return None    
+    
+    @property
+    def get_duration(self):
+        if not self.duration:
+            return
+
+        duration = self.duration
+
+        if self.duration_type:
+            duration += f" {self.duration_type}"
+        
+        return duration
 
 class Feature(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="service_feature_company")

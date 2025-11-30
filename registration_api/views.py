@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.db.models import Q, Count
 
 from .serializers import (
     SubTypeSerializer, DetailSerializer, TypeSerializer, 
@@ -30,6 +31,7 @@ class SubTypeViewset(viewsets.ReadOnlyModelViewSet):
         slug = self.kwargs.get("company_slug")
         type_slug = self.request.query_params.get("type")
         location_slug = self.request.query_params.get("location_slug")
+        listing_type = self.request.query_params.get("listing_type")
 
         if slug: 
             filters = {}
@@ -38,13 +40,22 @@ class SubTypeViewset(viewsets.ReadOnlyModelViewSet):
                 filters = {"company__slug": slug}
 
             if type_slug:
-                filters["type__slug"] = type_slug 
+                filters["type__slug"] = type_slug
+
+            if listing_type == "location":
+                filters["hide_from_main_listing"] = False
+
+            slug_filters = Q()
 
             if location_slug:
-                filters["location_slug"] = location_slug  
+                slug_filters = Q(location_slug=location_slug) | Q(slug=location_slug)
 
-            return RegistrationSubType.objects.filter(
+            return RegistrationSubType.objects.annotate(count = Count("registrations")).filter(
                 **filters
+                ).filter(
+                    slug_filters
+                ).filter(
+                    count__gt = 0
                 ).select_related(
                     "company", "type"
                 ).order_by("-updated")

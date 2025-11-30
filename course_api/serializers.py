@@ -30,7 +30,7 @@ class MiniCourseSerializer(serializers.ModelSerializer):
         fields = ["id",
             "name", "program_name", "image_url",
             "company_name", "mode", 
-            "starting_date", "ending_date", "duration",
+            "starting_date", "ending_date", "duration", "duration_type",
             "price", "rating", "rating_count"          
             ]
         
@@ -67,7 +67,7 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = ["id",
             "name", "program_name", "image_url", "company_sub_type",
             "description", "company_name", "company_slug", "mode", 
-            "starting_date", "ending_date", "duration", "program_slug",
+            "starting_date", "ending_date", "duration", "duration_type", "program_slug",
             "price", "rating", "rating_count", "slug", "specialization_slug",
             "specialization_name", "testimonials"
             ]
@@ -248,6 +248,7 @@ class DetailSerializer(serializers.ModelSerializer):
     starting_date = serializers.CharField(source="course.starting_date", read_only = True)
     ending_date = serializers.CharField(source="course.ending_date", read_only = True)
     duration = serializers.CharField(source="course.duration", read_only = True)
+    duration_type = serializers.CharField(source="course.duration_type", read_only = True)
     price = serializers.CharField(source="course.price", read_only = True)
 
     class Meta:
@@ -265,7 +266,7 @@ class DetailSerializer(serializers.ModelSerializer):
             "modified", "item_name", "created", "updated", "url", 
             "program_name", "program_slug", "specialization_name", 
             "specialization_slug", "rating", "rating_count", "mode", "starting_date",
-            "ending_date", "duration", "price"
+            "ending_date", "duration","duration_type", "price"
             ]    
 
     def get_image_url(self, obj):
@@ -381,6 +382,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     mode = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
+    duration_type = serializers.SerializerMethodField()
     company_name = serializers.CharField(source="company.name", read_only=True)
     company_slug = serializers.CharField(source="company.slug", read_only=True)
     faqs = serializers.SerializerMethodField()
@@ -396,7 +398,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
             "updated", "image_url", "updated",
             "program_name", "program_slug",
             "url", "price", "company_name", "company_slug",
-            "mode", "duration", "faqs", "rating",
+            "mode", "duration", "duration_type", "faqs", "rating",
             "starting_title", "ending_title", "content",
             "location_slug", "hide_faqs", "description", 
             "meta_description", "testimonials",
@@ -459,6 +461,15 @@ class SpecializationSerializer(serializers.ModelSerializer):
 
             if course_obj and course_obj.duration:
                 return course_obj.duration
+
+        return None
+    
+    def get_duration_type(self, obj):
+        if hasattr(obj, "courses"):
+            course_obj = obj.courses.filter(duration__isnull = False).first()
+
+            if course_obj and course_obj.duration and course_obj.duration_type:
+                return course_obj.duration_type
 
         return None
 
@@ -552,6 +563,7 @@ class MultiPageSerializer(serializers.ModelSerializer):
     meta_tags = serializers.SerializerMethodField()
     mode = serializers.CharField(source="course.mode", read_only=True)
     duration = serializers.CharField(source="course.duration", read_only = True)
+    duration_type = serializers.CharField(source="course.duration_type", read_only = True)
     price = serializers.CharField(source="course.price", read_only = True)
     program_name = serializers.CharField(source="course.program.name", read_only=True)
     rating = serializers.SerializerMethodField()
@@ -574,7 +586,7 @@ class MultiPageSerializer(serializers.ModelSerializer):
             "title", "summary", "description", "slug",
             "toc", "mode", "starting_date", "ending_date",
             "faqs", "url_type", "meta_tags", "price",
-            "meta_description", "duration", "program_name",
+            "meta_description", "duration", "duration_type", "program_name",
             "meta_title", "rating", "rating_count",
 
             "slider_courses", "features", "vertical_title", "horizontal_title", 

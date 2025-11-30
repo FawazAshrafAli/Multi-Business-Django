@@ -47,7 +47,7 @@
                                                     <td style="max-width: 90px; overflow-wrap: break-word; word-wrap: break-word; white-space: normal;">
                                                         {{ service.sub_category.name }}
                                                     </td>  
-                                                    <td>{% if service.duration %}{{service.duration}}{% else %}Not Provided{% endif %}</td>                                                  
+                                                    <td>{% if service.duration %}{{service.duration}} {{service.duration_type}}{% else %}Not Provided{% endif %}</td>                                                  
                                                     <td>{% if service.price %}{{service.price}}{% else %}Not Provided{% endif %}</td>
                                                     <td>{{service.is_active}}</td>
                                                     <td style="max-width: 90px; overflow-wrap: break-word; word-wrap: break-word; white-space: normal;">{{service.created}}</td>

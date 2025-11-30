@@ -308,8 +308,8 @@ class DetailSerializer(serializers.ModelSerializer):
     brand_name = serializers.CharField(source = "product.brand.name", read_only = True)
     reviews = serializers.SerializerMethodField()
     faqs = serializers.SerializerMethodField()
-    rating = serializers.SerializerMethodField()
-    rating_count = serializers.SerializerMethodField()
+    rating = serializers.CharField(source = "product.get_rating", read_only = True)
+    rating_count = serializers.CharField(source = "product.get_rating_count", read_only = True)
     price = serializers.CharField(source = "product.price", read_only = True)
     sku = serializers.CharField(source = "product.sku", read_only = True)    
 
@@ -319,6 +319,9 @@ class DetailSerializer(serializers.ModelSerializer):
     meta_tags = MetaTagSerializer(many=True, read_only=True)
     company_slug = serializers.CharField(source="company.slug", read_only=True)
     url = serializers.CharField(source="computed_url", read_only=True)
+    size = serializers.CharField(source="product.get_sizes", read_only=True)
+    dimension = serializers.CharField(source="product.get_dimension", read_only=True)
+    colors = serializers.SerializerMethodField()
 
     company_sub_type = serializers.CharField(source="company.sub_type", read_only=True)    
 
@@ -334,8 +337,12 @@ class DetailSerializer(serializers.ModelSerializer):
             "created", "updated", "company_slug", "url",
             "whatsapp", "external_link", "buy_now_action",
             "category_slug", "sub_category_slug", 
-            "company_sub_type", "price", "sku"
-            ]   
+            "company_sub_type", "price", "sku", "size",
+            "dimension", "colors"
+            ]
+
+    def get_colors(self, obj):
+        return obj.product.get_colors   
 
     def get_reviews(self, obj):        
         reviews_qs = obj.product.reviews.select_related(
@@ -356,19 +363,7 @@ class DetailSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.product.image.url)
             return f"{settings.SITE_URL}/{obj.product.image.url}"
         
-        return None
-    
-    def get_rating(self, obj):        
-
-        if obj.product.reviews:
-            return obj.product.reviews.aggregate(avg_rating=Avg("rating"))["avg_rating"] or "0"
-        return "0"
-    
-    def get_rating_count(self, obj):
-
-        if obj.product.reviews:
-            return obj.product.reviews.count() or "0"
-        return "0"
+        return None    
     
     def get_faqs(self, obj):
         if not obj.product:

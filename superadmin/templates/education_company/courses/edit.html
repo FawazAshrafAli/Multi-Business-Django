@@ -79,7 +79,17 @@
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
+                                <label for="price-input">Price <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="price-input" name="price" value="{% if course.price %}{{course.price}}{% endif %}" placeholder="Price" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid price.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
                                 <label for="brand-dropdown">Course Mode <span class="text-danger">*</span></label>
                                 <select class="form-control" id="mode-dropdown" name="mode" required>
                                     <option value="" hidden disabled selected>Select Course Mode</option>
@@ -94,8 +104,8 @@
                                     Looks good!
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="sku-input">Course Duration</label>
+                            <div class="col-md-3 mb-3">
+                                <label for="duration-input">Course Duration</label>
                                 <input type="text" class="form-control" id="duration-input" name="duration" value="{% if course.duration %}{{course.duration}}{% endif %}" placeholder="Course Duration (in days)">
                                 <div class="invalid-feedback">
                                     Please enter a valid course dutaion.
@@ -103,17 +113,12 @@
                                 <div class="valid-feedback">
                                     Looks good!
                                 </div>
-                            </div>                            
-                            <div class="col-md-4 mb-3">
-                                <label for="price-input">Price <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="price-input" name="price" value="{% if course.price %}{{course.price}}{% endif %}" placeholder="Price" required>
-                                <div class="invalid-feedback">
-                                    Please enter a valid price.
-                                </div>
-                                <div class="valid-feedback">
-                                    Looks good!
-                                </div>
                             </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="duration-type-input" > Duration Type </label>
+                                <input type="text" class="form-control" id="duration-type-input" placeholder="Duration Type" name="duration_type" value="{% if course.duration_type %}{{course.duration_type}}{% endif %}" required>
+                            </div>                                                      
+                            
                         </div>
                         <div class="form-group row">
                             <div class="col-md-12 mb-3">
@@ -246,6 +251,7 @@
 
         $('#name-input, #duration-input, #price-input').on('input', function () {
             let thisValue = $(this).val();
+
             if (thisValue) {
                 thisValue = thisValue.trim();
             }
@@ -256,6 +262,8 @@
                 } else {
                     $(this).removeClass('is-valid').addClass('is-invalid');                
                 }
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
             }
 
             if (thisValue) {

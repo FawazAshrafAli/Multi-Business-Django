@@ -101,6 +101,7 @@ class Specialization(models.Model):
 
     faqs = models.ManyToManyField(SpecializationFaq)
     hide_faqs = models.BooleanField(default=False)
+    hide_from_main_listing = models.BooleanField(default=False)
 
     slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -147,6 +148,7 @@ class Course(models.Model):
     specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE, related_name="courses")
     mode = models.CharField(max_length=150)
     duration = models.CharField(blank=True, null=True, max_length=20)
+    duration_type = models.CharField(max_length=100, blank=True, null=True)
     price = models.CharField(blank=True, null=True, max_length=20)
 
     slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
@@ -227,6 +229,7 @@ class Course(models.Model):
     def ending_date(self):
 
         return ""
+
 
 class Feature(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)

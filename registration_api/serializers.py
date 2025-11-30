@@ -51,6 +51,7 @@ class SubTypeSerializer(serializers.ModelSerializer):
     company_logo_url = serializers.SerializerMethodField()
     url = serializers.CharField(source="computed_url", read_only=True)
     duration = serializers.SerializerMethodField()
+    duration_type = serializers.SerializerMethodField()
     full_title = serializers.CharField(source="get_full_title", read_only=True)
     faqs = serializers.SerializerMethodField()
     testimonials = serializers.SerializerMethodField()
@@ -59,7 +60,7 @@ class SubTypeSerializer(serializers.ModelSerializer):
         model = RegistrationSubType
         fields = ["id",
             "name", "type_name", "company_slug", "description", "slug",
-            "price", "type_slug", "company_name", "duration",
+            "price", "type_slug", "company_name", "duration", "duration_type",
             "rating", "updated", "image_url", "url", "location_slug",
             "full_title", "starting_title", "ending_title", "faqs",
             "content", "hide_faqs", "testimonials", "company_contact",
@@ -95,6 +96,15 @@ class SubTypeSerializer(serializers.ModelSerializer):
 
             if registration_obj and registration_obj.time_required:
                 return registration_obj.time_required
+
+        return None
+    
+    def get_duration_type(self, obj):
+        if hasattr(obj, "registrations"):
+            registration_obj = obj.registrations.filter(time_required__isnull = False).first()
+
+            if registration_obj and registration_obj.time_required and registration_obj.duration_type:
+                return registration_obj.duration_type
 
         return None
 
@@ -254,7 +264,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = Registration
         fields = ["id",
             "title", "image_url", "sub_type", "price",
-            "time_required", "required_documents", "additional_info",
+            "time_required", "duration_type", "required_documents", "additional_info",
             "slug", "updated", "rating"
         ]
 
@@ -309,6 +319,7 @@ class DetailListSerializer(serializers.ModelSerializer):
     sub_type_name = serializers.CharField(source="registration.sub_type.name", read_only=True)
     price = serializers.CharField(source="registration.price", read_only=True)
     time_required = serializers.CharField(source="registration.time_required", read_only=True)
+    duration_type = serializers.CharField(source="registration.duration_type", read_only=True)
     image_url = serializers.SerializerMethodField()
     company_name = serializers.CharField(source="company.name", read_only=True)
 
@@ -317,7 +328,7 @@ class DetailListSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "company_slug", "image_url",
             "meta_title", "meta_description",
             "summary", "slug", "url", "type_name",
-            "sub_type_name", "price", "time_required",
+            "sub_type_name", "price", "time_required", "duration_type",
             "company_name"
             ]
         

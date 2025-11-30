@@ -45,7 +45,7 @@
 									<td>{{course.program}}</td>
 									<td>{{course.specialization}}</td>
 									<td>{{course.mode}}</td>
-									<td>{{course.duration}} Days</td>
+									<td>{% if course.duration %}{{course.duration}} {{course.duration_type}}{% endif %}</td>
                                     <td>&#8377;{{course.price}}</td>
 									<td class="text-center">
 										<div class="dropdown dropdown-action">

@@ -53,14 +53,14 @@
 									</td>	
 									<td>{{registration.sub_type.name}}</td>
 									<td>{{registration.sub_type.type.name}}</td>
-									<td>{{registration.time_required}}</td>
+									<td>{% if registration.time_required %}{{registration.time_required}} {{registration.duration_type}}{% endif %}</td>
 									<td>{{registration.price}}</td>									
 									<td class="text-end">
 										<div class="dropdown dropdown-action">
 											<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
 											<div class="dropdown-menu dropdown-menu-right">
-												<a class="dropdown-item edit-toggle-btn" href="{% url 'superadmin:update_registration' current_company.slug registration.slug %}">Edit This Registration Type</a>
-												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{registration.sub_type.name}}" data-slug="{{registration.slug}}" >Remove This Registration Type</a>
+												<a class="dropdown-item edit-toggle-btn" href="{% url 'superadmin:update_registration' current_company.slug registration.slug %}">Edit This Registration</a>
+												<a class="dropdown-item delete-btn" href="#" data-bs-toggle="modal" data-bs-target="#delete_company" data-name="{{registration.sub_type.name}}" data-slug="{{registration.slug}}" >Remove This Registration</a>
 											</div>
 										</div>
 									</td>

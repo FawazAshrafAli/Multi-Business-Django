@@ -3,7 +3,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from django.http import Http404
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 
 from .serializers import (
@@ -71,6 +71,7 @@ class SubCategoryViewset(viewsets.ModelViewSet):
         slug = self.kwargs.get("company_slug")
         category_slug = self.request.query_params.get("category")
         location_slug = self.request.query_params.get("location_slug")
+        listing_type = self.request.query_params.get("listing_type")
 
         if slug:
             filters = {}
@@ -81,11 +82,18 @@ class SubCategoryViewset(viewsets.ModelViewSet):
             if category_slug:
                 filters["category__slug"] = category_slug
 
+            if listing_type == "location":
+                filters["hide_from_main_listing"] = False
+
+            slug_filters = Q()
+
             if location_slug:
-                filters["location_slug"] = location_slug       
+                slug_filters = Q(location_slug=location_slug) | Q(slug=location_slug)
 
             return SubCategory.objects.annotate(count = Count("services")).filter(
                 **filters
+                ).filter(
+                    slug_filters
                 ).filter(
                     count__gt = 0
                 ).select_related(

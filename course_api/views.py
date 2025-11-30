@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny
 # Django Libraries
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from django.db.models import Count
+from django.db.models import Count, Q
 import logging
 
 # Model Imports
@@ -78,6 +78,7 @@ class SpecializationViewset(viewsets.ModelViewSet):
         company_slug = self.kwargs.get("company_slug")
         program_slug = self.request.query_params.get("program")
         location_slug = self.request.query_params.get("location_slug")
+        listing_type = self.request.query_params.get("listing_type")
     
         if company_slug:
             filters = {}
@@ -88,16 +89,23 @@ class SpecializationViewset(viewsets.ModelViewSet):
             if program_slug:
                 filters["program__slug"] = program_slug
 
+            if listing_type == "location":
+                filters["hide_from_main_listing"] = False
+
+            slug_filters = Q()
+
             if location_slug:
-                filters["location_slug"] = location_slug
+                slug_filters = Q(location_slug=location_slug) | Q(slug=location_slug)
 
             return Specialization.objects.annotate(count = Count("courses")).filter(
                 **filters
                 ).filter(
+                    slug_filters
+                ).filter(
                     count__gt = 0
                 ).select_related(
                         "company", "program"
-                ).order_by("?")
+                ).order_by("-updated")
         
         return Specialization.objects.none()
         

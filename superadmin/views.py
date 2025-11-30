@@ -278,7 +278,7 @@ class AddCompanyView(BaseCompanyView, CreateView):
             phone1 = phone1.strip() if phone1 else None
             phone2 = phone2.strip() if phone2 else None
             whatsapp = whatsapp.strip() if whatsapp else None
-            email = email.strip() if email else None           
+            email = email.strip() if email else None   
 
             meta_title = meta_title.strip() if meta_title else None
             meta_description = meta_description.strip() if meta_description else None
@@ -697,7 +697,7 @@ class BaseProductView(BaseProductCompanyView, View):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["company_page"] = True
-        context["product_page"] = True        
+        context["product_page"] = True
         return context
 
 class ListProductView(BaseProductView, ListView):
@@ -776,7 +776,7 @@ class AddProductView(BaseProductView, CreateView):
                 "Brand": brandSlug,
                 "Product Image": image,
                 "Stock": stock,
-                "Price": price                
+                "Price": price        
             }
 
             if length or width or height:                
@@ -874,7 +874,7 @@ class UpdateProductView(BaseProductView, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            context["update_product_page"] = True            
+            context["update_product_page"] = True    
             
             context["units"] = sorted(["mm", "cm", "m"])
             current_company = self.get_current_company()
@@ -926,7 +926,7 @@ class UpdateProductView(BaseProductView, UpdateView):
                 "Brand": brandSlug,
                 "Product Image": image if not self.object.image else True,
                 "Stock": stock,
-                "Price": price                
+                "Price": price        
             }
 
             if length or width or height:                
@@ -971,7 +971,7 @@ class UpdateProductView(BaseProductView, UpdateView):
                 
                 self.object.height = height if height else 0
                 self.object.weight = weight if weight else 0
-                self.object.unit = unit if unit else None              
+                self.object.unit = unit if unit else None      
 
                 self.object.save()
             
@@ -1064,7 +1064,7 @@ class ListBrandView(BaseBrandView, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:                        
-            context["product_brand_page"] = True        
+            context["product_brand_page"] = True
         except Exception as e:
             logger.exception(f"Error in fetching context data of list brand view of superadmin: {e}")
         return context
@@ -1217,7 +1217,7 @@ class ListProductCategoryView(BaseProductCategoryView, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:            
-            context["product_categories_page"] = True        
+            context["product_categories_page"] = True
         except Exception as e:
             logger.exception(f"Error in fetching context data of list category view of superadmin: {e}")
         return context
@@ -1326,7 +1326,8 @@ class ListProductSubCategoryView(BaseProductSubCategory, ListView):
 class AddProductSubCategoryView(BaseProductSubCategory, CreateView):
     fields = [
         "name", "category", "description", "starting_title", "ending_title",
-        "location_slug", "slug", "content", "hide_faqs", "meta_description"
+        "location_slug", "slug", "content", "hide_faqs", "meta_description", 
+        "hide_from_main_listing"
         ]
     template_name = "product_company/sub_category/add.html"
 
@@ -1381,6 +1382,7 @@ class AddProductSubCategoryView(BaseProductSubCategory, CreateView):
             ending_title = clean_string(request.POST.get("ending_title", ""))
             content = request.POST.get("content")
             hide_faqs = request.POST.get("hide_faqs")
+            hide_from_main_listing = request.POST.get("hide_from_main_listing")
 
             required_fields = {
                 "Name": name,
@@ -1390,23 +1392,16 @@ class AddProductSubCategoryView(BaseProductSubCategory, CreateView):
             for field_name, field_value in required_fields.items():
                 if not field_value:
                     messages.error(request, f"Failed! {field_name} is required")
-                    return redirect(self.get_redirect_url())
-
-            slug_list = [starting_title, slug, ending_title]
-
-            full_slug = slugify("-".join(filter(None, slug_list)))
+                    return redirect(self.get_redirect_url())            
             
             with transaction.atomic():
                 category = get_object_or_404(ProductCategory, slug = category_slug)
 
-                slug = slugify(slug)
+                if slug:
+                    slug = slugify(slug)
 
-                if self.model.objects.filter(slug = slug).exists():
-                    messages.error(request, "Failed! Similar slug already exists for another product sub category.")
-                    return redirect(self.get_redirect_url())
-
-                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
-                        messages.error(request, "Failed! Similar location slug already exists for another product sub category.")
+                    if self.model.objects.filter(slug = slug).exists():
+                        messages.error(request, "Failed! Similar slug already exists for another product sub category.")
                         return redirect(self.get_redirect_url())
                 
                 sub_category, created = self.model.objects.get_or_create(
@@ -1418,17 +1413,32 @@ class AddProductSubCategoryView(BaseProductSubCategory, CreateView):
                         "starting_title": starting_title,
                         "ending_title": ending_title,
                         "hide_faqs": True if hide_faqs else False,
+                        "hide_from_main_listing": True if hide_from_main_listing else False,
                         "content": content,
                         "slug": slug if slug else None,
-                        "location_slug": full_slug if full_slug else None,
                     })
 
                 if not created:
                     messages.warning(request, "Product sub category already exists.")
                     return redirect(self.get_redirect_url())
 
+                if not slug:
+                    slug = sub_category.slug
+
+                slug_list = [starting_title, slug, ending_title]
+
+                full_slug = slugify("-".join(filter(None, slug_list)))
+
+                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
+                    messages.error(request, "Failed! Similar location slug already exists for another product sub category.")
+                    return redirect(self.get_redirect_url())
+
                 sub_category_faq_objs = self.handle_faqs(request, sub_category.company, sub_category.slug)
                 sub_category.faqs.set(sub_category_faq_objs)
+
+                if full_slug:
+                    sub_category.location_slug = full_slug
+                    sub_category.save()
 
                 messages.success(request, "Success! Product sub category created.")
                 return redirect(self.get_success_url())            
@@ -1446,7 +1456,8 @@ class AddProductSubCategoryView(BaseProductSubCategory, CreateView):
 class UpdateProductSubCategoryView(BaseProductSubCategory, UpdateView):
     fields = [
         "name", "category", "description", "starting_title", "ending_title",
-        "location_slug", "slug", "content", "hide_faqs", "meta_description"
+        "location_slug", "slug", "content", "hide_faqs", "meta_description", 
+        "hide_faqs"
         ]
     slug_url_kwarg = "sub_category_slug"
     template_name = "product_company/sub_category/edit.html"
@@ -1503,6 +1514,7 @@ class UpdateProductSubCategoryView(BaseProductSubCategory, UpdateView):
             ending_title = clean_string(request.POST.get("ending_title", ""))
             content = request.POST.get("content")            
             hide_faqs = request.POST.get("hide_faqs")
+            hide_from_main_listing = request.POST.get("hide_from_main_listing")
 
             required_fields = {
                 "Name": name,                
@@ -1551,7 +1563,8 @@ class UpdateProductSubCategoryView(BaseProductSubCategory, UpdateView):
                 self.object.meta_description = meta_description
                 self.object.starting_title = starting_title
                 self.object.ending_title = ending_title
-                self.object.hide_faqs = True if hide_faqs else False        
+                self.object.hide_faqs = True if hide_faqs else False
+                self.object.hide_from_main_listing = True if hide_from_main_listing else False
                 self.object.content = content
 
                 self.object.save()
@@ -2845,7 +2858,7 @@ class AddProductDetailPageView(BaseProductDetailPageView, CreateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            # bullet_title = bullet_title.strip() if bullet_title else None            
+            # bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -3047,7 +3060,7 @@ class UpdateProductDetailPageView(BaseProductDetailPageView, UpdateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            # bullet_title = bullet_title.strip() if bullet_title else None            
+            # bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             hide_features = request.POST.get("hide_features")
@@ -3143,10 +3156,10 @@ class UpdateProductDetailPageView(BaseProductDetailPageView, UpdateView):
                 # product_detail.vertical_title = vertical_title
                 # product_detail.horizontal_title = horizontal_title
                 # product_detail.table_title = table_title
-                # product_detail.bullet_title = bullet_title                
+                # product_detail.bullet_title = bullet_title        
                 product_detail.timeline_title = timeline_title 
 
-                product_detail.hide_support_languages = True if hide_support_languages else False                
+                product_detail.hide_support_languages = True if hide_support_languages else False        
 
                 for key, value in checkbox_fields.items():
                     assigning_value = False
@@ -3619,7 +3632,7 @@ class AddProductMultiPageView(BaseProductMultiPageView, CreateView):
             # vertical_title = vertical_title.strip() if vertical_title else None
             # horizontal_title = horizontal_title.strip() if horizontal_title else None
             # table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -3873,7 +3886,7 @@ class UpdateProductMultiPageView(BaseProductMultiPageView, UpdateView):
             whatsapp = whatsapp.strip() if whatsapp else None
             external_link = external_link.strip() if external_link else None
             
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -3968,8 +3981,8 @@ class UpdateProductMultiPageView(BaseProductMultiPageView, UpdateView):
                 if buy_now_action == "external_link":
                     multipage.external_link = external_link 
                 
-                multipage.bullet_title = bullet_title                
-                multipage.timeline_title = timeline_title                
+                multipage.bullet_title = bullet_title        
+                multipage.timeline_title = timeline_title        
 
                 multipage.products.set(products)                
 
@@ -4152,7 +4165,7 @@ class UpdateProductBannerView(BaseProductBannerView, UpdateView):
             }
 
             if not hasattr(self.object, "image"):
-                required_fields["image"] = image            
+                required_fields["image"] = image    
 
             for field_name, field_value in required_fields.items():
                 if not field_value:
@@ -4219,7 +4232,11 @@ class BaseEducationCompanyView(BaseCompanyView, View):
     
 
 class AddCourseView(BaseEducationCompanyView, CreateView): 
-    fields = ["company", "image", "name", "program", "specialization", "mode", "duration", "price", "duration", "meta_tags", "meta_description", "subtitles"]
+    fields = [
+        "company", "image", "name", "program", "specialization", 
+        "mode", "duration", "price", "duration", "meta_tags", 
+        "meta_description", "subtitles", "duration_type"
+        ]
     template_name = "education_company/courses/add.html"
     success_url = redirect_url = reverse_lazy("superadmin:home")
     
@@ -4262,26 +4279,18 @@ class AddCourseView(BaseEducationCompanyView, CreateView):
             company = self.get_current_company()
 
             image = request.FILES.get('image')
-            name = request.POST.get("name")
-            program_slug = request.POST.get("program")
-            specialization_slug = request.POST.get("specialization")
-            mode = request.POST.get("mode")
-            duration = request.POST.get("duration")
-            price = request.POST.get("price")
+            name = clean_string(request.POST.get("name", ""))
+            program_slug = clean_string(request.POST.get("program", ""))
+            specialization_slug = clean_string(request.POST.get("specialization", ""))
+            mode = clean_string(request.POST.get("mode", ""))
+            duration = clean_string(request.POST.get("duration", ""))
+            duration_type = clean_string(request.POST.get("duration_type", ""))
+            price = clean_string(request.POST.get("price", ""))
 
             meta_tags = request.POST.getlist("meta_tag")
 
-            subtitles = request.POST.get("subtitles")
-            meta_description = request.POST.get("meta_description")
-
-            name = name.strip() if name else None
-            program_slug = program_slug.strip() if program_slug else None
-            specialization_slug = specialization_slug.strip() if specialization_slug else None
-            mode = mode.strip() if mode else None
-            duration = duration.strip() if duration else None
-            price = price.strip() if price else None
-            subtitles = subtitles.strip() if subtitles else None
-            meta_description = meta_description.strip() if meta_description else None
+            subtitles = clean_string(request.POST.get("subtitles", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))            
 
             meta_tags = [tag.strip() for tag in meta_tags if tag.strip()]
 
@@ -4298,7 +4307,7 @@ class AddCourseView(BaseEducationCompanyView, CreateView):
             for key, value in required_fields.items():
                 if not value:
                     messages.error(request, f"Failed! {key} is required")
-                    return redirect(self.get_redirect_url)
+                    return redirect(self.get_redirect_url())
 
             try:
                 program = get_object_or_404(Program, slug = program_slug)
@@ -4330,7 +4339,8 @@ class AddCourseView(BaseEducationCompanyView, CreateView):
                 course, created = self.model.objects.get_or_create(
                     company = company, image = image,
                     name=name, program=program, specialization=specialization,
-                    mode=mode, duration=duration, price=price, subtitles = subtitles,
+                    mode=mode, duration=duration, duration_type=duration_type, 
+                    price=price, subtitles = subtitles,
                     meta_description = meta_description
                     )
 
@@ -4352,7 +4362,10 @@ class AddCourseView(BaseEducationCompanyView, CreateView):
     
 
 class UpdateCourseView(BaseEducationCompanyView, UpdateView): 
-    fields = ["image", "name", "program", "specialization", "mode", "duration", "price", "duration", "subtitles", "meta_tags", "meta_description"]   
+    fields = [
+        "image", "name", "program", "specialization", "mode", "duration", "price", 
+        "duration", "subtitles", "meta_tags", "meta_description", "duration_type"
+        ]   
     template_name = "education_company/courses/edit.html"
     success_url = redirect_url = reverse_lazy("superadmin:home")    
     slug_url_kwarg = "course_slug"
@@ -4378,7 +4391,6 @@ class UpdateCourseView(BaseEducationCompanyView, UpdateView):
         
         try:
             context["course_page"] = True
-            context["add_course_page"] = True
             context["modes"] = ("Online", "Offline")
 
             current_company = self.get_current_company()
@@ -4398,29 +4410,21 @@ class UpdateCourseView(BaseEducationCompanyView, UpdateView):
         try:
             image = request.FILES.get("image")
 
-            name = request.POST.get("name")
-            program_slug = request.POST.get("program")
-            specialization_slug = request.POST.get("specialization")
-            mode = request.POST.get("mode")
-            duration = request.POST.get("duration")
-            price = request.POST.get("price")
+            name = clean_string(request.POST.get("name", ""))
+            program_slug = clean_string(request.POST.get("program", ""))
+            specialization_slug = clean_string(request.POST.get("specialization", ""))
+            mode = clean_string(request.POST.get("mode", ""))
+            duration = clean_string(request.POST.get("duration", ""))
+            duration = clean_string(request.POST.get("duration", ""))
+            duration_type = clean_string(request.POST.get("duration_type", ""))
+            price = clean_string(request.POST.get("price", ""))
 
             meta_tags = request.POST.getlist("meta_tag")
 
-            subtitles = request.POST.get("subtitles")
-            meta_description = request.POST.get("meta_description")
+            subtitles = clean_string(request.POST.get("subtitles", ""))
+            meta_description = clean_string(request.POST.get("meta_description", ""))            
 
-            name = name.strip() if name else None
-            program_slug = program_slug.strip() if program_slug else None
-            specialization_slug = specialization_slug.strip() if specialization_slug else None
-            mode = mode.strip() if mode else None
-            duration = duration.strip() if duration else None
-            price = price.strip() if price else None
-
-            meta_tags = [tag.strip() for tag in meta_tags if tag and tag.strip()]
-
-            subtitles = subtitles.strip() if subtitles else None
-            meta_description = meta_description.strip() if meta_description else None
+            meta_tags = [tag.strip() for tag in meta_tags if tag and tag.strip()]            
 
             required_fields = {
                 "Name": name,
@@ -4435,7 +4439,7 @@ class UpdateCourseView(BaseEducationCompanyView, UpdateView):
             for key, value in required_fields.items():
                 if not value:
                     messages.error(request, f"Failed! {key} is required")
-                    return redirect(self.get_redirect_url)
+                    return redirect(self.get_redirect_url())
                 
             try:
                 program = get_object_or_404(Program, slug = program_slug)
@@ -4480,6 +4484,7 @@ class UpdateCourseView(BaseEducationCompanyView, UpdateView):
                 course.specialization = specialization
                 course.mode = mode
                 course.duration = duration
+                course.duration_type = duration_type
                 course.price = price
                 course.subtitles = subtitles
                 course.meta_description = meta_description
@@ -4720,7 +4725,7 @@ class CourseSpecializationListView(BaseEducationCompanyView, ListView):
         context = super().get_context_data(**kwargs)
         try:
             context["course_specialization_page"] = True
-            context['program_list_page'] = True                
+            context['program_list_page'] = True        
             context["programs"] = Program.objects.filter(company__slug = self.kwargs.get("slug")).order_by("-updated")
         except Exception as e:
             logger.exception(f"Error in fetching context data of CourseSpecializationListView of superadmin app: {e}")
@@ -4792,6 +4797,7 @@ class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
             ending_title = clean_string(request.POST.get("ending_title", ""))
             content = request.POST.get("content")
             hide_faqs = request.POST.get("hide_faqs")
+            hide_from_main_listing = request.POST.get("hide_from_main_listing")
 
             required_fields = {
                 "Name": name,
@@ -4801,22 +4807,17 @@ class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
             for field_name, field_value in required_fields.items():
                 if not field_value:
                     messages.error(request, f"Failed! {field_name} is required")
-                    return redirect(self.get_redirect_url())
-
-            slug_list = [starting_title, slug, ending_title]
-
-            full_slug = slugify("-".join(filter(None, slug_list)))
+                    return redirect(self.get_redirect_url())            
 
             with transaction.atomic():            
                 program = get_object_or_404(Program, slug = program_slug)
 
-                if self.model.objects.filter(slug = slug).exists():
-                    messages.error(request, "Failed! Similar slug already exists for another course specialization.")
-                    return redirect(self.get_redirect_url())
+                if slug:
+                    slug = slugify(slug)
 
-                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
-                        messages.error(request, "Failed! Similar location slug already exists for another course specialization.")
-                        return redirect(self.get_redirect_url())
+                    if self.model.objects.filter(slug = slug).exists():
+                        messages.error(request, "Failed! Similar slug already exists for another course specialization.")
+                        return redirect(self.get_redirect_url())                
                 
                 specialization, created = self.model.objects.get_or_create(
                     company = current_company, name = name, 
@@ -4827,17 +4828,32 @@ class AddCourseSpecializationView(BaseEducationCompanyView, CreateView):
                         "starting_title": starting_title,
                         "ending_title": ending_title,
                         "hide_faqs": True if hide_faqs else False,
+                        "hide_from_main_listing": True if hide_from_main_listing else False,
                         "content": content,
-                        "slug": slug if slug else None,
-                        "location_slug": full_slug if full_slug else None,
+                        "slug": slug if slug else None,                        
                     })
 
                 if not created:
                     messages.warning(request, "Course specialization already exists.")
                     return redirect(self.get_redirect_url())
 
+                if not slug:
+                    slug = specialization.slug
+
+                slug_list = [starting_title, slug, ending_title]
+
+                full_slug = slugify("-".join(filter(None, slug_list)))
+
+                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
+                        messages.error(request, "Failed! Similar location slug already exists for another course specialization.")
+                        return redirect(self.get_redirect_url())
+
                 specialization_faq_objs = self.handle_faqs(request, specialization.company, specialization.slug)
                 specialization.faqs.set(specialization_faq_objs)
+
+                if full_slug:
+                    specialization.location_slug = full_slug
+                    specialization.save()
 
                 messages.success(request, "Success! Course specialization created.")
                 return redirect(self.get_success_url())                
@@ -4856,7 +4872,7 @@ class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
     model = Specialization
     fields = [
         "name", "program", "starting_title", "slug", "ending_title", "content", "faqs", 
-        "description", "meta_description"]
+        "description", "meta_description", "hide_faqs", "hide_from_main_listing"]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "education_company/specializations/edit.html"
     context_object_name = "specialization"
@@ -4935,6 +4951,7 @@ class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
             ending_title = clean_string(request.POST.get("ending_title", ""))
             content = request.POST.get("content")            
             hide_faqs = request.POST.get("hide_faqs")
+            hide_from_main_listing = request.POST.get("hide_from_main_listing")
 
             required_fields = {
                 "Name": name,                
@@ -4983,7 +5000,8 @@ class UpdateCourseSpecializationView(BaseEducationCompanyView, UpdateView):
                 specialization.meta_description = meta_description
                 specialization.starting_title = starting_title
                 specialization.ending_title = ending_title
-                specialization.hide_faqs = True if hide_faqs else False        
+                specialization.hide_faqs = True if hide_faqs else False
+                specialization.hide_from_main_listing = True if hide_from_main_listing else False
                 specialization.content = content
 
                 specialization.save()
@@ -5354,7 +5372,7 @@ class AddCourseDetailView(BaseEducationCompanyView, CreateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -5849,7 +5867,7 @@ class UpdateCourseDetailView(BaseEducationCompanyView, UpdateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             hide_features = request.POST.get("hide_features")
@@ -5924,10 +5942,10 @@ class UpdateCourseDetailView(BaseEducationCompanyView, UpdateView):
                 course_detail.vertical_title = vertical_title
                 course_detail.horizontal_title = horizontal_title
                 course_detail.table_title = table_title
-                course_detail.bullet_title = bullet_title                
+                course_detail.bullet_title = bullet_title        
                 course_detail.timeline_title = timeline_title
 
-                course_detail.hide_support_languages = True if hide_support_languages else False                
+                course_detail.hide_support_languages = True if hide_support_languages else False        
                 
                 for key, value in checkbox_fields.items():
                     assigning_value = False
@@ -6718,7 +6736,7 @@ class AddCourseMultiPageView(BaseCourseMultiPageView, CreateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -7060,8 +7078,8 @@ class UpdateCourseMultiPageView(BaseCourseMultiPageView, UpdateView):
                 multipage.vertical_title = vertical_title
                 multipage.horizontal_title = horizontal_title
                 multipage.table_title = table_title
-                multipage.bullet_title = bullet_title                
-                multipage.timeline_title = timeline_title                
+                multipage.bullet_title = bullet_title        
+                multipage.timeline_title = timeline_title        
 
                 for key, value in checkbox_fields.items():
                     assigning_value = False
@@ -7248,7 +7266,7 @@ class UpdateEducationBannerView(BaseEducationBannerView, UpdateView):
             }
 
             if not hasattr(self.object, "image"):
-                required_fields["image"] = image            
+                required_fields["image"] = image    
 
             for field_name, field_value in required_fields.items():
                 if not field_value:
@@ -7340,7 +7358,7 @@ class ListServiceView(BaseServiceCompanyView, ListView):
 
     def get_queryset(self):
         try:
-            return self.model.objects.filter(company__slug = self.kwargs.get('slug'))
+            return self.model.objects.filter(company__slug = self.kwargs.get('slug')).order_by("-updated")
         except Exception as e:
             logger.exception(f"Error in fetching queryset of list service view of superadmin: {e}")
             return self.queryset
@@ -7361,7 +7379,10 @@ class ListServiceView(BaseServiceCompanyView, ListView):
     
 class AddServiceView(BaseServiceCompanyView, CreateView):
     model = Service
-    fields = ["company", "name", "category", "sub_category", "is_active", "duration", "price"]
+    fields = [
+        "company", "name", "category", "sub_category", "is_active", "duration", "price",
+        "duration_type"
+        ]
     template_name = "service_company/services/add.html"
     success_url = redirect_url = reverse_lazy('superadmin:home')
 
@@ -7400,6 +7421,7 @@ class AddServiceView(BaseServiceCompanyView, CreateView):
 
             price = clean_string(request.POST.get("price", ""))
             duration = clean_string(request.POST.get("duration", ""))
+            duration_type = clean_string(request.POST.get("duration_type", ""))
             is_active = request.POST.get("is_active")
 
             required_fields = {
@@ -7438,7 +7460,7 @@ class AddServiceView(BaseServiceCompanyView, CreateView):
 
             Service.objects.create(
                 company = company, name = name, category = category, sub_category = sub_category, 
-                description = description, price = price, duration = duration, 
+                description = description, price = price, duration = duration, duration_type = duration_type, 
                 is_active = bool(is_active), image = image
                 )
             
@@ -7453,7 +7475,10 @@ class AddServiceView(BaseServiceCompanyView, CreateView):
 
 class UpdateServiceView(BaseServiceCompanyView, UpdateView):
     model = Service
-    fields = ["name", "category", "sub_category", "description", "price", "duration", "is_active"]
+    fields = [
+        "name", "category", "sub_category", "description", "price", "duration", "is_active",
+        "duration_type"        
+        ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "service_company/services/edit.html"
 
@@ -7477,6 +7502,7 @@ class UpdateServiceView(BaseServiceCompanyView, UpdateView):
             current_company = self.get_current_company()
             context["categories"] = ServiceCategory.objects.filter(company = current_company).order_by("-updated")
             context["sub_categories"] = ServiceSubCategory.objects.filter(company = current_company).order_by("-updated")
+            context["service_page"] = True
         except Exception as e:
             logger.exception(f"Error in getting context data of UpdateServiceView of superadmin app: {e}")
         
@@ -7502,6 +7528,7 @@ class UpdateServiceView(BaseServiceCompanyView, UpdateView):
 
             price = clean_string(request.POST.get("price", ""))
             duration = clean_string(request.POST.get("duration", ""))
+            duration_type = clean_string(request.POST.get("duration_type", ""))
             is_active = request.POST.get("is_active")
             
             service = self.get_object()
@@ -7549,6 +7576,7 @@ class UpdateServiceView(BaseServiceCompanyView, UpdateView):
             service.description = description
             service.price = price
             service.duration = duration
+            service.duration_type = duration_type
             service.is_active = bool(is_active)
             service.save()
             
@@ -7816,7 +7844,8 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
     model = ServiceSubCategory
     fields = [
         "name", "category", "description", "starting_title", "ending_title",
-        "location_slug", "slug", "content", "hide_faqs", "meta_description"
+        "location_slug", "slug", "content", "hide_faqs", "meta_description", 
+        "hide_from_main_listing"
         ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "service_company/sub_categories/add.html"
@@ -7877,6 +7906,7 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
             ending_title = clean_string(request.POST.get("ending_title", ""))
             content = request.POST.get("content")
             hide_faqs = request.POST.get("hide_faqs")
+            hide_from_main_listing = request.POST.get("hide_from_main_listing")
 
             required_fields = {
                 "Name": name,
@@ -7886,24 +7916,17 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
             for field_name, field_value in required_fields.items():
                 if not field_value:
                     messages.error(request, f"Failed! {field_name} is required")
-                    return redirect(self.get_redirect_url())
-
-            slug_list = [starting_title, slug, ending_title]
-
-            full_slug = slugify("-".join(filter(None, slug_list)))
+                    return redirect(self.get_redirect_url())            
             
             with transaction.atomic():
                 category = get_object_or_404(ServiceCategory, slug = category_slug)
 
-                slug = slugify(slug)
+                if slug:
+                    slug = slugify(slug)
 
-                if self.model.objects.filter(slug = slug).exists():
-                    messages.error(request, "Failed! Similar slug already exists for another service sub category.")
-                    return redirect(self.get_redirect_url())
-
-                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
-                        messages.error(request, "Failed! Similar location slug already exists for another service sub category.")
-                        return redirect(self.get_redirect_url())
+                    if self.model.objects.filter(slug = slug).exists():
+                        messages.error(request, "Failed! Similar slug already exists for another service sub category.")
+                        return redirect(self.get_redirect_url())                
                 
                 sub_category, created = self.model.objects.get_or_create(
                     company = current_company, name = name, 
@@ -7914,17 +7937,32 @@ class AddServiceSubCategoryView(BaseServiceCompanyView, CreateView):
                         "starting_title": starting_title,
                         "ending_title": ending_title,
                         "hide_faqs": True if hide_faqs else False,
+                        "hide_from_main_listing": True if hide_from_main_listing else False,
                         "content": content,
                         "slug": slug if slug else None,
-                        "location_slug": full_slug if full_slug else None,
                     })
 
                 if not created:
                     messages.warning(request, "Service sub category already exists.")
                     return redirect(self.get_redirect_url())
                 
+                if not slug:
+                    slug = sub_category.slug
+
+                slug_list = [starting_title, slug, ending_title]
+
+                full_slug = slugify("-".join(filter(None, slug_list)))  
+
+                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
+                    messages.error(request, "Failed! Similar location slug already exists for another service sub category.")
+                    return redirect(self.get_redirect_url())
+                
                 sub_category_faq_objs = self.handle_faqs(request, sub_category.company, sub_category.slug)
                 sub_category.faqs.set(sub_category_faq_objs)
+
+                if full_slug:
+                    sub_category.location_slug = full_slug
+                    sub_category.save()
 
                 messages.success(request, "Success! Service sub category created.")
                 return redirect(self.get_success_url())
@@ -7943,7 +7981,8 @@ class UpdateServiceSubCategoryView(BaseServiceCompanyView, UpdateView):
     model = ServiceSubCategory
     fields = [
         "name", "category", "description", "starting_title", "ending_title",
-        "location_slug", "slug", "content", "hide_faqs", "meta_description"
+        "location_slug", "slug", "content", "hide_faqs", "meta_description",
+        "hide_from_main_listing"
         ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "service_company/sub_categories/edit.html"
@@ -8023,6 +8062,7 @@ class UpdateServiceSubCategoryView(BaseServiceCompanyView, UpdateView):
             ending_title = clean_string(request.POST.get("ending_title", ""))
             content = request.POST.get("content")            
             hide_faqs = request.POST.get("hide_faqs")
+            hide_from_main_listing = request.POST.get("hide_from_main_listing")
 
             required_fields = {
                 "Name": name,                
@@ -8071,7 +8111,8 @@ class UpdateServiceSubCategoryView(BaseServiceCompanyView, UpdateView):
                 sub_category.meta_description = meta_description
                 sub_category.starting_title = starting_title
                 sub_category.ending_title = ending_title
-                sub_category.hide_faqs = True if hide_faqs else False        
+                sub_category.hide_faqs = True if hide_faqs else False
+                sub_category.hide_from_main_listing = True if hide_from_main_listing else False
                 sub_category.content = content
 
                 sub_category.save()
@@ -8788,7 +8829,7 @@ class AddServiceDetailView(BaseServiceDetailView, CreateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -8974,7 +9015,7 @@ class UpdateServiceDetailView(BaseServiceDetailView, UpdateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             hide_features = request.POST.get("hide_features")
@@ -9049,8 +9090,8 @@ class UpdateServiceDetailView(BaseServiceDetailView, UpdateView):
                 service_detail.vertical_title = vertical_title
                 service_detail.horizontal_title = horizontal_title
                 service_detail.table_title = table_title
-                service_detail.bullet_title = bullet_title                
-                service_detail.timeline_title = timeline_title                
+                service_detail.bullet_title = bullet_title        
+                service_detail.timeline_title = timeline_title        
 
                 for key, value in checkbox_fields.items():
                     assigning_value = False
@@ -9527,7 +9568,7 @@ class AddServiceMultiPageView(BaseServiceMultiPageView, CreateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -9790,7 +9831,7 @@ class UpdateServiceMultiPageView(BaseServiceMultiPageView, UpdateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -9874,8 +9915,8 @@ class UpdateServiceMultiPageView(BaseServiceMultiPageView, UpdateView):
                 self.object.vertical_title = vertical_title
                 self.object.horizontal_title = horizontal_title
                 self.object.table_title = table_title
-                self.object.bullet_title = bullet_title                
-                self.object.timeline_title = timeline_title                
+                self.object.bullet_title = bullet_title        
+                self.object.timeline_title = timeline_title        
 
                 for key, value in checkbox_fields.items():
                     assigning_value = False
@@ -10064,7 +10105,7 @@ class UpdateServiceBannerView(BaseServiceBannerView, UpdateView):
             }
 
             if not hasattr(self.object, "image"):
-                required_fields["image"] = image            
+                required_fields["image"] = image    
 
             for field_name, field_value in required_fields.items():
                 if not field_value:
@@ -10149,7 +10190,7 @@ class BaseRegistrationCompanyView(BaseCompanyView, View):
         try:
             return get_object_or_404(Registration, slug = registration_slug)          
         except Http404:
-            return None                
+            return None        
     
 
 class ListRegistrationView(BaseRegistrationCompanyView, ListView):
@@ -10169,7 +10210,7 @@ class ListRegistrationView(BaseRegistrationCompanyView, ListView):
         context = super().get_context_data(**kwargs)
 
         try:            
-            context["registration_page"] = True        
+            context["registration_page"] = True
         except Exception as e:
             logger.exception(f"Error in getting context data of ListRegistrationView of superadmin app: {e}")
 
@@ -10177,7 +10218,10 @@ class ListRegistrationView(BaseRegistrationCompanyView, ListView):
 
 class AddRegistrationView(BaseRegistrationCompanyView, CreateView):
     model = Registration
-    fields = ["title", "image", "company", "sub_type", "registration_type", "price", "time_required", "required_documents", "additional_info"]
+    fields = [
+        "title", "image", "company", "sub_type", "registration_type", "price", 
+        "time_required", "required_documents", "additional_info", "duration_type"
+        ]
     template_name = "registration_company/registration/add.html"
     success_url = redirect_url = reverse_lazy('superadmin:home')
 
@@ -10221,11 +10265,12 @@ class AddRegistrationView(BaseRegistrationCompanyView, CreateView):
             registration_type_slug = clean_string(request.POST.get("type", ""))
             image = request.FILES.get("image")
 
-            sub_type_slug = clean_string(request.POST.get("sub_type"))
-            price = clean_string(request.POST.get("price"))
-            time_required = clean_string(request.POST.get("time_required"))
-            required_documents = clean_string(request.POST.get("required_documents"))
-            additional_info = clean_string(request.POST.get("additional_info"))
+            sub_type_slug = clean_string(request.POST.get("sub_type", ""))
+            price = clean_string(request.POST.get("price", ""))
+            time_required = clean_string(request.POST.get("time_required", ""))
+            duration_type = clean_string(request.POST.get("duration_type", ""))
+            required_documents = clean_string(request.POST.get("required_documents", ""))
+            additional_info = clean_string(request.POST.get("additional_info", ""))
 
             required_fields = {
                 "Title": title,
@@ -10258,7 +10303,8 @@ class AddRegistrationView(BaseRegistrationCompanyView, CreateView):
             self.model.objects.create(
                 title = title, image = image, company = company, 
                 registration_type = registration_type, sub_type = registration_sub_type, price = price,
-                time_required = time_required, required_documents = required_documents, 
+                time_required = time_required, duration_type = duration_type, 
+                required_documents = required_documents, 
                 additional_info = additional_info
                 )
             
@@ -10274,7 +10320,10 @@ class AddRegistrationView(BaseRegistrationCompanyView, CreateView):
 
 class UpdateRegistrationView(BaseRegistrationCompanyView, UpdateView):
     model = Registration
-    fields = ["sub_type", "price", "time_required", "required_documents", "additional_info"]
+    fields = [
+        "sub_type", "price", "time_required", "required_documents", "additional_info",
+        "duration_type"
+        ]
     template_name = "registration_company/registration/edit.html"
     success_url = redirect_url = reverse_lazy('superadmin:home')
     context_object_name = "registration"
@@ -10315,7 +10364,7 @@ class UpdateRegistrationView(BaseRegistrationCompanyView, UpdateView):
             registration = self.get_object()
             context["types"] = RegistrationType.objects.filter(company = current_company).order_by("-updated")
             context["sub_types"] = RegistrationSubType.objects.filter(company = current_company, type = registration.sub_type.type).order_by("-updated")
-            context["registration_page"] = True            
+            context["registration_page"] = True    
         except Exception as e:
             logger.exception(f"Error in getting context data in EditRegistrationView of superadmin app: {e}")
 
@@ -10327,11 +10376,12 @@ class UpdateRegistrationView(BaseRegistrationCompanyView, UpdateView):
             registration_type_slug = clean_string(request.POST.get("type", ""))
             image = request.FILES.get("image")
 
-            sub_type_slug = clean_string(request.POST.get("sub_type"))
-            price = clean_string(request.POST.get("price"))
-            time_required = clean_string(request.POST.get("time_required"))
-            required_documents = clean_string(request.POST.get("required_documents"))
-            additional_info = clean_string(request.POST.get("additional_info"))
+            sub_type_slug = clean_string(request.POST.get("sub_type", ""))
+            price = clean_string(request.POST.get("price", ""))
+            time_required = clean_string(request.POST.get("time_required", ""))
+            duration_type = clean_string(request.POST.get("duration_type", ""))
+            required_documents = clean_string(request.POST.get("required_documents", ""))
+            additional_info = clean_string(request.POST.get("additional_info", ""))
 
             required_fields = {
                 "Title": title,
@@ -10372,10 +10422,11 @@ class UpdateRegistrationView(BaseRegistrationCompanyView, UpdateView):
                 registration.image = image
             registration.registration_type = registration_type
             registration.sub_type = registration_sub_type
-            registration.price = price.strip()
-            registration.time_required = time_required.strip() if time_required else None
-            registration.required_documents = required_documents.strip() if required_documents else None
-            registration.additional_info = additional_info.strip() if additional_info else None
+            registration.price = price
+            registration.time_required = time_required
+            registration.duration_type = duration_type
+            registration.required_documents = required_documents
+            registration.additional_info = additional_info
             registration.save()        
             
             messages.success(request, "Success! Registration Updated.")
@@ -10609,7 +10660,7 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
     model = RegistrationSubType
     fields = [
         "name", "type", "starting_title", "slug", "ending_title", "content", "faqs", 
-        "description", "meta_description"
+        "description", "meta_description", "hide_faqs", "hide_from_main_listing"
         ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "registration_company/sub_types/add.html"
@@ -10671,6 +10722,7 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
             ending_title = clean_string(request.POST.get("ending_title", ""))
             content = request.POST.get("content")
             hide_faqs = request.POST.get("hide_faqs")
+            hide_from_main_listing = request.POST.get("hide_from_main_listing")
 
             required_fields = {
                 "Name": name,
@@ -10680,24 +10732,17 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
             for field_name, field_value in required_fields.items():
                 if not field_value:
                     messages.error(request, f"Failed! {field_name} is required")
-                    return redirect(self.get_redirect_url())
-
-            slug_list = [starting_title, slug, ending_title]
-
-            full_slug = slugify("-".join(filter(None, slug_list)))
+                    return redirect(self.get_redirect_url())            
             
             with transaction.atomic():
                 main_type = get_object_or_404(RegistrationType, slug = type_slug)
 
-                slug = slugify(slug)
+                if slug:
+                    slug = slugify(slug)
 
-                if self.model.objects.filter(slug = slug).exists():
-                    messages.error(request, "Failed! Similar slug already exists for another registration sub type.")
-                    return redirect(self.get_redirect_url())
-
-                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
-                        messages.error(request, "Failed! Similar location slug already exists for another registration sub type.")
-                        return redirect(self.get_redirect_url())
+                    if self.model.objects.filter(slug = slug).exists():
+                        messages.error(request, "Failed! Similar slug already exists for another registration sub type.")
+                        return redirect(self.get_redirect_url())                
                 
                 sub_type, created = self.model.objects.get_or_create(
                     company = current_company, name = name, 
@@ -10708,17 +10753,32 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
                         "starting_title": starting_title,
                         "ending_title": ending_title,
                         "hide_faqs": True if hide_faqs else False,
+                        "hide_from_main_listing": True if hide_from_main_listing else False,
                         "content": content,
                         "slug": slug if slug else None,
-                        "location_slug": full_slug if full_slug else None,
                     })
 
                 if not created:
                     messages.warning(request, "Registration sub type already exists.")
                     return redirect(self.get_redirect_url())
+                
+                if not slug:
+                    slug = sub_type.slug
+
+                slug_list = [starting_title, slug, ending_title]
+
+                full_slug = slugify("-".join(filter(None, slug_list)))
+
+                if full_slug and self.model.objects.filter(location_slug = full_slug).exists():
+                    messages.error(request, "Failed! Similar location slug already exists for another registration sub type.")
+                    return redirect(self.get_redirect_url())            
 
                 sub_type_faq_objs = self.handle_faqs(request, sub_type.company, sub_type.slug)
                 sub_type.faqs.set(sub_type_faq_objs)
+
+                if full_slug:
+                    sub_type.location_slug = full_slug
+                    sub_type.save()
 
                 messages.success(request, "Success! Registration sub type created.")
                 return redirect(self.get_success_url())
@@ -10735,7 +10795,10 @@ class AddRegistrationSubTypeView(BaseRegistrationCompanyView, CreateView):
 
 class UpdateRegistrationSubTypeView(BaseRegistrationCompanyView, UpdateView):
     model = RegistrationSubType
-    fields = ["name", "type", "starting_title", "slug", "ending_title", "content", "faqs", "description", "meta_description"]
+    fields = [
+        "name", "type", "starting_title", "slug", "ending_title", "content", "faqs", "description", "meta_description",
+        "hide_from_main_listing", "hide_faqs"
+        ]
     success_url = redirect_url = reverse_lazy("superadmin:home")
     template_name = "registration_company/sub_types/edit.html"
     context_object_name = "sub_type"
@@ -10813,6 +10876,7 @@ class UpdateRegistrationSubTypeView(BaseRegistrationCompanyView, UpdateView):
             ending_title = clean_string(request.POST.get("ending_title", ""))
             content = request.POST.get("content")            
             hide_faqs = request.POST.get("hide_faqs")
+            hide_from_main_listing = request.POST.get("hide_from_main_listing")
 
             required_fields = {
                 "Name": name,                
@@ -10860,7 +10924,8 @@ class UpdateRegistrationSubTypeView(BaseRegistrationCompanyView, UpdateView):
                 registration_sub_type.meta_description = meta_description
                 registration_sub_type.starting_title = starting_title
                 registration_sub_type.ending_title = ending_title
-                registration_sub_type.hide_faqs = True if hide_faqs else False        
+                registration_sub_type.hide_faqs = True if hide_faqs else False
+                registration_sub_type.hide_from_main_listing = True if hide_from_main_listing else False
                 registration_sub_type.content = content
 
                 registration_sub_type.save()
@@ -11573,7 +11638,7 @@ class AddRegistrationDetailPageView(BaseRegistrationDetailPageView, CreateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -11761,7 +11826,7 @@ class UpdateRegistrationDetailPageView(BaseRegistrationDetailPageView, UpdateVie
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             hide_features = request.POST.get("hide_features")
@@ -11844,8 +11909,8 @@ class UpdateRegistrationDetailPageView(BaseRegistrationDetailPageView, UpdateVie
                 registration_detail.vertical_title = vertical_title
                 registration_detail.horizontal_title = horizontal_title
                 registration_detail.table_title = table_title
-                registration_detail.bullet_title = bullet_title                
-                registration_detail.timeline_title = timeline_title                
+                registration_detail.bullet_title = bullet_title        
+                registration_detail.timeline_title = timeline_title        
 
                 for key, value in checkbox_fields.items():
                     assigning_value = False
@@ -12317,7 +12382,7 @@ class AddRegistrationMultiPageView(BaseRegistrationMultiPageView, CreateView):
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -12582,7 +12647,7 @@ class UpdateRegistrationMultiPageView(BaseRegistrationMultiPageView, UpdateView)
             vertical_title = vertical_title.strip() if vertical_title else None
             horizontal_title = horizontal_title.strip() if horizontal_title else None
             table_title = table_title.strip() if table_title else None
-            bullet_title = bullet_title.strip() if bullet_title else None            
+            bullet_title = bullet_title.strip() if bullet_title else None    
             timeline_title = timeline_title.strip() if timeline_title else None
 
             # Fetch current company
@@ -12665,8 +12730,8 @@ class UpdateRegistrationMultiPageView(BaseRegistrationMultiPageView, UpdateView)
                 self.object.vertical_title = vertical_title
                 self.object.horizontal_title = horizontal_title
                 self.object.table_title = table_title
-                self.object.bullet_title = bullet_title                
-                self.object.timeline_title = timeline_title                
+                self.object.bullet_title = bullet_title        
+                self.object.timeline_title = timeline_title        
 
                 for key, value in checkbox_fields.items():
                     assigning_value = False
@@ -12853,7 +12918,7 @@ class UpdateRegistrationBannerView(BaseRegistrationBannerView, UpdateView):
             }
 
             if not hasattr(self.object, "image"):
-                required_fields["image"] = image            
+                required_fields["image"] = image    
 
             for field_name, field_value in required_fields.items():
                 if not field_value:
@@ -13025,7 +13090,7 @@ class UpdatePasswordView(SettingsView, UpdateView):
         if password.isalnum():
             return "Password must contain at least one special character"
         
-        return None        
+        return None
 
     def post(self, request, *args, **kwargs):
         try:
@@ -13142,7 +13207,7 @@ class AddAboutUsPageView(AddCustomPageView, CreateView):
             content = request.POST.get("content")        
 
             company_slug = company_slug.strip() if company_slug else None
-            content = content.strip() if content else None                      
+            content = content.strip() if content else None              
 
             if not content:
                 messages.error(request, "Failed! Content is required")
@@ -13268,7 +13333,7 @@ class AddContactUsPageView(AddCustomPageView, CreateView):
             email = email.strip() if email else None
             tel = tel.strip() if tel else None
 
-            pincode = pincode.strip() if pincode else None            
+            pincode = pincode.strip() if pincode else None    
 
             lat = lat.strip() if lat else None
             lon = lon.strip() if lon else None
@@ -13467,7 +13532,7 @@ class AddFaqPageView(AddCustomPageView, CreateView):
             short_answer = clean_string(request.POST.get("short_answer", ""))
             answer = clean_string(request.POST.get("answer", ""))
 
-            company_slug = company_slug.strip() if company_slug else None           
+            company_slug = company_slug.strip() if company_slug else None   
 
             if not question:
                 messages.error(request, "Failed! Question is required")
@@ -13597,7 +13662,7 @@ class AddPrivacyPolicyPageView(AddCustomPageView, CreateView):
 
             content = content.strip() if content else None
             support_email = support_email.strip() if support_email else None
-            effective_date = effective_date.strip() if effective_date else None            
+            effective_date = effective_date.strip() if effective_date else None    
             
             if not content:
                 messages.error(request, "Failed! Content is required")
@@ -13951,7 +14016,7 @@ class AddShippingAndDeliveryPolicyPageView(AddCustomPageView, CreateView):
             content = request.POST.get("content")        
 
             company_slug = company_slug.strip() if company_slug else None
-            content = content.strip() if content else None                      
+            content = content.strip() if content else None              
 
             if not content:
                 messages.error(request, "Failed! Content is required")
@@ -14134,7 +14199,7 @@ class AddClientView(BaseClientView, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["add_client_page"] = True        
+        context["add_client_page"] = True
         return context
 
     def post(self, request, *args, **kwargs):
@@ -14920,7 +14985,7 @@ class AddBlogView(BaseBlogView, CreateView):
                     messages.error(request, f"Failed! {key} is required")
                     return redirect(self.redirect_url)
 
-            company = self.get_company(company_slug, blog_type) if blog_type != "General" else None                                
+            company = self.get_company(company_slug, blog_type) if blog_type != "General" else None                        
                 
             updating_meta_tags = []
             with transaction.atomic():
@@ -14982,7 +15047,7 @@ class UpdateBlogView(BaseBlogView, UpdateView):
 
         self.object = self.get_object()
 
-        context["companies"] = Company.objects.filter(type__name = self.object.blog_type).order_by("-updated") if self.object.blog_type != "General" else None        
+        context["companies"] = Company.objects.filter(type__name = self.object.blog_type).order_by("-updated") if self.object.blog_type != "General" else None
 
         context["tags"] = MetaTag.objects.all().order_by("-updated")
  
@@ -15067,7 +15132,7 @@ class UpdateBlogView(BaseBlogView, UpdateView):
                 self.object.company = company
 
                 if image:
-                    self.object.image = image                
+                    self.object.image = image        
 
                 if Blog.objects.filter(
                     title = title, blog_type = blog_type, company = company
@@ -15187,7 +15252,7 @@ class AddMetaTagView(BaseMetaTagView, CreateView):
             
             form = self.get_form()
 
-            description = form.cleaned_data.get("description").strip() if form.is_valid() else None            
+            description = form.cleaned_data.get("description").strip() if form.is_valid() else None    
 
             with transaction.atomic():
 
@@ -15242,7 +15307,7 @@ class UpdateMetaTagView(BaseMetaTagView, UpdateView):
                 return redirect(self.redirect_url)
 
             form = self.get_form()
-            description = form.cleaned_data.get("description").strip() if form.is_valid() else None            
+            description = form.cleaned_data.get("description").strip() if form.is_valid() else None    
 
             self.object = self.get_object()
             

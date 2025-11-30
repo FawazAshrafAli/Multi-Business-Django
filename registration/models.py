@@ -101,6 +101,7 @@ class RegistrationSubType(models.Model):
 
     faqs = models.ManyToManyField(SubTypeFaq)
     hide_faqs = models.BooleanField(default=False)
+    hide_from_main_listing = models.BooleanField(default=False)
 
     slug = models.SlugField(blank=True, null=True, max_length=500, db_index=True)
 
@@ -159,6 +160,7 @@ class Registration(models.Model):
     sub_type = models.ForeignKey(RegistrationSubType, on_delete=models.CASCADE, related_name="registrations")
     price = models.CharField(max_length=20)
     time_required = models.CharField(max_length=100, null=True, blank=True)
+    duration_type = models.CharField(max_length=100, null=True, blank=True)
     required_documents = models.TextField(null=True, blank=True)
     additional_info = models.TextField(blank=True, null=True)
 

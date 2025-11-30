@@ -35,22 +35,15 @@ class MiniServiceSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     category_name = serializers.CharField(source="category.name", read_only = True)
     sub_category_name = serializers.CharField(source="sub_category.name", read_only = True)
-    duration_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Service
         fields = ["id",
             "name", "image_url", "category_name", 
-            "price", "sub_category_name", "duration_count"    
+            "price", "sub_category_name", "duration", "duration_type"
             ]
 
-        read_only_fields = fields
-
-    def get_duration_count(self, obj):
-        try:
-            return obj.duration.days
-        except AttributeError:
-            return None
+        read_only_fields = fields    
 
     def get_image_url(self, obj):
         request = self.context.get('request')
@@ -74,7 +67,7 @@ class ServiceListSerializer(serializers.ModelSerializer):
         fields = ["id",
             "name", "image_url", "category_name", 
             "price", "slug", "sub_category_name",
-            "duration", "testimonials", "rating"    
+            "duration", "duration_type", "testimonials", "rating"    
             ]
 
         read_only_fields = fields
@@ -208,6 +201,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
     company_slug = serializers.CharField(source="company.slug", read_only=True)
     price = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
+    duration_type = serializers.SerializerMethodField()
     faqs = serializers.SerializerMethodField()
     company_contact = serializers.CharField(source="company.phone1", read_only=True)  
     company_logo_url = serializers.SerializerMethodField()
@@ -220,7 +214,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
         fields = ["id",
             "name", "slug", "updated", "image_url", "category_name", 
             "category_slug", "url", "company_name", "price",
-            "duration", "starting_title", "ending_title", "content",
+            "duration", "duration_type", "starting_title", "ending_title", "content",
             "faqs", "location_slug", "description", "company_contact",
             "company_logo_url", "company_slug", "rating", "meta_description",
             "full_title", "testimonials"
@@ -285,6 +279,15 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
             if service_obj and service_obj.duration:
                 return service_obj.duration
+
+        return None
+    
+    def get_duration_type(self, obj):
+        if hasattr(obj, "services"):
+            service_obj = obj.services.filter(duration__isnull = False).first()
+
+            if service_obj and service_obj.duration and service_obj.duration_type:
+                return service_obj.duration_type
 
         return None
     
@@ -645,6 +648,7 @@ class MultipageSerializer(serializers.ModelSerializer):
 
     slider_services = MiniDetailSerializer(many=True)
     duration = serializers.CharField(source = "service.duration", read_only=True)
+    duration_type = serializers.CharField(source = "service.duration_type", read_only=True)
     category_name = serializers.CharField(source = "service.category.name", read_only=True)
 
     class Meta:
@@ -661,7 +665,7 @@ class MultipageSerializer(serializers.ModelSerializer):
             "modified", "meta_description", "company_slug", "url_type",
             "rating", "rating_count", "company_name",
             "sub_title", "meta_title", "text_editors", "duration",
-            "category_name"
+            "duration_type", "category_name"
             ]
         
         read_only = fields        
