@@ -94,7 +94,7 @@ class ContactUs(models.Model):
 
 
 class FAQ(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True, null=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True, null=True, related_name="company_faqs")
 
     question = models.CharField(max_length=255)
     short_answer = models.TextField()
