@@ -74,6 +74,7 @@ INSTALLED_APPS = [
 
     # apis
     'company_api',
+    'auth_api',
     'registration_api',
     'course_api',
     'service_api',

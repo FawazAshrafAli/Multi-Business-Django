@@ -15,3 +15,16 @@ class EmailVerificationOtp(models.Model):
 class User(AbstractBaseUser):
     pass
 
+class LoginOtp(models.Model):
+    email = models.EmailField(max_length=254, unique=True)
+    otp = models.PositiveIntegerField()
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.email
+    
+    class Meta:
+        db_table = "login_otp"
+        ordering = ["-updated"]

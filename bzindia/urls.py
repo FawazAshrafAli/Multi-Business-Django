@@ -49,6 +49,8 @@ urlpatterns = [
 
     path('company/', include('company.urls', namespace="company")),    
 
+    path('auth_api/', include('auth_api.urls', namespace="auth_api")),    
+
     path('admin/', include('superadmin.urls', namespace="superadmin")),
     path('authentication/', include('authentication.urls', namespace="authentication")),
     path('locations/', include('locations.urls', namespace="locations")),
