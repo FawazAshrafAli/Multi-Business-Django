@@ -31,7 +31,8 @@ try:
 except Exception:
     SITES_AVAILABLE = False
 
-PAGE_SIZE = 49990
+# PAGE_SIZE = 49990
+PAGE_SIZE = 10000
 
 # ─────────────────────────────────────────────────────────────
 # Helpers
@@ -159,8 +160,8 @@ class Command(BaseCommand):
         product_urls: list[dict] = []
 
         # Companies of type Product
-        for company in Company.objects.filter(type__name="Product").prefetch_related("company_faqs", "blogs"):
-            slug = company.slug
+        for company in Company.objects.filter(type__name="Product").values("slug"):
+            slug = company["slug"]
             product_urls.extend([
                 {"loc": f"/{slug}/", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/about-us", "changefreq": "weekly", "priority": 1.0},
@@ -170,17 +171,17 @@ class Command(BaseCommand):
                 {"loc": f"/{slug}/view-products", "changefreq": "weekly", "priority": 1.0},
             ])
 
-            for faq_slug in company.company_faqs.values_list("slug", flat=True):
-                product_urls.append({"loc": f"/{slug}/faqs/{faq_slug}/", "changefreq": "weekly", "priority": 1.0})            
-            for blog_slug in company.blogs.values_list("slug", flat=True):
-                product_urls.append({"loc": f"/{slug}/learn/{blog_slug}/", "changefreq": "weekly", "priority": 1.0})
+            for faq in FAQ.objects.filter(company__slug = slug).values("slug"):
+                product_urls.append({"loc": f"/{slug}/faqs/{faq['slug']}/", "changefreq": "weekly", "priority": 1.0})            
+            for blog in Blog.objects.filter(company__slug = slug).values("slug"):
+                product_urls.append({"loc": f"/{slug}/learn/{blog['slug']}/", "changefreq": "weekly", "priority": 1.0})
 
         # Product categories
-        for category in ProductCategory.objects.values("company__slug", "slug").iterator():
+        for category in ProductCategory.objects.values("company__slug", "slug"):
             product_urls.append({"loc": f"/{category['company__slug']}/{category['slug']}/", "changefreq": "weekly", "priority": 0.6})
 
         # Product subcategories
-        for sub_category in ProductSubCategory.objects.values("company__slug", "category__slug", "slug").iterator():
+        for sub_category in ProductSubCategory.objects.values("company__slug", "category__slug", "slug"):
             product_urls.append({
                 "loc": f"/{sub_category['company__slug']}/{sub_category['category__slug']}/{sub_category['slug']}/", 
                 "changefreq": "weekly", 
@@ -189,7 +190,7 @@ class Command(BaseCommand):
             )
 
         # Product detail pages
-        for detail in ProductDetailPage.objects.select_related("company", "product__category", "product__sub_category").iterator():
+        for detail in ProductDetailPage.objects.select_related("company", "product__category", "product__sub_category"):
             product_urls.extend([
                 {"loc": f"/{detail.company.slug}/{detail.product.category.slug}/", "changefreq": "weekly", "priority": 0.9},
                 {"loc": f"/{detail.company.slug}/{detail.product.category.slug}/{detail.product.sub_category.slug}/", "changefreq": "weekly", "priority": 0.9},
@@ -197,7 +198,7 @@ class Command(BaseCommand):
             ])
 
         # Product multi-pages
-        for multipage in ProductMultiPage.objects.select_related("company").iterator():
+        for multipage in ProductMultiPage.objects.select_related("company"):
             available_states_ids = list(multipage.available_states.values_list("id", flat=True))
 
             if multipage.url_type == "location_filtered":
@@ -219,8 +220,8 @@ class Command(BaseCommand):
         registration_urls: list[dict] = []
 
         # Companies of type Registration
-        for company in Company.objects.filter(type__name="Registration").prefetch_related("company_faqs", "blogs"):
-            slug = company.slug
+        for company in Company.objects.filter(type__name="Registration").values("slug"):
+            slug = company["slug"]
             registration_urls.extend([
                 {"loc": f"/{slug}/", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/about-us", "changefreq": "weekly", "priority": 1.0},
@@ -230,22 +231,22 @@ class Command(BaseCommand):
                 {"loc": f"/{slug}/registrations", "changefreq": "weekly", "priority": 1.0},
             ])
 
-            for faq_slug in company.company_faqs.values_list("slug", flat=True):
-                registration_urls.append({"loc": f"/{slug}/faqs/{faq_slug}/", "changefreq": "weekly", "priority": 1.0})
+            for faq in FAQ.objects.filter(company__slug = slug).values("slug"):
+                registration_urls.append({"loc": f"/{slug}/faqs/{faq['slug']}/", "changefreq": "weekly", "priority": 1.0},)
             
-            for blog_slug in company.faqs.values_list("slug", flat=True):
-                registration_urls.append({"loc": f"/{slug}/learn/{blog_slug}/", "changefreq": "weekly", "priority": 1.0})
+            for blog in Blog.objects.filter(company__slug = slug).values("slug"):
+                registration_urls.append({"loc": f"/{slug}/learn/{blog['slug']}/", "changefreq": "weekly", "priority": 1.0},)
 
         # Registration categories
-        for reg_type in RegistrationType.objects.values("company__slug", "slug").iterator():
+        for reg_type in RegistrationType.objects.values("company__slug", "slug"):
             registration_urls.append({"loc": f"/{reg_type['company__slug']}/{reg_type['slug']}/", "changefreq": "weekly", "priority": 0.6})
 
         # Registration subcategories
-        for sub_type in RegistrationSubType.objects.values("company__slug", "type__slug", "slug").iterator():
+        for sub_type in RegistrationSubType.objects.values("company__slug", "type__slug", "slug"):
             registration_urls.append({"loc": f"/{sub_type['company__slug']}/{sub_type['type__slug']}/{sub_type['slug']}/", "changefreq": "weekly", "priority": 0.6})
 
         # Registration detail pages
-        for detail in RegistrationDetailPage.objects.select_related("company", "registration__registration_type", "registration__sub_type").iterator():
+        for detail in RegistrationDetailPage.objects.select_related("company", "registration__registration_type", "registration__sub_type"):
             registration_urls.extend([
                 {"loc": f"/{detail.company.slug}/{detail.registration.registration_type.slug}/", "changefreq": "weekly", "priority": 0.9},
                 {"loc": f"/{detail.company.slug}/{detail.registration.registration_type.slug}/{detail.registration.sub_type.slug}/", "changefreq": "weekly", "priority": 0.9},
@@ -253,7 +254,7 @@ class Command(BaseCommand):
             ])
 
         # Registration multi-pages
-        for multipage in RegistrationMultiPage.objects.select_related("company").iterator():
+        for multipage in RegistrationMultiPage.objects.select_related("company"):
             available_states_ids = list(multipage.available_states.values_list("id", flat=True))
 
             if multipage.url_type == "location_filtered":
@@ -275,8 +276,8 @@ class Command(BaseCommand):
         course_urls: list[dict] = []
 
         # Companies of type Course
-        for company in Company.objects.filter(type__name="Education").prefetch_related("company_faqs", "blogs"):
-            slug = company.slug
+        for company in Company.objects.filter(type__name="Education").values("slug"):
+            slug = company["slug"]
             course_urls.extend([
                 {"loc": f"/{slug}/", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/about-us", "changefreq": "weekly", "priority": 1.0},
@@ -286,22 +287,22 @@ class Command(BaseCommand):
                 {"loc": f"/{slug}/view-courses", "changefreq": "weekly", "priority": 1.0},
             ])
 
-            for faq_slug in company.company_faqs.values_list("slug", flat=True):
-                course_urls.append({"loc": f"/{slug}/faqs/{faq_slug}/", "changefreq": "weekly", "priority": 1.0})
+            for faq in FAQ.objects.filter(company__slug = slug).values("slug"):
+                course_urls.append({"loc": f"/{slug}/faqs/{faq['slug']}/", "changefreq": "weekly", "priority": 1.0},)
             
-            for blog_slug in company.faqs.values_list("slug", flat=True):
-                course_urls.append({"loc": f"/{slug}/learn/{blog_slug}/", "changefreq": "weekly", "priority": 1.0})
+            for blog in Blog.objects.filter(company__slug = slug).values("slug"):
+                course_urls.append({"loc": f"/{slug}/learn/{blog['slug']}/", "changefreq": "weekly", "priority": 1.0},)
 
         # Course categories
-        for program in Program.objects.values("company__slug", "slug").iterator():
+        for program in Program.objects.values("company__slug", "slug"):
             course_urls.append({"loc": f"/{program['company__slug']}/{program['slug']}/", "changefreq": "weekly", "priority": 0.6})
 
         # Course subcategories
-        for specialization in Specialization.objects.values("company__slug", "program__slug", "slug").iterator():
+        for specialization in Specialization.objects.values("company__slug", "program__slug", "slug"):
             course_urls.append({"loc": f"/{specialization['company__slug']}/{specialization['program__slug']}/{specialization['slug']}/", "changefreq": "weekly", "priority": 0.6})
 
         # Course detail pages
-        for detail in CourseDetail.objects.select_related("company", "course__program", "course__specialization").iterator():
+        for detail in CourseDetail.objects.select_related("company", "course__program", "course__specialization"):
             course_urls.extend([
                 {"loc": f"/{detail.company.slug}/{detail.course.program.slug}/", "changefreq": "weekly", "priority": 0.9},
                 {"loc": f"/{detail.company.slug}/{detail.course.program.slug}/{detail.course.specialization.slug}/", "changefreq": "weekly", "priority": 0.9},
@@ -309,7 +310,7 @@ class Command(BaseCommand):
             ])
 
         # Course multi-pages
-        for multipage in CourseMultiPage.objects.select_related("company").iterator():
+        for multipage in CourseMultiPage.objects.select_related("company"):
             available_states_ids = list(multipage.available_states.values_list("id", flat=True))
 
             if multipage.url_type == "location_filtered":
@@ -331,8 +332,8 @@ class Command(BaseCommand):
         service_urls: list[dict] = []
 
         # Companies of type Service
-        for company in Company.objects.filter(type__name="Service").prefetch_related("company_faqs", "blogs"):
-            slug = company.slug
+        for company in Company.objects.filter(type__name="Service").values("slug"):
+            slug = company["slug"]
             service_urls.extend([
                 {"loc": f"/{slug}/", "changefreq": "weekly", "priority": 1.0},
                 {"loc": f"/{slug}/about-us", "changefreq": "weekly", "priority": 1.0},
@@ -342,22 +343,22 @@ class Command(BaseCommand):
                 {"loc": f"/{slug}/view-services", "changefreq": "weekly", "priority": 1.0},
             ])
 
-            for faq_slug in company.company_faqs.values_list("slug", flat=True):
-                service_urls.append({"loc": f"/{slug}/faqs/{faq_slug}/", "changefreq": "weekly", "priority": 1.0})
+            for faq in FAQ.objects.filter(company__slug = slug).values("slug"):
+                service_urls.append({"loc": f"/{slug}/faqs/{faq['slug']}/", "changefreq": "weekly", "priority": 1.0},)
             
-            for blog_slug in company.faqs.values_list("slug", flat=True):
-                service_urls.append({"loc": f"/{slug}/learn/{blog_slug}/", "changefreq": "weekly", "priority": 1.0})
+            for blog in Blog.objects.filter(company__slug = slug).values("slug"):
+                service_urls.append({"loc": f"/{slug}/learn/{blog['slug']}/", "changefreq": "weekly", "priority": 1.0},)
 
         # Service categories
-        for category in ServiceCategory.objects.values("company__slug", "slug").iterator():
+        for category in ServiceCategory.objects.values("company__slug", "slug"):
             service_urls.append({"loc": f"/{category['company__slug']}/{category['slug']}/", "changefreq": "weekly", "priority": 0.6})
 
         # Service subcategories
-        for sub_category in ServiceSubCategory.objects.values("company__slug", "category__slug", "slug").iterator():
+        for sub_category in ServiceSubCategory.objects.values("company__slug", "category__slug", "slug"):
             service_urls.append({"loc": f"/{sub_category['company__slug']}/{sub_category['category__slug']}/{sub_category['slug']}/", "changefreq": "weekly", "priority": 0.6})
 
         # Service detail pages
-        for detail in ServiceDetail.objects.select_related("company", "service__category", "service__sub_category").iterator():
+        for detail in ServiceDetail.objects.select_related("company", "service__category", "service__sub_category"):
             service_urls.extend([
                 {"loc": f"/{detail.company.slug}/{detail.service.category.slug}/", "changefreq": "weekly", "priority": 0.9},
                 {"loc": f"/{detail.company.slug}/{detail.service.category.slug}/{detail.service.sub_category.slug}/", "changefreq": "weekly", "priority": 0.9},
@@ -365,7 +366,7 @@ class Command(BaseCommand):
             ])
 
         # Service multi-pages
-        for multipage in ServiceMultiPage.objects.select_related("company").iterator():
+        for multipage in ServiceMultiPage.objects.select_related("company"):
             available_states_ids = list(multipage.available_states.values_list("id", flat=True))
 
             if multipage.url_type == "location_filtered":
@@ -407,37 +408,26 @@ class Command(BaseCommand):
             ).values_list("id", "slug")
         )
 
-        location_tag_ids = [t[0] for t in location_tags]
-        location_tag_slugs = [t[1] for t in location_tags]
-
-        non_location_tag_slugs = list(
-            MetaTag.objects.exclude(id__in=location_tag_ids)
-            .values_list("slug", flat=True)
-        )
-
-        tag_urls.extend(
-            [{"loc": f"/tag/{slug}/", "changefreq": "monthly", "priority": 0.8}
-            for slug in non_location_tag_slugs]
-        )
+        location_tag_ids = [tag[0] for tag in location_tags]
+        location_tag_slugs = [tag[1] for tag in location_tags]
         
-        place_slugs = [s for s in generate_location_url_slugs() if s]
+        non_location_tag_slugs = list(MetaTag.objects.exclude(id__in = location_tag_ids).values_list("slug", flat=True))
 
-        location_tag_fixed = [
-            (tag_slug, tag_slug.replace("place_name", "{}"))
-            for tag_slug in location_tag_slugs
-        ]
-
-        for original_slug, slug_template in location_tag_fixed:
-            tag_urls.extend(
-                [{"loc": f"/tag/{slug_template.format(place_slug)}/",
-                "changefreq": "monthly",
-                "priority": 0.8}
-                for place_slug in place_slugs]
+        for tag_slug in non_location_tag_slugs:
+            tag_urls.append(
+                {"loc": f"/tag/{tag_slug}/", "changefreq": "monthly", "priority": 0.8}
             )
 
-        chunk_write(sitemap_dir, base, tag_urls, "sitemap-tag", out_files)
-        self.stdout.write(self.style.SUCCESS(f"✓ tags: {len(tag_urls)} urls"))
+        place_slugs = [slug for slug in generate_location_url_slugs() if slug]
 
+        for tag_slug in location_tag_slugs:
+            for place_slug in place_slugs:
+                tag_urls.append(
+                    {"loc": f"/tag/{tag_slug.replace('place_name', place_slug)}/", "changefreq": "monthly", "priority": 0.8}
+                )
+
+        chunk_write(sitemap_dir, base, tag_urls, "sitemap-tag", out_files)
+        self.stdout.write(self.style.SUCCESS(f"✓ tags: {len(tag_urls)} urls")) 
 
         # -----------------------------
         # 🔹 State SITEMAPS
@@ -471,305 +461,223 @@ class Command(BaseCommand):
         # 🔹 Registration Sub Type Listing
         # -----------------------------
         sub_type_listing_urls = []
-
         state_slugs = generate_state_slugs()
         district_slugs = generate_district_slugs()
         district_dicts = generate_district_dicts()
-        
-        sub_types = list(
-            RegistrationSubType.objects.filter(
-                hide_from_main_listing=False
-            ).values("slug", "location_slug")
-        )
-        
-        page_slugs = [
-            st["location_slug"] or st["slug"]
-            for st in sub_types
-        ]
-        
-        sub_type_listing_urls.extend(
-            [{"loc": f"/{state}/startup-services", "changefreq": "monthly", "priority": 0.8}
-            for state in state_slugs]
-        )
 
-        sub_type_listing_urls.extend(
-            [{"loc": f"/{state}/startup-services/{page}-{state}", "changefreq": "monthly", "priority": 0.8}
-            for state in state_slugs
-            for page in page_slugs]
-        )
-        
-        sub_type_listing_urls.extend(
-            [{"loc": f"/{district}/startup-services", "changefreq": "monthly", "priority": 0.8}
-            for district in district_slugs]
-        )
-        
-        sub_type_listing_urls.extend(
-            [{"loc": f"/{d['state_slug']}/startup-services/{page}-{d['slug']}", 
-            "changefreq": "monthly", "priority": 0.8}
-            for d in district_dicts
-            for page in page_slugs]
-        )
-        
+        sub_types = RegistrationSubType.objects.filter(
+            hide_from_main_listing = False
+        ).values("slug", "location_slug")
+
+        for state_slug in state_slugs:
+            sub_type_listing_urls.append(
+                {"loc": f"/{state_slug}/startup-services", "changefreq": "monthly", "priority": 0.8}
+            )
+
+            for sub_type in sub_types.iterator():
+                page_slug = sub_type["location_slug"] or sub_type["slug"]
+
+                sub_type_listing_urls.append(
+                    {"loc": f"/{state_slug}/startup-services/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
+                )
+
+        for district_slug in district_slugs:
+            sub_type_listing_urls.append(
+                {"loc": f"/{district_slug}/startup-services", "changefreq": "monthly", "priority": 0.8}
+            )
+
+        for district in district_dicts:
+            for sub_type in sub_types.iterator():
+                page_slug = sub_type["location_slug"] or sub_type["slug"]
+
+                sub_type_listing_urls.append(
+                    {"loc": f"/{district['state_slug']}/startup-services/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
+                )
+
         chunk_write(sitemap_dir, base, sub_type_listing_urls, "sitemap-registration-sub-type", out_files)
-
-        self.stdout.write(self.style.SUCCESS(
-            f"✓ Registration Sub Type Listing: {len(sub_type_listing_urls)} urls"
-        ))
-
+        self.stdout.write(self.style.SUCCESS(f"✓ Registration Sub Type Listing: {len(sub_type_listing_urls)} urls"))
 
         # -----------------------------
         # 🔹 Product Sub Category Listing
         # -----------------------------
         product_sub_category_listing_urls = []
-        
         state_slugs = generate_state_slugs()
         district_slugs = generate_district_slugs()
         district_dicts = generate_district_dicts()
-        
-        sub_categories = list(
-            ProductSubCategory.objects.filter(
-                hide_from_main_listing=False
-            ).values("slug", "location_slug")
-        )
-        
-        page_slugs = [
-            sc["location_slug"] or sc["slug"]
-            for sc in sub_categories
-        ]
-        
-        product_sub_category_listing_urls.extend(
-            [{"loc": f"/{state}/more-products", "changefreq": "monthly", "priority": 0.8}
-            for state in state_slugs]
-        )
-        
-        product_sub_category_listing_urls.extend(
-            [{"loc": f"/{state}/more-products/{page}-{state}", "changefreq": "monthly", "priority": 0.8}
-            for state in state_slugs
-            for page in page_slugs]
-        )
-        
-        product_sub_category_listing_urls.extend(
-            [{"loc": f"/{district}/more-products", "changefreq": "monthly", "priority": 0.8}
-            for district in district_slugs]
-        )
-        
-        product_sub_category_listing_urls.extend(
-            [{"loc": f"/{d['state_slug']}/more-products/{page}-{d['slug']}", 
-            "changefreq": "monthly", "priority": 0.8}
-            for d in district_dicts
-            for page in page_slugs]
-        )
-        
+
+        sub_categories = ProductSubCategory.objects.filter(
+            hide_from_main_listing = False
+        ).values("slug", "location_slug")
+
+        for state_slug in state_slugs:
+            product_sub_category_listing_urls.append(
+                {"loc": f"/{state_slug}/more-products", "changefreq": "monthly", "priority": 0.8}
+            )
+
+            for sub_category in sub_categories.iterator():
+                page_slug = sub_category["location_slug"] or sub_category["slug"]
+
+                product_sub_category_listing_urls.append(
+                    {"loc": f"/{state_slug}/more-products/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
+                )
+
+        for district_slug in district_slugs:
+            product_sub_category_listing_urls.append(
+                {"loc": f"/{district_slug}/more-products", "changefreq": "monthly", "priority": 0.8}
+            )
+
+        for district in district_dicts:
+            for sub_category in sub_categories.iterator():
+                page_slug = sub_category["location_slug"] or sub_category["slug"]
+
+                product_sub_category_listing_urls.append(
+                    {"loc": f"/{district['state_slug']}/more-products/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
+                )
+
         chunk_write(sitemap_dir, base, product_sub_category_listing_urls, "sitemap-product-sub-category", out_files)
-
-        self.stdout.write(self.style.SUCCESS(
-            f"✓ Product Sub Category Listing: {len(product_sub_category_listing_urls)} urls"
-        ))
-
+        self.stdout.write(self.style.SUCCESS(f"✓ Product Sub Category Listing: {len(product_sub_category_listing_urls)} urls"))
 
         # -----------------------------
         # 🔹 Service Sub Category Listing
         # -----------------------------
         service_sub_category_listing_urls = []
-
         state_slugs = generate_state_slugs()
         district_slugs = generate_district_slugs()
         district_dicts = generate_district_dicts()
-        
-        sub_categories = list(
-            ServiceSubCategory.objects.filter(
-                hide_from_main_listing=False
-            ).values("slug", "location_slug")
-        )
-        
-        page_slugs = [
-            sc["location_slug"] or sc["slug"]
-            for sc in sub_categories
-        ]
-        
-        service_sub_category_listing_urls.extend(
-            [
-                {"loc": f"/{state}/more-services", "changefreq": "monthly", "priority": 0.8}
-                for state in state_slugs
-            ]
-        )
-        
-        service_sub_category_listing_urls.extend(
-            [
-                {"loc": f"/{state}/more-services/{page}-{state}", "changefreq": "monthly", "priority": 0.8}
-                for state in state_slugs
-                for page in page_slugs
-            ]
-        )
-        
-        service_sub_category_listing_urls.extend(
-            [
-                {"loc": f"/{district}/more-services", "changefreq": "monthly", "priority": 0.8}
-                for district in district_slugs
-            ]
-        )
-        
-        service_sub_category_listing_urls.extend(
-            [
-                {"loc": f"/{d['state_slug']}/more-services/{page}-{d['slug']}", "changefreq": "monthly", "priority": 0.8}
-                for d in district_dicts
-                for page in page_slugs
-            ]
-        )
+
+        sub_categories = ServiceSubCategory.objects.filter(
+            hide_from_main_listing = False
+        ).values("slug", "location_slug")
+
+        for state_slug in state_slugs:
+            service_sub_category_listing_urls.append(
+                {"loc": f"/{state_slug}/more-services", "changefreq": "monthly", "priority": 0.8}
+            )
+
+            for sub_category in sub_categories.iterator():
+                page_slug = sub_category["location_slug"] or sub_category["slug"]
+
+                service_sub_category_listing_urls.append(
+                    {"loc": f"/{state_slug}/more-services/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
+                )
+
+        for district_slug in district_slugs:
+            service_sub_category_listing_urls.append(
+                {"loc": f"/{district_slug}/more-services", "changefreq": "monthly", "priority": 0.8}
+            )
+
+        for district in district_dicts:
+            for sub_category in sub_categories.iterator():
+                page_slug = sub_category["location_slug"] or sub_category["slug"]
+
+                service_sub_category_listing_urls.append(
+                    {"loc": f"/{district['state_slug']}/more-services/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
+                )
 
         chunk_write(sitemap_dir, base, service_sub_category_listing_urls, "sitemap-service-sub-category", out_files)
-
-        self.stdout.write(
-            self.style.SUCCESS(f"✓ Service Sub Category Listing: {len(service_sub_category_listing_urls)} urls")
-        )
-
+        self.stdout.write(self.style.SUCCESS(f"✓ Service Sub Category Listing: {len(service_sub_category_listing_urls)} urls"))
 
         # -----------------------------
         # 🔹 Course Specialization Listing
         # -----------------------------
         specification_listing_urls = []
-        
         state_slugs = generate_state_slugs()
         district_slugs = generate_district_slugs()
         district_dicts = generate_district_dicts()
-        
-        specializations = list(
-            Specialization.objects.filter(
-                hide_from_main_listing=False
-            ).values("slug", "location_slug")
-        )
-        
-        page_slugs = [
-            s["location_slug"] or s["slug"]
-            for s in specializations
-        ]
-        
-        specification_listing_urls.extend(
-            [
-                {"loc": f"/{state}/more-courses", "changefreq": "monthly", "priority": 0.8}
-                for state in state_slugs
-            ]
-        )
-        
-        specification_listing_urls.extend(
-            [
-                {"loc": f"/{state}/more-courses/{page}-{state}", "changefreq": "monthly", "priority": 0.8}
-                for state in state_slugs
-                for page in page_slugs
-            ]
-        )
-        
-        specification_listing_urls.extend(
-            [
-                {"loc": f"/{district}/more-courses", "changefreq": "monthly", "priority": 0.8}
-                for district in district_slugs
-            ]
-        )
-        
-        specification_listing_urls.extend(
-            [
-                {"loc": f"/{d['state_slug']}/more-courses/{page}-{d['slug']}", "changefreq": "monthly", "priority": 0.8}
-                for d in district_dicts
-                for page in page_slugs
-            ]
-        )
+
+        specializations = Specialization.objects.filter(
+            hide_from_main_listing = False
+        ).values("slug", "location_slug")
+
+        for state_slug in state_slugs:
+            specification_listing_urls.append(
+                {"loc": f"/{state_slug}/more-courses", "changefreq": "monthly", "priority": 0.8}
+            )
+
+            for specialization in specializations.iterator():
+                page_slug = specialization["location_slug"] or specialization["slug"]
+
+                specification_listing_urls.append(
+                    {"loc": f"/{state_slug}/more-courses/{page_slug}-{state_slug}", "changefreq": "monthly", "priority": 0.8}
+                )
+
+        for district_slug in district_slugs:
+            specification_listing_urls.append(
+                {"loc": f"/{district_slug}/more-courses", "changefreq": "monthly", "priority": 0.8}
+            )
+
+        for district in district_dicts:
+            for specialization in specializations.iterator():
+                page_slug = specialization["location_slug"] or specialization["slug"]
+
+                specification_listing_urls.append(
+                    {"loc": f"/{district['state_slug']}/more-courses/{page_slug}-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
+                )
 
         chunk_write(sitemap_dir, base, specification_listing_urls, "sitemap-course-specialization", out_files)
-
-        self.stdout.write(
-            self.style.SUCCESS(f"✓ Course Specialization Listing: {len(specification_listing_urls)} urls")
-        )
-
+        self.stdout.write(self.style.SUCCESS(f"✓ Course Specialization Listing: {len(specification_listing_urls)} urls"))
 
         # -----------------------------
         # 🔹 CSC Listing
         # -----------------------------
         center_urls = []
-
         state_slugs = generate_state_slugs()
         district_slugs = generate_district_slugs()
         district_dicts = generate_district_dicts()
         place_dicts = generate_place_dicts()
-        state_dicts = generate_state_dicts()
-        district_dicts_full = generate_district_dicts()
 
-        norm = normalize 
-
-        state_lookup = {norm(item["name"]): item["slug"] for item in state_dicts}
+        state_lookup = {
+            normalize(item["name"]): item["slug"]
+            for item in generate_state_dicts()
+        }        
 
         district_lookup = {
-            f"{norm(item['name'])}-{norm(item['state_name'])}": item["slug"]
-            for item in district_dicts_full
+            f"{normalize(item['name'])}-{normalize(item['state_name'])}": item["slug"]
+            for item in generate_district_dicts()
         }
-        
-        state_csc_centers = list(
-            CscCenter.objects.filter(
-                district_name__isnull=True,
-                state_name__isnull=False
-            ).values("slug", "state_name")
-        )
 
-        district_csc_centers = list(
-            CscCenter.objects.filter(
-                district_name__isnull=False,
-                state_name__isnull=False
-            ).values("slug", "district_name", "state_name")
-        )
-                        
+        state_csc_centers = CscCenter.objects.filter(district_name__isnull = True, state_name__isnull = False).values("slug", "state_name")
+        district_csc_centers = CscCenter.objects.filter(district_name__isnull = False, state_name__isnull = False).values("slug", "district_name", "state_name")        
 
-        center_urls.extend(
-            {"loc": f"/{slug}/csc/", "changefreq": "monthly", "priority": 0.8}
-            for slug in state_slugs
-        )
+        for state_slug in state_slugs:
+            center_urls.append(
+                {"loc": f"/{state_slug}/csc/", "changefreq": "monthly", "priority": 0.8}
+            )
 
-        center_urls.extend(
-            {"loc": f"/{slug}/csc/", "changefreq": "monthly", "priority": 0.8}
-            for slug in district_slugs
-        )
+        for slug in district_slugs:
+            center_urls.append(
+                {"loc": f"/{slug}/csc/", "changefreq": "monthly", "priority": 0.8}
+            )
 
-        center_urls.extend(
-            {
-                "loc": f"/{d['state_slug']}/csc/common-service-center-{d['slug']}",
-                "changefreq": "monthly",
-                "priority": 0.8,
-            }
-            for d in district_dicts
-        )
+        for district in district_dicts:
+            center_urls.append(
+                {"loc": f"/{district['state_slug']}/csc/common-service-center-{district['slug']}", "changefreq": "monthly", "priority": 0.8}
+            )
 
-        center_urls.extend(
-            {
-                "loc": f"/{p['district_slug']}/csc/common-service-center-{p['slug']}",
-                "changefreq": "monthly",
-                "priority": 0.8,
-            }
-            for p in place_dicts
-        )
-        
+        for place in place_dicts:
+            center_urls.append(
+                {"loc": f"/{place['district_slug']}/csc/common-service-center-{place['slug']}", "changefreq": "monthly", "priority": 0.8}
+            )
 
         for center in state_csc_centers:
-            state_name = center["state_name"]
-            if not state_name:
+            center_state_name = center.get("state_name")
+            if not center_state_name:
                 continue
-                        
-            slug = state_lookup.get(norm(state_name))
-            if slug:
+            state_slug = normalize(state_lookup.get(center_state_name))
+            if state_slug:
                 center_urls.append(
-                    {"loc": f"/{slug}/csc/{center['slug']}", "changefreq": "monthly", "priority": 0.8}
-                )
-        
+                    {"loc": f"/{state_slug}/csc/{center['slug']}", "changefreq": "monthly", "priority": 0.8}
+                )        
 
-        for center in district_csc_centers:
-            key = f"{norm(center['district_name'])}-{norm(center['state_name'])}"
-            district_slug = district_lookup.get(key)
-
+        for center in district_csc_centers:            
+            district_slug = district_lookup.get(f"{normalize(center['district_name'])}-{normalize(center['state_name'])}")
             if district_slug:
                 center_urls.append(
                     {"loc": f"/{district_slug}/csc/{center['slug']}", "changefreq": "monthly", "priority": 0.8}
                 )
-        
+
         chunk_write(sitemap_dir, base, center_urls, "sitemap-csc", out_files)
         self.stdout.write(self.style.SUCCESS(f"✓ CSC Listing: {len(center_urls)} urls"))
-
 
         # ───────────────── INDEX ─────────────────
         write_index(sitemap_dir, base, out_files)
