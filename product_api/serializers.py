@@ -8,7 +8,8 @@ from product.models import (
     Product, Review, Category, ProductDetailPage, Enquiry, 
     SubCategory, Feature, Timeline,MultiPage,
     Faq, BulletPoint, MultiPageFaq, MultiPageBulletPoint,
-    MultiPageFeature, MultiPageTimeline, TextEditor
+    MultiPageFeature, MultiPageTimeline, TextEditor, Cart,
+    Color
     )
 from locations.models import UniqueState
 from meta_api.serializers import MetaTagSerializer, MiniMetaTagSerializer
@@ -312,6 +313,7 @@ class DetailSerializer(serializers.ModelSerializer):
     rating_count = serializers.CharField(source = "product.get_rating_count", read_only = True)
     price = serializers.CharField(source = "product.price", read_only = True)
     sku = serializers.CharField(source = "product.sku", read_only = True)    
+    stock = serializers.CharField(source = "product.stock", read_only = True)    
 
     features = FeatureSerializer(many=True)    
     bullet_points = BulletPointSerializer(many=True, read_only=True)    
@@ -338,7 +340,7 @@ class DetailSerializer(serializers.ModelSerializer):
             "whatsapp", "external_link", "buy_now_action",
             "category_slug", "sub_category_slug", 
             "company_sub_type", "price", "sku", "size",
-            "dimension", "colors"
+            "dimension", "colors", "stock"
             ]
 
     def get_colors(self, obj):
@@ -738,3 +740,26 @@ class EnquirySerializer(serializers.ModelSerializer):
         data.update(cleaned_data)        
         
         return data
+    
+
+class CartSerializer(serializers.ModelSerializer):
+    product = serializers.SlugRelatedField(
+        queryset=Product.objects.all(),
+        slug_field="slug",
+        required=True
+    )
+    color = serializers.SlugRelatedField(
+        queryset=Color.objects.all(),
+        slug_field="slug",
+        required=True
+    )
+    username = serializers.CharField(source = "user.username", read_only = True)
+
+    class Meta:
+        model = Cart
+        fields = [
+            "id", "product", "username", "quantity", "color", "slug", "created", 
+            "updated"
+            ]
+        
+    read_only_fields = "__all__"

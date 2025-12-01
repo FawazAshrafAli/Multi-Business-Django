@@ -7,7 +7,7 @@ from .views import (
     ProductSubCategoryViewSet, ReviewViewSet, 
     ProductMultipageViewSet, ProductSliderDetailViewset, 
     DetailListViewset, MinProductCategoryViewSet, 
-    HomeProductCategoryViewSet
+    HomeProductCategoryViewSet, CartViewSet
     )
 
 app_name = "product_api"
@@ -29,6 +29,7 @@ companies_router.register(r'brief-categories', MinProductCategoryViewSet, basena
 companies_router.register(r'sub_categories', ProductSubCategoryViewSet, basename="company-sub_category")
 companies_router.register(r'enquiries', EnquiryViewSet, basename="company-enquiry")
 companies_router.register(r'reviews', ReviewViewSet, basename="company-review")
+companies_router.register(r'cart', CartViewSet, basename="company-cart")
 
 urlpatterns = [
     path('', include(router.urls)),

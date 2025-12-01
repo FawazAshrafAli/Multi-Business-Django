@@ -11,11 +11,12 @@ from .serializers import (
     ProductCategorySerializer, DetailSerializer, ProductSerializer, 
     EnquirySerializer, ProductSubCategorySerializer, ReviewSerializer,
     MultiPageSerializer, MiniProductDetailSerializer, DetailListSerializer,
-    MiniProductCategorySerializer, HomeProductCategorySerializer
+    MiniProductCategorySerializer, HomeProductCategorySerializer,
+    CartSerializer
     )
 from product.models import (
     ProductDetailPage, Category, Product, Enquiry, SubCategory, 
-    Review, MultiPage
+    Review, MultiPage, Cart
     )
 from company.models import Company
 from .paginations import ProductDetailPagination
@@ -435,3 +436,29 @@ class ReviewViewSet(viewsets.ModelViewSet):
                 "error": "Internal server error"
             })
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    
+class CartViewSet(viewsets.ModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    lookup_field = "slug"
+
+    def create(self, request, *args, **kwargs):
+        pass
+
+
+def create_a_cart():
+    from django.contrib.auth.models import User
+    
+    user = User.objects.get(username = "admin")
+    company = Company.objects.get(slug = "e-commerce")
+    product = Product.objects.get(slug__icontains = "asus-rog-zephyrus-g14-2023-76whr-battery-amd-ryzen")
+    color = product.colors.last()
+
+    if not Cart.objects.exists():
+        Cart.objects.create(
+            company = company, user = user, product = product,
+            quantity = 2, color = color
+        )
+
+        print("Created")

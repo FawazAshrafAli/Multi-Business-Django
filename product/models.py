@@ -30,7 +30,7 @@ class Category(models.Model):
         
         super().save(*args, **kwargs)
 
-    def str(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -117,7 +117,7 @@ class SubCategory(models.Model):
         
         super().save(*args, **kwargs)
 
-    def str(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -155,7 +155,7 @@ class Brand(models.Model):
         
         super().save(*args, **kwargs)
 
-    def str(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -185,7 +185,7 @@ class Size(models.Model):
         
         super().save(*args, **kwargs)
 
-    def str(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -214,7 +214,7 @@ class Color(models.Model):
         
         super().save(*args, **kwargs)
 
-    def str(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -262,6 +262,9 @@ class Product(models.Model):
             self.slug = slug
         
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
     @property
     def color_slugs(self):
@@ -313,7 +316,7 @@ class Product(models.Model):
         except (ValueError, TypeError):
             return self.weight
         
-    def str(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -855,3 +858,37 @@ class MultiPage(models.Model):
             return len([product.image for product in self.products.all() if product.image])
         
         return 0
+    
+from django.contrib.auth.models import User
+class Cart(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="cart")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name = "cart")
+    
+    quantity = models.PositiveIntegerField(default=1)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE, null=True, blank=True)
+
+    slug = models.SlugField(null=True, blank=True, max_length=500)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "cart"
+        ordering = ["-updated"]
+
+    def save(self, *args, **kwargs):
+        base_slug = f"{self.product.name}-{self.user.username}"
+        count = 1
+
+        slug = base_slug
+
+        while Cart.objects.filter(slug = slug).exists():
+            slug = f"{base_slug}-{count}"
+            count += 1
+
+        self.slug = slug
+
+        super().save(*args, **kwargs)
+
+
