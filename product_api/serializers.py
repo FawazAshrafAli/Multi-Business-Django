@@ -295,7 +295,7 @@ class DetailListSerializer(serializers.ModelSerializer):
         fields = ["id", "company_slug",
             "meta_title", "meta_description",
             "product", "slug", "summary",
-            "url",            
+            "url", "updated"       
             ]
 
 
@@ -502,6 +502,7 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
     rating_count = serializers.SerializerMethodField()
     full_title = serializers.CharField(source="get_full_title", read_only=True)
+    company_logo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = SubCategory
@@ -510,10 +511,23 @@ class ProductSubCategorySerializer(serializers.ModelSerializer):
             "category_slug", "testimonials", "url", "company_name",
             "price", "stock", "description", "starting_title",
             "ending_title", "location_slug", "content", "full_title",
-            "rating", "company_slug", "meta_description", "rating_count"
+            "rating", "company_slug", "meta_description", "rating_count",
+            "company_logo_url"
             ]
         
     read_only_fields = "__all__"
+
+    def get_company_logo_url(self, obj):
+        if not hasattr(obj, "company"):
+            return None
+        
+        company = obj.company
+
+        request = self.context.get('request')
+        if hasattr(company.logo, 'url'):
+            if request is not None:
+                return request.build_absolute_uri(company.logo.url)
+            return f"{settings.SITE_URL}{company.logo.url}"
 
     def get_faqs(self, obj):
         return list(obj.faqs.values("question", "answer"))

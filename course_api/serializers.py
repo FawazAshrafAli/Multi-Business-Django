@@ -204,7 +204,7 @@ class DetailListSerializer(serializers.ModelSerializer):
         fields = ["id",
             "meta_title", "meta_description", "company_slug", "company_name",
             "summary", "course", "slug", "rating",
-            "published", "url"     
+            "published", "url", "updated"  
             ]    
         
     def get_rating(self, obj):
@@ -390,6 +390,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
     rating_count = serializers.SerializerMethodField()
     testimonials = serializers.SerializerMethodField()
     full_title = serializers.CharField(source="get_full_title", read_only=True)
+    company_logo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Specialization
@@ -402,10 +403,22 @@ class SpecializationSerializer(serializers.ModelSerializer):
             "starting_title", "ending_title", "content",
             "location_slug", "hide_faqs", "description", 
             "meta_description", "testimonials",
-            "full_title", "rating_count"
+            "full_title", "rating_count", "company_logo_url"
             ]
 
     read_only_fields = "__all__"
+
+    def get_company_logo_url(self, obj):
+        if not hasattr(obj, "company"):
+            return None
+        
+        company = obj.company
+
+        request = self.context.get('request')
+        if hasattr(company.logo, 'url'):
+            if request is not None:
+                return request.build_absolute_uri(company.logo.url)
+            return f"{settings.SITE_URL}{company.logo.url}"
 
     def get_testimonials(self, obj):
         testimonials = Testimonial.objects.filter(course__specialization = obj).values(

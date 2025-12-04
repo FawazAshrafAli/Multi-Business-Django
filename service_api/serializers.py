@@ -413,7 +413,7 @@ class DetailListSerializer(serializers.ModelSerializer):
         model = ServiceDetail
         fields = ["id", "company_slug", "company_name",
             "meta_title", "meta_description",
-            "summary", "service", "slug",
+            "summary", "service", "slug", "updated",
             "url", "company_contact", "company_logo_url"
         ]
 
