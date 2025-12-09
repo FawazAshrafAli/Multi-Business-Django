@@ -193,20 +193,17 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         # 'rest_framework.authentication.SessionAuthentication',
-#         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
-#     ),
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.AllowAny',
+#     "DEFAULT_AUTHENTICATION_CLASSES": [
+#         "rest_framework_simplejwt.authentication.JWTAuthentication",
 #     ],
 # }
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "auth_api.authentication.JWTCookieAuthentication",
     ],
 }
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
@@ -216,6 +213,11 @@ SIMPLE_JWT = {
 
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+SECURE_COOKIE_FLAG = not DEBUG
+
+SESSION_COOKIE_SAMESITE = 'Lax' if not SECURE_COOKIE_FLAG else SECURE_COOKIE_FLAG
+CSRF_COOKIE_SAMESITE = 'Lax' if not SECURE_COOKIE_FLAG else SECURE_COOKIE_FLAG
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
@@ -280,7 +282,7 @@ CKEDITOR_CONFIGS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:5005",
+    "http://localhost:5005",
 ]
 
 CORS_ORIGIN_WHITELIST = [
@@ -290,7 +292,7 @@ CORS_ORIGIN_WHITELIST = [
 CORS_ALLOW_CREDENTIALS = True
     
 # SITE_URL = 'https://bzindia.in'
-SITE_URL = 'http://127.0.0.1:5005'
+SITE_URL = 'http://localhost:5005'
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000/",
