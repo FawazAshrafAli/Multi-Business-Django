@@ -12,7 +12,7 @@ from django.db.models import Q
 import logging
 from django.db import transaction
 
-from .models import PostOffice, PoliceStation, Bank, Destination, Court
+from .models import PostOffice, PoliceStation, Bank, Destination, Court, CscCenter
 
 logger = logging.getLogger(__name__)
 
@@ -949,3 +949,18 @@ def clean_number(value):
 
 #     CscCenter.objects.bulk_update(updating_csc_centers, ["decimal_latitude", "decimal_longitude"])
 
+def add_services_to_cscs():
+    csc_centers = CscCenter.objects.filter(all_registrations__isnull = True)
+
+    print(f"\nFound {csc_centers.count()} centers that doesnot have any services.")
+
+    try:
+        ref_center = CscCenter.objects.get(slug = "egate-digital-seva-csc-kandanakam")
+        ref_all_registrations = ref_center.all_registrations
+
+        csc_centers.update(all_registrations = ref_all_registrations)
+
+        print("\nSuccess! Provided Services for all csc centers.")
+        
+    except CscCenter.DoesNotExist:
+        print("\nFailed! Couldn't find ref csc center.")
