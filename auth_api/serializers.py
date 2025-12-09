@@ -13,7 +13,16 @@ class VerifyOtpSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField()
 
+
 class UserSerializer(serializers.ModelSerializer):
+    cart_count = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name"]
+        fields = ["id", "username", "email", "first_name", "last_name", "cart_count"]
+
+    def get_cart_count(self, obj):            
+        if hasattr(obj, "cart"):
+            return obj.cart.count()
+        
+        return 0

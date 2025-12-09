@@ -1,5 +1,6 @@
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
@@ -8,6 +9,8 @@ from authentication.models import LoginOtp
 from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 import logging
 import secrets
 import time
@@ -24,7 +27,7 @@ class UserView(APIView):
 
     def get(self, request):
         serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+        return Response(serializer.data)    
 
 class LoginOTPViewSet(viewsets.ModelViewSet):
     serializer_class = LoginOtpSerializer
@@ -62,21 +65,23 @@ class LoginOTPViewSet(viewsets.ModelViewSet):
             otp = secrets.randbelow(900000) + 100000
             login_otp, created = LoginOtp.objects.update_or_create(email = email, defaults={"otp": otp})
 
-            if not login_otp:
-                return Response({"error": "OTP not found"}, status=status.HTTP_404_NOT_FOUND)
+            print(login_otp.otp)
+
+            # if not login_otp:
+            #     return Response({"error": "OTP not found"}, status=status.HTTP_404_NOT_FOUND)
             
-            serializer = self.serializer_class(login_otp)  
+            # serializer = self.serializer_class(login_otp)  
 
-            mail_send = False
-            retries = 2
+            # mail_send = False
+            # retries = 2
 
-            while mail_send == False and retries > 0:
-                time.sleep(2)            
-                mail_send = self.send_otp_mail(email, login_otp.otp)
-                retries -= 1
+            # while mail_send == False and retries > 0:
+            #     time.sleep(2)            
+            #     mail_send = self.send_otp_mail(email, login_otp.otp)
+            #     retries -= 1
 
-            if mail_send == True:
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # if mail_send == True:
+            #     return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         except Exception as e:
             logger.exception(f"Error in create function LoginOTPView: {e}")
@@ -85,6 +90,9 @@ class LoginOTPViewSet(viewsets.ModelViewSet):
     
 
 class OTPLoginViewSet(viewsets.ViewSet):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
     def create(self, request, *args, **kwargs):
         serializer = VerifyOtpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -97,20 +105,98 @@ class OTPLoginViewSet(viewsets.ViewSet):
         except LoginOtp.DoesNotExist:
             return Response({"error": "OTP not found"}, status=status.HTTP_400_BAD_REQUEST)
         
-        if str(otp_record.otp) != str(otp):
-            print(f"Record OTP: {otp_record.otp}")
-            print(f"Received OTP: {otp}")
+        if str(otp_record.otp) != str(otp):            
             return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if otp_record.updated < timezone.now() - timedelta(minutes=5):
+        if otp_record.updated < (timezone.now() - timedelta(minutes=5)):
             return Response({"error": "OTP expired"}, status=status.HTTP_400_BAD_REQUEST)
         
         user, _ = User.objects.get_or_create(email = email, username = email)
 
         refresh = RefreshToken.for_user(user)
+        access = refresh.access_token   
 
-        return Response({
-            "message": "OTP verified successfully.",
-            "refresh": str(refresh),
-            "access": str(refresh.access_token)
-            }, status=status.HTTP_200_OK)
+        response = Response({"message": "OTP verified successfully"}, status=status.HTTP_200_OK)
+
+        secure_flag = not settings.DEBUG
+
+        cookie_settings = {
+            "httponly": True,
+            # "secure": False,                 # Set False only for localhost dev
+            "secure": secure_flag,   
+            # "samesite": None,
+            "samesite": "Lax",
+            "path": "/",
+            # "domain": "localhost"
+        } 
+
+        response.set_cookie("access_token", str(access), **cookie_settings)
+        response.set_cookie("refresh_token", str(refresh), **cookie_settings)
+
+        return response        
+
+# class CookieTokenRefreshView(TokenRefreshView):
+#     permission_classes = [AllowAny]
+
+#     def post(self, request, *args, **kwargs):
+#         refresh_token = request.COOKIES.get("refresh_token")
+
+#         if not refresh_token:
+#             return Response({"error": "No refresh token"}, status=401)
+
+#         try:
+#             refresh = RefreshToken(refresh_token)
+#             access = refresh.access_token
+
+#             response = Response({"access": str(access)}, status=200)
+#             response.set_cookie(
+#                 "access_token", str(access),
+#                 httponly=True,
+#                 secure=False,   # True in production
+#                 samesite="Lax",
+#                 path="/"
+#             )
+#             return response
+
+#         except Exception:
+#             return Response({"error": "Invalid refresh token"}, status=401)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class CookieTokenRefreshView(TokenRefreshView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        if not refresh_token:
+            return Response({"error": "No refresh token"}, status=401)
+
+        try:
+            refresh = RefreshToken(refresh_token)
+            access = refresh.access_token
+
+            secure_flag = not settings.DEBUG
+
+            response = Response({"access": str(access)}, status=200)
+            response.set_cookie(
+                "access_token", str(access),
+                httponly=True,
+                secure=secure_flag,
+                samesite="Lax" if settings.DEBUG else None,
+                path="/",
+            )
+            return response
+
+        except Exception:
+            return Response({"error": "Invalid refresh token"}, status=401)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        response = Response({"detail": "Logged out"}, status=status.HTTP_200_OK)
+
+        # delete cookies
+        response.delete_cookie("access_token", path="/")
+        response.delete_cookie("refresh_token", path="/")
+
+        return response
