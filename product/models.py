@@ -1,14 +1,17 @@
 from django.db import models
 from django.utils.text import slugify
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from ckeditor.fields import RichTextField
 from datetime import datetime
-from django.db.models import Avg
+from django.db.models import Avg, Sum
 from math import floor
+from django.utils import timezone
 
 from company.models import Company
 from locations.models import UniqueState
 from base.models import MetaTag
+
+User = get_user_model()
 
 class Category(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
@@ -859,9 +862,7 @@ class MultiPage(models.Model):
         
         return 0
     
-from django.contrib.auth.models import User
 class Cart(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="cart")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name = "cart")
     
@@ -878,17 +879,200 @@ class Cart(models.Model):
         ordering = ["-updated"]
 
     def save(self, *args, **kwargs):
-        base_slug = f"{self.product.name}-{self.user.username}"
-        count = 1
+        if not self.slug:
+            base_slug = slugify(f"{self.product.name}-{self.quantity}-{self.user.username}")
+            count = 1
 
-        slug = base_slug
+            slug = base_slug
 
-        while Cart.objects.filter(slug = slug).exists():
-            slug = f"{base_slug}-{count}"
-            count += 1
+            while Cart.objects.filter(slug = slug).exists():
+                slug = f"{base_slug}-{count}"
+                count += 1
 
-        self.slug = slug
+            self.slug = slug
 
         super().save(*args, **kwargs)
 
 
+class DeliveryAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="addresses")
+
+    full_name = models.CharField(max_length=250)
+    phone = models.CharField(max_length=20)
+
+    building = models.CharField(max_length=350)
+    street = models.CharField(max_length=350)
+    landmark = models.CharField(max_length=250, blank=True, null=True)
+
+    city = models.CharField(max_length=250)
+    state = models.CharField(max_length=250)
+    pincode = models.CharField(max_length=250)
+
+    address_type = models.CharField(max_length=250, default="Home")
+    
+    slug = models.SlugField(max_length= 500, blank=True, null=True)
+
+    is_default = models.BooleanField(default=False)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug: 
+            base_slug = slugify(f"{self.user.username}-address")
+
+            slug = f"{base_slug}-1"
+            count = 2
+
+            while DeliveryAddress.objects.filter(slug = slug).exists():
+                slug = f"{base_slug}-{count}"
+                count += 1
+
+            self.slug = slug        
+
+        if not self.user.addresses.filter(is_default = True).exists():
+            self.is_default = True
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        db_table = "delviery_address"
+        ordering = ["user__username"]
+
+
+class OrderPlacedCart(models.Model):
+    product = models.TextField()
+    product_price = models.CharField(max_length=50)
+
+    username = models.CharField(max_length=150)
+    
+    quantity = models.PositiveIntegerField(default=1)
+    color = models.CharField(max_length=150)
+
+    slug = models.SlugField(null=True, blank=True, max_length=500)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "order_place_cart"
+        ordering = ["-updated"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(f"{self.username}-{timezone.now().strftime('%Y%m%d%H%M%S')}")
+            count = 1
+
+            slug = base_slug
+
+            while OrderPlacedCart.objects.filter(slug = slug).exists():
+                slug = f"{base_slug}-{count}"
+                count += 1
+
+            self.slug = slug
+
+        super().save(*args, **kwargs)
+
+
+class OrderPlacedAddress(models.Model):
+    username = models.CharField(max_length=150)
+
+    full_name = models.CharField(max_length=250)
+    phone = models.CharField(max_length=20)
+
+    building = models.CharField(max_length=350)
+    street = models.CharField(max_length=350)
+    landmark = models.CharField(max_length=250, blank=True, null=True)
+
+    city = models.CharField(max_length=250)
+    state = models.CharField(max_length=250)
+    pincode = models.CharField(max_length=250)
+
+    address_type = models.CharField(max_length=250, default="Home")
+    
+    slug = models.SlugField(max_length= 500, blank=True, null=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug: 
+            base_slug = slugify(f"{self.username}-address-{timezone.now().strftime('%Y%m%d%H%M%S')}")
+
+            slug = f"{base_slug}-1"
+            count = 2
+
+            while OrderPlacedAddress.objects.filter(slug = slug).exists():
+                slug = f"{base_slug}-{count}"
+                count += 1
+
+            self.slug = slug                
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        db_table = "order_placed_address"
+        ordering = ["-updated"]
+
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
+    payment_method = models.CharField(max_length=150)
+
+    carts = models.ManyToManyField(OrderPlacedCart)
+    delivery_address = models.ForeignKey(OrderPlacedAddress, on_delete=models.CASCADE)
+
+    status = models.CharField(max_length=150, default="Order Placed")
+
+    order_id = models.SlugField(null=True, blank=True, max_length=500)
+    slug = models.SlugField(null=True, blank=True, max_length=500)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug: 
+            base_slug = slugify(f"{self.user.username}-order-{timezone.now().strftime('%Y%m%d%H%M%S')}")
+
+            slug = f"{base_slug}-1"
+            count = 2
+
+            while Order.objects.filter(slug = slug).exists():
+                slug = f"{base_slug}-{count}"
+                count += 1
+
+            self.slug = slug 
+
+        if not self.order_id:
+            current_date = timezone.now().date()
+            date_string = datetime.strftime(current_date, "%Y%m%d")
+            base_order_id = f"ORD-{date_string}"
+
+            order_count = 2
+            
+            order_id = f"{base_order_id}-{str(1).zfill(3)}"
+
+            while Order.objects.filter(order_id = order_id).exists():
+                formatted_count = str(order_count).zfill(3)
+                order_id = f"{base_order_id}-{formatted_count}"
+
+                order_count += 1
+
+            self.order_id = order_id
+
+        super().save(*args, **kwargs)
+
+    
+    class Meta:
+        db_table = "order"
+        ordering = ["-updated"]
+
+    @property
+    def get_items_count(self):
+        return self.carts.count()
+    
+    @property
+    def get_total_amount(self):
+        total = self.carts.aggregate(total=Sum("product_price"))['total']
+
+        return total

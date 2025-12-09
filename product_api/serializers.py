@@ -9,12 +9,15 @@ from product.models import (
     SubCategory, Feature, Timeline,MultiPage,
     Faq, BulletPoint, MultiPageFaq, MultiPageBulletPoint,
     MultiPageFeature, MultiPageTimeline, TextEditor, Cart,
-    Color
+    Color, DeliveryAddress, Order
     )
 from locations.models import UniqueState
 from meta_api.serializers import MetaTagSerializer, MiniMetaTagSerializer
 from django.db.models import Avg
 from math import floor
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class FaqSerializer(serializers.ModelSerializer):
     class Meta:
@@ -324,6 +327,7 @@ class DetailSerializer(serializers.ModelSerializer):
     size = serializers.CharField(source="product.get_sizes", read_only=True)
     dimension = serializers.CharField(source="product.get_dimension", read_only=True)
     colors = serializers.SerializerMethodField()
+    product_slug = serializers.CharField(source="product.slug", read_only=True)
 
     company_sub_type = serializers.CharField(source="company.sub_type", read_only=True)    
 
@@ -332,7 +336,7 @@ class DetailSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "image_url", "category_name",
             "meta_title", "meta_description", "sub_category_name",
             "brand_name", "reviews", "faqs", "rating", "rating_count",
-            "product", "slug", "summary", "description",
+            "slug", "summary", "description",
             "features", "bullet_points", "hide_features", "hide_bullets",
             "hide_timeline", "timelines", "meta_tags", 
             "toc", "timeline_title", "hide_support_languages",
@@ -340,7 +344,7 @@ class DetailSerializer(serializers.ModelSerializer):
             "whatsapp", "external_link", "buy_now_action",
             "category_slug", "sub_category_slug", 
             "company_sub_type", "price", "sku", "size",
-            "dimension", "colors", "stock"
+            "dimension", "colors", "stock", "product_slug"
             ]
 
     def get_colors(self, obj):
@@ -756,6 +760,7 @@ class EnquirySerializer(serializers.ModelSerializer):
         return data
     
 
+
 class CartSerializer(serializers.ModelSerializer):
     product = serializers.SlugRelatedField(
         queryset=Product.objects.all(),
@@ -765,15 +770,132 @@ class CartSerializer(serializers.ModelSerializer):
     color = serializers.SlugRelatedField(
         queryset=Color.objects.all(),
         slug_field="slug",
-        required=True
-    )
-    username = serializers.CharField(source = "user.username", read_only = True)
+        required=False
+    )    
+    product_name = serializers.CharField(source="product.name", read_only=True)
+    color_name = serializers.CharField(source="color.name", read_only=True)
+    price = serializers.CharField(source="product.price", read_only=True)
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
         fields = [
-            "id", "product", "username", "quantity", "color", "slug", "created", 
-            "updated"
+            "id", "product", "quantity", "color", "slug", "created", 
+            "updated", "product_name", "price", "image_url", "color_name",
+            "slug"
             ]
         
     read_only_fields = "__all__"
+
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+
+        if obj.product.image and hasattr(obj.product.image, "url"):
+            if request is not None:
+                return request.build_absolute_uri(obj.product.image.url)
+            
+            return f"{settings.SITE_URL}/{obj.product.image.url}"
+        
+        return None    
+
+
+class AddressSerializer(serializers.ModelSerializer):        
+    full_name = serializers.CharField(required=True)
+
+    phone = serializers.RegexField(
+        regex=r'^[^A-Za-z]*$',
+        error_messages={
+            'invalid': 'Phone number must not contain alphabetic characters.'
+        },
+        required=True
+    )
+
+    building = serializers.CharField(required=True)
+    street = serializers.CharField(required=True)
+    landmark = serializers.CharField(required=False)
+
+    city = serializers.CharField(required=True)
+    state = serializers.CharField(required=True)
+    pincode = serializers.CharField(required=True)
+
+    address_type = serializers.CharField(required=True)
+
+    username = serializers.CharField(source="user.username", read_only=True)
+
+    class Meta:
+        model = DeliveryAddress
+        fields = [
+            "id", "username", "full_name", "phone", "building", "street",
+            "landmark", "city", "state", "pincode", "address_type", "slug",
+            "is_default"
+
+        ]
+
+    def validate(self, data):
+        # Clean string fields
+        cleaned_data = {}
+        string_fields = ['full_name', 'phone', 'building', 'street', 'city', 'state', 'pincode']
+        
+        for field in string_fields:
+            value = data.get(field, '').strip()
+            if not value:
+                raise serializers.ValidationError(
+                    {field: f"{field.capitalize()} is required and cannot be empty"}
+                )
+            cleaned_data[field] = clean_string(value)
+        
+        # Phone validation (already handled by RegexField)
+        cleaned_data['phone'] = data['phone']
+        
+        # Update data with cleaned values
+        data.update(cleaned_data)        
+        
+        return data
+
+class OrderSerializer(serializers.ModelSerializer):    
+    payment_method = serializers.CharField(required = True)
+    username = serializers.CharField(source="user.username", read_only=True)
+    ordered_date = serializers.SerializerMethodField()
+    items_count = serializers.CharField(source="get_items_count", read_only=True)
+    total_amount = serializers.CharField(source="get_total_amount", read_only=True)
+    address = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = [
+            "id", "payment_method", "slug", "username",
+            "created", "updated", "ordered_date", "items_count",
+            "total_amount", "address", "order_id"
+        ]
+
+    def get_ordered_date(self, obj):
+        if not obj.updated:
+            return None
+        
+        order_time = datetime.strftime(obj.updated, "%d %b %Y")
+        
+        return order_time
+    
+    def get_address(self, obj):
+        address = obj.delivery_address
+
+        if not obj.delivery_address:
+            return None
+        
+        partial_address = ', '.join(
+            part for part in [address.building, address.street, address.landmark, address.city]
+            if part
+        )
+        
+        return {
+            "full_name": address.full_name,
+            "phone": address.phone,
+            "building": address.building,
+            "street": address.street,
+            "landmark": address.landmark,
+            "city": address.city,
+            "state": address.state,
+            "pincode": address.pincode,
+            "address_type": address.address_type,
+            "partial_address": partial_address
+        }

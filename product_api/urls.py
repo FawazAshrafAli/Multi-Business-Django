@@ -7,14 +7,21 @@ from .views import (
     ProductSubCategoryViewSet, ReviewViewSet, 
     ProductMultipageViewSet, ProductSliderDetailViewset, 
     DetailListViewset, MinProductCategoryViewSet, 
-    HomeProductCategoryViewSet, CartViewSet
+    HomeProductCategoryViewSet, CartViewSet, AddressViewSet,
+    OrderViewSet
     )
 
 app_name = "product_api"
 
 router = DefaultRouter()
+cart_router = DefaultRouter()
+address_router = DefaultRouter()
+order_router = DefaultRouter()
 
 router.register(r'companies', ProductCompanyViewSet, basename="company")
+cart_router.register(r'cart', CartViewSet, basename="cart")
+address_router.register(r'address', AddressViewSet, basename="address")
+order_router.register(r'order', OrderViewSet, basename="order")
 
 companies_router = NestedDefaultRouter(router, r'companies', lookup="company")
 
@@ -29,9 +36,12 @@ companies_router.register(r'brief-categories', MinProductCategoryViewSet, basena
 companies_router.register(r'sub_categories', ProductSubCategoryViewSet, basename="company-sub_category")
 companies_router.register(r'enquiries', EnquiryViewSet, basename="company-enquiry")
 companies_router.register(r'reviews', ReviewViewSet, basename="company-review")
-companies_router.register(r'cart', CartViewSet, basename="company-cart")
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('', include(companies_router.urls))
+    path('', include(cart_router.urls)),
+    path('', include(address_router.urls)),
+    path('', include(order_router.urls)),
+    path('', include(companies_router.urls)),
+
 ]
