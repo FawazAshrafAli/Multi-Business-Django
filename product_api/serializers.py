@@ -859,13 +859,16 @@ class OrderSerializer(serializers.ModelSerializer):
     items_count = serializers.CharField(source="get_items_count", read_only=True)
     total_amount = serializers.CharField(source="get_total_amount", read_only=True)
     address = serializers.SerializerMethodField()
+    product_names = serializers.SerializerMethodField()
+    items = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = [
-            "id", "payment_method", "slug", "username",
+            "id", "payment_method", "slug", "username", "status",
             "created", "updated", "ordered_date", "items_count",
-            "total_amount", "address", "order_id"
+            "total_amount", "address", "order_id",
+            "product_names", "items"
         ]
 
     def get_ordered_date(self, obj):
@@ -875,6 +878,26 @@ class OrderSerializer(serializers.ModelSerializer):
         order_time = datetime.strftime(obj.updated, "%d %b %Y")
         
         return order_time
+    
+    def get_product_names(self, obj):
+        return list(obj.carts.values_list("product", flat=True))
+    
+    def get_full_image_url(self, image_url):
+        request = self.context.get('request')
+        if image_url:
+            if request is not None:
+                return request.build_absolute_uri(image_url)
+            return f"{settings.SITE_URL}/{image_url}"
+    
+    def get_items(self, obj):
+        carts = obj.carts.values("product", "venture_name", "product_price", "quantity", "color", "product_image")
+
+        for cart in carts:
+            if cart["product_image"]:
+                full_image_url = self.get_full_image_url(cart["product_image"])
+                cart["product_image"] = full_image_url
+
+        return carts
     
     def get_address(self, obj):
         address = obj.delivery_address

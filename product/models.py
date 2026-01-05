@@ -942,6 +942,8 @@ class DeliveryAddress(models.Model):
 
 class OrderPlacedCart(models.Model):
     product = models.TextField()
+    venture_name = models.CharField(max_length=250)
+    product_image = models.TextField(blank=True, null=True)
     product_price = models.CharField(max_length=50)
 
     username = models.CharField(max_length=150)
@@ -1022,7 +1024,7 @@ class Order(models.Model):
     carts = models.ManyToManyField(OrderPlacedCart)
     delivery_address = models.ForeignKey(OrderPlacedAddress, on_delete=models.CASCADE)
 
-    status = models.CharField(max_length=150, default="Order Placed")
+    status = models.CharField(max_length=150, default="Processing")
 
     order_id = models.SlugField(null=True, blank=True, max_length=500)
     slug = models.SlugField(null=True, blank=True, max_length=500)
@@ -1030,18 +1032,7 @@ class Order(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug: 
-            base_slug = slugify(f"{self.user.username}-order-{timezone.now().strftime('%Y%m%d%H%M%S')}")
-
-            slug = f"{base_slug}-1"
-            count = 2
-
-            while Order.objects.filter(slug = slug).exists():
-                slug = f"{base_slug}-{count}"
-                count += 1
-
-            self.slug = slug 
+    def save(self, *args, **kwargs):        
 
         if not self.order_id:
             current_date = timezone.now().date()
@@ -1060,6 +1051,9 @@ class Order(models.Model):
 
             self.order_id = order_id
 
+        if not self.slug:
+            self.slug = slugify(self.order_id)
+
         super().save(*args, **kwargs)
 
     
@@ -1075,4 +1069,4 @@ class Order(models.Model):
     def get_total_amount(self):
         total = self.carts.aggregate(total=Sum("product_price"))['total']
 
-        return total
+        return total    

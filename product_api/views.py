@@ -1,13 +1,22 @@
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import viewsets, status, serializers
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.shortcuts import get_object_or_404
-from django.http import Http404
-from django.db.models import Q, Count, F, Sum, DecimalField
-from django.db.models.functions import Cast
-from django.db import transaction
-from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
+
+from django.db.models import Q, Count, F, Sum, DecimalField
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from django.db.models.functions import Cast
+from django.http import Http404, HttpResponse
+from django.utils import timezone
+from django.db import transaction
+from django.conf import settings
+
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+from io import BytesIO
+
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -25,7 +34,7 @@ from product.models import (
     OrderPlacedAddress
     )
 from company.models import Company
-from .paginations import ProductDetailPagination
+from .paginations import ProductDetailPagination, OrderPagination
 
 import logging
 
@@ -463,7 +472,9 @@ class CartViewSet(viewsets.ModelViewSet):
             
             cart, _ = Cart.objects.update_or_create(user = user, product = product, color = color, defaults={"quantity": quantity})
 
-            return Response({"success": True, "message": "Product added to cart"}, status=status.HTTP_200_OK)        
+            cart_count = user.cart.count()
+
+            return Response({"success": True, "message": "Product added to cart", "cart_count": cart_count}, status=status.HTTP_200_OK)        
         except Exception as e:
             print(e)
 
@@ -531,11 +542,14 @@ class CartViewSet(viewsets.ModelViewSet):
         
         cart_objs.delete()
 
+        cart_count = user.cart.count()
+
         return Response(
             {
                 "success": True,
-                "message": "Removed item from cart"
-            }, status=status.HTTP_204_NO_CONTENT)        
+                "message": "Removed item from cart",
+                "cart_count": cart_count
+            }, status=status.HTTP_200_OK)        
         
 
 class AddressViewSet(viewsets.ModelViewSet):
@@ -635,8 +649,33 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
-    queryset = Order.objects.all()
+    queryset = Order.objects.none()
     lookup_field = "slug"
+    pagination_class = OrderPagination
+
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        status = self.request.query_params.get("status")
+        months = self.request.query_params.get("months")
+
+        filters = {"user": user}
+
+        if status and status != "all":
+            filters["status"] = status
+
+        if months and months != "all":
+            total_days = int(months) * 30
+            starting_date = timezone.now() - timedelta(days = total_days)
+            filters["updated__gt"] = starting_date
+
+        return Order.objects.filter(**filters).select_related(
+            "user", "delivery_address"
+            ).prefetch_related(
+                "carts"
+            ).order_by("-updated")
 
     def create(self, request, *args, **kwargs):
         serializer = OrderSerializer(data = request.data)
@@ -670,7 +709,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             created_carts = []
             for item in cart_items:
                 cart = OrderPlacedCart.objects.create(
-                    product=item.product,
+                    product=item.product.name,
+                    venture_name = item.product.company.name,
+                    product_image = item.product.image.url if hasattr(item.product, "image") else None,
                     product_price=item.product.price,
                     username=user.username,
                     quantity=item.quantity,
@@ -682,10 +723,13 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             user.cart.all().delete()
 
+            cart_count = user.cart.count()
+
             return Response({
                 "success": True, 
-                "message": "Order Placed. Awaiting Payment",
-                "order_slug": order.slug
+                "message": "Order Placed",
+                "order_slug": order.slug,
+                "cart_count": cart_count
                 },
                 status=status.HTTP_200_OK)
 
@@ -693,10 +737,20 @@ class OrderViewSet(viewsets.ModelViewSet):
     def recent(self, request, *args, **kwargs):
         try:
             user = request.user
-            recent_order = user.orders.all().order_by("-created").first()
+            recent_order = user.orders.all().select_related(
+            "user", "delivery_address"
+            ).prefetch_related(
+                "carts"
+            ).order_by("-created").first()
+
+            expiry_time = recent_order.updated + timedelta(minutes=2)
+            current_time = timezone.now()
 
             if not recent_order:
-                return Response({"error": "No recent order"}, status=status.HTTP_400_BAD_REQUEST)    
+                return Response({"error": "No recent order"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if current_time > expiry_time :
+                return Response({"error": "Expired", "expired": True}, status=status.HTTP_400_BAD_REQUEST)
             
             serializer = self.get_serializer(recent_order)
         
@@ -705,3 +759,29 @@ class OrderViewSet(viewsets.ModelViewSet):
                 , status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)    
+        
+    def render_to_pdf(self, template_src, context_dict={}):
+        html = render_to_string(template_src, context_dict)
+        result = BytesIO()
+        pdf = pisa.CreatePDF(html, dest=result)
+        if pdf.err:
+            return None
+        return result.getvalue()
+        
+    @action(methods=["get"], detail=True)
+    def download_invoice(self, request, slug=None):
+        try:            
+            order = Order.objects.get(slug=slug, user=request.user)
+            items = order.carts.all()
+            address = order.delivery_address
+            logo = f"{settings.SITE_URL}/static/w3/images/logo.svg"
+            
+            print(logo)
+
+            pdf = self.render_to_pdf("invoice.html", {"order": order, "items": items, "address": address, "logo": logo})
+
+            response = HttpResponse(pdf, content_type="application/pdf")
+            response["Content-Disposition"] = f'attachment; filename="invoice_{order.slug}.pdf"'
+            return response
+        except Order.DoesNotExist:
+            raise Http404("Order not found")

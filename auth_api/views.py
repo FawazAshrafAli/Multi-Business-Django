@@ -11,6 +11,7 @@ from django.conf import settings
 from datetime import timedelta
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from utility.text import clean_string
 import logging
 import secrets
 import time
@@ -52,36 +53,32 @@ class LoginOTPViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            email = request.data.get("email")
+            email = clean_string(request.data.get("email", ""))
 
             if not email:
                 return Response({"error": "Email was not provided"}, status=status.HTTP_400_BAD_REQUEST)  
-
-            # recent_otp = LoginOtp.objects.filter(email = email).first()
-
-            # if recent_otp and recent_otp.updated < timezone.now() - timedelta(seconds=30):
-            #     return Response({"error": "Try again after 30 seconds"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if email != "w3digitalpmna@gmail.com":
+                return Response({"error": "Test emails only"}, status=status.HTTP_400_BAD_REQUEST)            
 
             otp = secrets.randbelow(900000) + 100000
             login_otp, created = LoginOtp.objects.update_or_create(email = email, defaults={"otp": otp})
 
-            print(login_otp.otp)
+            if not login_otp:
+                return Response({"error": "OTP not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            # if not login_otp:
-            #     return Response({"error": "OTP not found"}, status=status.HTTP_404_NOT_FOUND)
-            
-            # serializer = self.serializer_class(login_otp)  
+            serializer = self.serializer_class(login_otp)  
 
-            # mail_send = False
-            # retries = 2
+            mail_send = False
+            retries = 2
 
-            # while mail_send == False and retries > 0:
-            #     time.sleep(2)            
-            #     mail_send = self.send_otp_mail(email, login_otp.otp)
-            #     retries -= 1
+            while mail_send == False and retries > 0:
+                time.sleep(2)            
+                mail_send = self.send_otp_mail(email, login_otp.otp)
+                retries -= 1
 
-            # if mail_send == True:
-            #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+            if mail_send == True:
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         except Exception as e:
             logger.exception(f"Error in create function LoginOTPView: {e}")
@@ -135,31 +132,6 @@ class OTPLoginViewSet(viewsets.ViewSet):
 
         return response        
 
-# class CookieTokenRefreshView(TokenRefreshView):
-#     permission_classes = [AllowAny]
-
-#     def post(self, request, *args, **kwargs):
-#         refresh_token = request.COOKIES.get("refresh_token")
-
-#         if not refresh_token:
-#             return Response({"error": "No refresh token"}, status=401)
-
-#         try:
-#             refresh = RefreshToken(refresh_token)
-#             access = refresh.access_token
-
-#             response = Response({"access": str(access)}, status=200)
-#             response.set_cookie(
-#                 "access_token", str(access),
-#                 httponly=True,
-#                 secure=False,   # True in production
-#                 samesite="Lax",
-#                 path="/"
-#             )
-#             return response
-
-#         except Exception:
-#             return Response({"error": "Invalid refresh token"}, status=401)
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CookieTokenRefreshView(TokenRefreshView):

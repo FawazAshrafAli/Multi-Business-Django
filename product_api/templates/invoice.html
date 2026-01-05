@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 12px;
+        }
+
+        .invoice-box {
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #eee;
+            line-height: 20px;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        td {
+            vertical-align: top;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        .header-logo {
+            width: 150px;
+            max-width: 150px;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+
+        .items-table th, .items-table td {
+            border: 1px solid #444;
+            padding: 8px;
+        }
+
+        .summary-table td {
+            padding: 5px 8px;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .small-text {
+            font-size: 11px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="invoice-box">
+
+    <!-- HEADER -->
+    <table>
+        <tr>
+            <td style="width: 50%;">
+                <img src="{{ logo }}" class="header-logo">
+            </td>
+            <td style="width: 50%; text-align: right;">
+                <div class="title">INVOICE</div>
+                <strong>Order ID:</strong> {{ order.order_id }}<br>
+                <strong>Date:</strong> {{ order.updated|date:"d M Y" }}<br>
+            </td>
+        </tr>
+    </table>
+
+    <!-- CUSTOMER DETAILS -->
+    <div class="section-title">Billing Details</div>
+    <table>
+        <tr>
+            <td style="width: 50%;">
+                <strong>{{ address.full_name }}</strong><br>
+                {{ address.building }}<br>
+                {{ address.street }}<br>
+                {{ address.landmark }}<br>
+                {{ address.city }}<br>
+                {{ address.pincode }}<br>
+                Phone: {{ address.phone }}
+            </td>
+
+            <td style="width: 50%;">
+                <strong>Payment Method:</strong> {{ order.payment_method }}<br>
+                <strong>Order Placed:</strong> {{ order.updated|date:"d M Y H:i" }}
+            </td>
+        </tr>
+    </table>
+
+    <!-- ITEMS -->
+    <div class="section-title">Items</div>
+
+    <table class="items-table">
+        <tr>
+            <th style="width: 60%;">Product</th>
+            <th style="width: 10%;">Qty</th>
+            <th style="width: 30%;" class="right">Price</th>
+        </tr>
+
+        {% for item in items %}
+        <tr>
+            <td>
+                <strong>{{ item.product }}</strong><br>
+                <span class="small-text">
+                    {{ item.color }} {{ item.size }}
+                </span>
+            </td>
+
+            <td>{{ item.quantity }}</td>
+
+            <td class="right">
+                INR {{ item.product_price }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- SUMMARY -->
+    <div class="section-title">Summary</div>
+
+    <table class="summary-table">
+        <tr>
+            <td style="width: 70%;">Subtotal</td>
+            <td style="width: 30%;" class="right">INR {{ order.get_total_amount }}</td>
+        </tr>
+
+        <tr>
+            <td>Tax</td>
+            <td class="right">INR 0.00</td>
+        </tr>
+
+        <tr>
+            <td>Shipping</td>
+            <td class="right">INR 0.00</td>
+        </tr>
+
+        <tr>
+            <td><strong>Total</strong></td>
+            <td class="right"><strong>INR {{ order.get_total_amount }}</strong></td>
+        </tr>
+    </table>
+
+    <br><br>
+
+    <div>
+        <span class="small-text">
+            This is a computer-generated invoice and does not require a signature.
+        </span>
+    </div>
+
+</div>
+</body>
+</html>
